@@ -431,6 +431,23 @@ body{padding-bottom:calc(var(--tabbar) + env(safe-area-inset-bottom,0px) + 18px)
 .tab-ind::before{content:"";position:absolute;inset:0 22%;border-radius:14px;background:color-mix(in srgb,var(--accent) 16%,transparent)}
 .v-in{animation:viewIn .34s cubic-bezier(.2,.9,.25,1) both}
 @keyframes viewIn{from{opacity:0;transform:translateX(calc(var(--dir,1) * 28px))}}
+
+/* home-screen app shell: one screen-tall column, header / scrolling content / menu bar */
+html.shell,html.shell body{height:var(--app-h);overflow:hidden;overscroll-behavior:none}
+html.shell body{display:flex;flex-direction:column;padding:0;margin:0}
+html.shell body::before{display:none}
+html.shell .top{position:relative;top:0;flex:none;padding-top:calc(env(safe-area-inset-top,0px) + 18px)}
+html.shell main{flex:1;min-height:0;width:100%;max-width:none;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding-bottom:24px}
+html.shell main > *{max-width:620px;margin-left:auto;margin-right:auto}
+html.shell .tabbar{position:relative;flex:none;top:auto;bottom:auto;left:auto;right:auto}
+html.shell .tabbar::after{display:none}
+html.shell .overlay,html.shell .onb{top:0;bottom:auto;height:var(--app-h)}
+html.shell .toast{bottom:auto;top:calc(var(--app-h) - var(--tabbar) - env(safe-area-inset-bottom,0px) - 64px)}
+.upd{position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:90;display:flex;gap:12px;align-items:center;padding:12px 12px 12px 16px;border-radius:18px;
+  background:var(--surface);color:var(--fg);border:1px solid var(--line);box-shadow:0 14px 40px rgba(0,0,0,.35);font-size:13.5px;line-height:1.35;animation:updIn .45s cubic-bezier(.2,.9,.25,1) both}
+.upd b{display:block;font-size:14.5px}
+.upd .btn{flex:none;padding:10px 16px}
+@keyframes updIn{from{transform:translateY(-120%)}}
 </style>
 </head>
 <body>
@@ -1266,7 +1283,7 @@ function nextQuestion(){
   lastId = q.id;
   cur = {q:q, done:false, sel:null, order:q.kind === "mc" ? shuffle(q.o.map(function(_, i){ return i; })) : (q.o ? q.o.map(function(_, i){ return i; }) : null), input:""};
   renderFeed(true);
-  window.scrollTo(0, 0);
+  scrollTop0();
 }
 function ringSvg(done, goal){
   var r = 24, C = 2 * Math.PI * r, f = Math.min(1, done / goal);
@@ -1353,8 +1370,8 @@ function answer(a, btnRect){
   if (card){ card.classList.add(ok ? "hit" : "miss"); }
   if (ok) burst($(".opt.right") || $(".inp"));
   var fbx = $("#v-feed .fb");
-  if (fbx){ var r = fbx.getBoundingClientRect(), tbh = ($(".tabbar") || {offsetHeight:0}).offsetHeight, want = r.top + 150 - (window.innerHeight - tbh);
-    if (want > 0) window.scrollBy({top: want, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"}); }
+  if (fbx){ var r = fbx.getBoundingClientRect(), tbh = ($(".tabbar") || {offsetHeight:0}).offsetHeight, want = r.top + 150 - ($(".tabbar") ? $(".tabbar").getBoundingClientRect().top : window.innerHeight - tbh);
+    if (want > 0) scroller().scrollBy({top: want, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"}); }
   var dn = S.days[dayKey()] || 0; if (dn > 0 && dn % 10 === 0) milestoneDue = true;
   if (leveled) toast("Level up: " + levelName(q.track) + ". Questions get harder now.");
   else if (ok && T().combo > 0 && T().combo % 10 === 0) toast(T().combo + " in a row");
@@ -1375,7 +1392,7 @@ function wireFeed(v){
   if (card) wireSwipe(card);
   sizeCard();
 }
-function atEnd(){ var se = document.scrollingElement || document.documentElement; return se.scrollTop + window.innerHeight >= se.scrollHeight - 4; }
+function atEnd(){ var se = scroller(); return se.scrollTop + se.clientHeight >= se.scrollHeight - 4; }
 function rubber(x, dim){ var c = 0.55; return (x * dim * c) / (dim + c * Math.abs(x)); }
 function wireSwipe(card){
   var y0 = null, x0 = 0, live = false, end = false, hist = [];
@@ -1422,7 +1439,7 @@ function sizeCard(){
   var c = $("#v-feed #qcard"), tb = $(".tabbar");
   if (!c || !tb || view !== "feed") return;
   c.style.minHeight = "";
-  if ((document.scrollingElement || document.documentElement).scrollTop > 2) return;
+  if (scroller().scrollTop > 2) return;
 
 }
 window.addEventListener("resize", function(){ sizeCard(); });
@@ -1541,7 +1558,7 @@ function renderRun(){
   v.innerHTML = html;
   $('[data-act="quit"]', v).addEventListener("click", renderExams);
   $('[data-act="prev"]', v).addEventListener("click", function(){ if (run.i > 0){ run.i--; renderRun(); } });
-  $('[data-act="fwd"]', v).addEventListener("click", function(){ if (run.i < n - 1){ run.i++; renderRun(); window.scrollTo(0, 0); } else finishExam(false); });
+  $('[data-act="fwd"]', v).addEventListener("click", function(){ if (run.i < n - 1){ run.i++; renderRun(); scrollTop0(); } else finishExam(false); });
   $$(".opt", v).forEach(function(b){ b.addEventListener("click", function(){ run.ans[run.i] = +b.getAttribute("data-o"); renderRun(); }); });
   var inp = $("#x-inp", v);
   if (inp){ inp.addEventListener("input", function(){ run.ans[run.i] = inp.value; }); inp.addEventListener("keydown", function(e){ if (e.key === "Enter") $('[data-act="fwd"]', v).click(); }); }
@@ -1581,7 +1598,7 @@ function finishExam(timedOut){
   $('[data-act="back"]', v).addEventListener("click", renderExams);
   $('[data-act="back2"]', v).addEventListener("click", renderExams);
   $('[data-act="again"]', v).addEventListener("click", function(){ startExam(id); });
-  window.scrollTo(0, 0);
+  scrollTop0();
 }
 
 /* ---------------- PROGRESS ---------------- */
@@ -1750,7 +1767,7 @@ function renderMilestone(){
   v.innerHTML = html;
   $('[data-act="m-next"]', v).addEventListener("click", nextQuestion);
   var me = $('[data-act="m-exam"]', v); if (me) me.addEventListener("click", function(){ setView("exams"); });
-  window.scrollTo(0, 0);
+  scrollTop0();
 }
 function shareApp(){
   var url = location.origin + location.pathname.replace(/index\.html$/, "");
@@ -1759,6 +1776,8 @@ function shareApp(){
   else if (navigator.clipboard) navigator.clipboard.writeText(text + " " + url).then(function(){ toast("Link copied."); });
 }
 
+function scroller(){ return document.documentElement.classList.contains("shell") ? document.getElementById("main") : (document.scrollingElement || document.documentElement); }
+function scrollTop0(){ scroller().scrollTop = 0; }
 /* ---------------- shell ---------------- */
 var view = S.view;
 function applyTrack(){
@@ -1785,7 +1804,7 @@ function setView(v){
   if (v === "feed"){ if (!cur || cur.q.track !== S.track) nextQuestion(); else renderFeed(); }
   if (v === "exams" && !run) renderExams();
   if (v === "progress") renderProgress();
-  window.scrollTo(0, 0);
+  scrollTop0();
 }
 function renderAll(){
   if (view === "feed"){ if (!cur || cur.q.track !== S.track) nextQuestion(); else renderFeed(); }
@@ -1806,41 +1825,49 @@ try{ if (navigator.storage && navigator.storage.persist) navigator.storage.persi
 </script>
 
 <script>
+var KLAAR_VERSION = "4b47ed57dc", KLAAR_NEWS = "The menu bar now stays put at the bottom, and you'll see this note whenever there's an update.";
 (function(){
   /* iOS home-screen apps sometimes get a layout viewport shorter than the screen, which leaves a strip under the tab bar.
      Measure it and push the bottom chrome down into that strip. */
   var probe = document.createElement("div");
   probe.style.cssText = "position:fixed;left:0;top:0;width:0;visibility:hidden;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)";
   document.body.appendChild(probe);
-  var fixedProbe = document.createElement("div");
-  fixedProbe.style.cssText = "position:fixed;left:0;bottom:0;width:1px;height:1px;visibility:hidden;pointer-events:none";
-  document.body.appendChild(fixedProbe);
-  var info = {};
+  var info = {}, root = document.documentElement;
+  /* Home-screen app: the whole app is one block exactly as tall as the screen, with the menu bar as its last row.
+     Nothing is pinned to the "viewport", which iOS sometimes reports shorter than the screen, so nothing can move. */
   function fit(){
     var st = window.navigator.standalone === true || (window.matchMedia && matchMedia("(display-mode: standalone)").matches);
     var cs = getComputedStyle(probe), top = parseFloat(cs.paddingTop) || 0, bot = parseFloat(cs.paddingBottom) || 0;
     var portrait = !window.matchMedia || matchMedia("(orientation: portrait)").matches;
     var full = portrait ? Math.max(screen.width, screen.height) : Math.min(screen.width, screen.height);
-    var fb = Math.round(fixedProbe.getBoundingClientRect().bottom);  /* where position:fixed bottom:0 really lands */
-    var gap = st && top > 0 ? Math.round(full - fb) : 0;
-    if (gap < 2 || gap > 140) gap = 0;
-    var pad = st && gap && bot < 1 && /iphone/i.test(navigator.userAgent) && full >= 812 ? 26 : 0;
-    var bar = document.querySelector(".tabbar"), root = document.documentElement;
-    if (gap && bar){
-      root.style.setProperty("--vpad", pad + "px"); root.style.setProperty("--vgap", gap + "px"); root.classList.add("pinbar");
-      root.style.setProperty("--bar-top", (full - bar.offsetHeight) + "px");
-      root.style.setProperty("--full-h", full + "px");
-    } else { root.classList.remove("pinbar"); root.style.setProperty("--vgap", "0px"); root.style.setProperty("--vpad", "0px"); }
-    info = {st:st, full:full, inner:window.innerHeight, fb:fb, top:top, bot:bot, gap:gap, pad:pad};
+    var h = window.innerHeight, d = full - h;
+    if (st && d >= 0 && d <= 140) h = full;
+    root.style.setProperty("--app-h", h + "px");
+    root.classList.toggle("shell", st);
+    info = {st:st, full:full, inner:window.innerHeight, h:h, top:top, bot:bot};
   }
-  window.KLAAR_DIAG = function(){ fit(); return "Screen " + info.full + " · view " + info.inner + "/" + info.fb + " · safe " + info.top + "/" + info.bot + " · fix " + info.gap + "/" + info.pad + (info.st ? " · app" : " · browser"); };
+  window.KLAAR_DIAG = function(){ fit(); return "Screen " + info.full + " · view " + info.inner + " · app " + info.h + " · safe " + info.top + "/" + info.bot + (info.st ? " · home screen" : " · browser") + " · v" + KLAAR_VERSION; };
   fit();
   window.addEventListener("resize", fit);
   window.addEventListener("orientationchange", function(){ setTimeout(fit, 300); });
   window.addEventListener("pageshow", fit);
-  document.addEventListener("visibilitychange", function(){ if (!document.hidden) setTimeout(fit, 120); });
-  [400, 1200, 2500].forEach(function(ms){ setTimeout(fit, ms); });
-  if ("serviceWorker" in navigator) window.addEventListener("load", function(){ navigator.serviceWorker.register("sw.js").catch(function(){}); });
+  window.addEventListener("scroll", function(){ if (root.classList.contains("shell") && window.scrollY) window.scrollTo(0, 0); }, {passive:true});
+
+  /* updates: check when the app comes back to the front; when a new version takes over, offer a one-tap reload */
+  function updateBar(){
+    if (document.getElementById("upd")) return;
+    var u = document.createElement("div"); u.id = "upd"; u.className = "upd"; u.setAttribute("role", "status");
+    u.innerHTML = '<span><b>New version of Klaar</b>' + KLAAR_NEWS + '</span><button class="btn pop">Update</button>';
+    u.querySelector("button").addEventListener("click", function(){ location.reload(); });
+    document.body.appendChild(u);
+  }
+  if ("serviceWorker" in navigator){
+    var hadController = !!navigator.serviceWorker.controller, reg = null;
+    navigator.serviceWorker.addEventListener("controllerchange", function(){ if (hadController) updateBar(); hadController = true; });
+    window.addEventListener("load", function(){ navigator.serviceWorker.register("sw.js").then(function(r){ reg = r; }).catch(function(){}); });
+    document.addEventListener("visibilitychange", function(){ if (!document.hidden){ setTimeout(fit, 120); if (reg) reg.update().catch(function(){}); } });
+    setInterval(function(){ if (reg && !document.hidden) reg.update().catch(function(){}); }, 30 * 60 * 1000);
+  }
   var standalone = window.navigator.standalone === true || (window.matchMedia && matchMedia("(display-mode: standalone)").matches);
   var ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
   var dismissed = false; try{ dismissed = localStorage.getItem("klaarInstallHint") === "no"; }catch(e){}
