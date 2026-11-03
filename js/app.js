@@ -258,7 +258,7 @@ function refreshAiBits(){
 
 /* ---------------- stats ---------------- */
 function topicAcc(tr, topic){ var x = tr.topics[topic]; return x && x.a ? x.ok / x.a : 0.6; }
-function record(q, ok, fromExam, justTaught){
+function record(q, ok, fromExam, fromLesson){
   var tr = S.t[q.track];
   tr.ans++; if (ok) tr.ok++;
   var tp = tr.topics[q.topic] || (tr.topics[q.topic] = {a:0, ok:0});
@@ -269,14 +269,14 @@ function record(q, ok, fromExam, justTaught){
   if (!fromExam){
     tr.combo = ok ? tr.combo + 1 : 0;
     tr.xp += ok ? 10 + Math.min(tr.combo, 10) : 2;
-    /* Just-taught answers are too easy to count towards a civic level-up, or B1 would open after a few lessons. */
-    if (!(justTaught && q.track === "civic")){ tr.recent.push(ok ? 1 : 0); if (tr.recent.length > 20) tr.recent = tr.recent.slice(-20); }
+    /* Facts from a lesson say nothing about your Dutch, so they don't count towards a civic level-up, or B1 would open after a few lessons. */
+    if (!(fromLesson && q.track === "civic")){ tr.recent.push(ok ? 1 : 0); if (tr.recent.length > 20) tr.recent = tr.recent.slice(-20); }
     if (!ok) tr.wrong.push({id:q.id, due:tr.ans + 5});
     if (tr.recent.length >= 20 && tr.recent.reduce(function(a, b){ return a + b; }, 0) >= 17 && tr.level < MAXLV[q.track]){
       tr.level++; tr.recent = []; leveled = true;
     }
   } else if (!ok){ tr.wrong.push({id:q.id, due:tr.ans + 3}); }
-  if (tr.wrong.length > 60) tr.wrong = tr.wrong.slice(-60);
+  if (tr.wrong.length > 120) tr.wrong = tr.wrong.slice(-120);
   save();
   return leveled;
 }
@@ -383,12 +383,12 @@ function teachFirst(){ return prof().style !== "test"; }
 /* Facts can be taught. Reading, listening and B1+ texts can't: what's missing there is Dutch, not a fact. */
 function lessonable(q){ return q.track === "drive" || q.sec === "basics" || q.sec === "knm" || q.sec === "a2-schrijven"; }
 function needsLesson(q){ var tr = S.t[q.track]; return teachFirst() && lessonable(q) && !tr.seen[q.id] && !tr.taught[q.id]; }
-var lesson = null;
+var lesson = null, RECALL_WAIT = 20 * 60000, RECHECK_AFTER = 12;
 function startLesson(first){
   var t = S.track, tr = S.t[t], cap = levelCap(t);
   var more = pool(t).filter(function(x){ return x.id !== first.id && x.topic === first.topic && (x.lvl || 1) <= cap && lessonable(x) && !tr.seen[x.id] && !tr.taught[x.id]; });
   var fit = more.filter(fitsProfile); if (fit.length) more = fit;
-  lesson = {track:t, topic:first.topic, items:[first].concat(shuffle(more).slice(0, 2))};
+  lesson = {track:t, topic:first.topic, items:[first].concat(shuffle(more).slice(0, 2)), shown:{}};
   cur = null; waitingForQuestions = false;
   renderFeed(true);
   scrollTop0();
@@ -402,14 +402,22 @@ function pickNext(t){
       i--;
     }
   }
-  if (teachFirst()){
-    var pend = pool(t).filter(function(x){ return tr.taught[x.id] && !tr.seen[x.id] && x.id !== lastId; });
-    if (pend.length) return pend[Math.floor(Math.random() * pend.length)];
-  }
-  var cap = levelCap(t);
+  var cap = levelCap(t), teach = teachFirst();
   var p = pool(t).filter(function(q){ return (q.lvl || 1) <= cap; });
   var fit = p.filter(fitsProfile); if (fit.length >= 12) p = fit;
-  var unseen = p.filter(function(q){ return !tr.seen[q.id] && q.id !== lastId; });
+  if (teach){
+    /* Test what was taught earlier, not what was just read: the newest lesson waits until another one has come in between,
+       or until 20 minutes have passed. When nothing else is left to teach, test it straight away. */
+    var pend = pool(t).filter(function(x){ return tr.taught[x.id] && !tr.seen[x.id] && x.id !== lastId; });
+    if (pend.length){
+      var newest = Math.max.apply(null, pend.map(function(x){ return tr.taught[x.id]; })), now = Date.now();
+      var due = pend.filter(function(x){ return tr.taught[x.id] < newest || now - tr.taught[x.id] > RECALL_WAIT; });
+      var canTeach = p.some(function(x){ return lessonable(x) && !tr.seen[x.id] && !tr.taught[x.id]; });
+      if (!due.length && !canTeach) due = pend;
+      if (due.length) return due[Math.floor(Math.random() * due.length)];
+    }
+  }
+  var unseen = p.filter(function(q){ return !tr.seen[q.id] && q.id !== lastId && !(teach && tr.taught[q.id]); });
   if (unseen.length <= 8) maybeAutoGen(t);
   var cand = unseen;
   if (!cand.length){
@@ -454,15 +462,27 @@ function feedHead(){
 function renderLesson(v, entering){
   var L = lesson, n = L.items.length, one = n === 1;
   var h = feedHead() + '<article class="qcard lesson' + (entering ? " enter" : "") + '" id="qcard"><div class="eyebrow"><span>' + esc(L.topic) + '</span><span class="tag">Learn first</span></div>' +
-    '<h3 class="les-h">' + (one ? "One thing to know" : n + " things to know") + '</h3><p class="les-sub">Read ' + (one ? "this" : "these") + '. Then you get asked about ' + (one ? "it" : "them") + '.</p>';
-  L.items.forEach(function(q){
+    '<h3 class="les-h">' + (one ? "One thing to know" : n + " things to know") + '</h3><p class="les-sub">' + (one ? "Try to answer in your head, then tap to check. You'll be asked about this a little later." : "Try to answer in your head, then tap to check. You'll be asked about these a little later.") + '</p>';
+  L.items.forEach(function(q, i){
+    var on = !!L.shown[i];
     h += '<div class="les-item">' + visualFor(q) + '<p class="les-q">' + mark(q.track, q.kind === "num" ? q.q.replace(/\s*\(type a number\)\s*$/i, "") : q.q) + '</p>' + (q.en ? '<p class="les-en">' + esc(q.en) + '</p>' : "") +
-      '<p class="les-a"><span>Answer</span><b>' + esc(correctText(q)) + '</b></p>' + (q.e ? '<p class="les-e">' + mark(q.track, q.e) + '</p>' : "") +
-      (q.src ? '<p class="src">Source: ' + esc(srcName(q.src)) + '</p>' : "") + '</div>';
+      '<button class="btn ghost les-show" data-show="' + i + '"' + (on ? " hidden" : "") + '>Show answer</button>' +
+      '<div class="les-ans"' + (on ? "" : " hidden") + '><p class="les-a"><span>Answer</span><b>' + esc(correctText(q)) + '</b></p>' + (q.e ? '<p class="les-e">' + mark(q.track, q.e) + '</p>' : "") +
+      (q.src ? '<p class="src">Source: ' + esc(srcName(q.src)) + '</p>' : "") + '</div></div>';
   });
-  h += '<button class="btn pop les-go" data-act="learned">Test me on ' + (one ? "this" : "these") + '</button><p class="hint">Want questions only? Change it on the Progress tab.</p></article>';
+  h += '<button class="btn pop les-go" data-act="learned">Got it</button><p class="hint" id="les-hint"></p></article>';
   v.innerHTML = h;
-  $('[data-act="learned"]', v).addEventListener("click", function(){
+  var go = $('[data-act="learned"]', v), hint = $("#les-hint", v);
+  function sync(){
+    var all = L.items.every(function(_, i){ return L.shown[i]; });
+    go.disabled = !all;
+    hint.textContent = all ? "Want questions only? Change it on the Progress tab." : "Tap Show answer on each card first.";
+  }
+  $$("[data-show]", v).forEach(function(b){ b.addEventListener("click", function(){
+    var i = +b.getAttribute("data-show"); L.shown[i] = true; b.hidden = true; $$(".les-ans", v)[i].hidden = false; sync();
+  }); });
+  sync();
+  go.addEventListener("click", function(){
     var tr = S.t[L.track], now = Date.now();
     L.items.forEach(function(q){ tr.taught[q.id] = now; });
     lesson = null; save(); nextQuestion();
@@ -530,9 +550,11 @@ function burst(btn){
 }
 function answer(a, btnRect){
   if (cur.done) return;
-  var q = cur.q, ok = isRight(q, a), tr0 = S.t[q.track], justTaught = !!tr0.taught[q.id] && !tr0.seen[q.id];
+  var q = cur.q, ok = isRight(q, a), tr0 = S.t[q.track], justTaught = !!tr0.taught[q.id] && !tr0.seen[q.id], fromLesson = !!tr0.taught[q.id];
   cur.done = true; cur.sel = a; cur.ok = ok;
-  var leveled = record(q, ok, false, justTaught);
+  var leveled = record(q, ok, false, fromLesson);
+  /* A fact you got right straight after the lesson comes back later, with no lesson above it. That is the real test. */
+  if (ok && justTaught) tr0.wrong.push({id:q.id, due:tr0.ans + RECHECK_AFTER});
   renderFeed();
   var card = $("#qcard");
   if (card){ card.classList.add(ok ? "hit" : "miss"); }
@@ -812,7 +834,7 @@ function renderProgress(){
   html += '<div class="label">Daily goal</div><div class="stats" role="group" aria-label="Daily goal">' + [15, 30, 50].map(function(g){ return '<button class="btn ' + (S.goal === g ? "" : "ghost") + '" data-goal="' + g + '">' + g + ' a day</button>'; }).join("") + '</div>';
 
   html += '<div class="label">How you learn</div><div class="pair" role="group" aria-label="How you learn">' + [["learn", "Lessons first"], ["test", "Questions only"]].map(function(s){ return '<button class="btn ' + ((teachFirst() ? "learn" : "test") === s[0] ? "" : "ghost") + '" data-style="' + s[0] + '">' + s[1] + '</button>'; }).join("") + '</div>' +
-    '<p class="note">' + (teachFirst() ? "New facts come as a short lesson first, then questions on them. Mock exams are always the real test." : "You get questions straight away and learn from the answers.") + '</p>';
+    '<p class="note">' + (teachFirst() ? "New facts come as a short lesson first. You're asked about them a little later, and again after that. Mock exams are always the real test." : "You get questions straight away and learn from the answers.") + '</p>';
 
   if (window.I18N){
     html += '<div class="label">Language</div><div class="stats" role="group" aria-label="Language">' + Object.keys(I18N.langs).map(function(l){ return '<button class="btn ' + (I18N.get() === l ? "" : "ghost") + '" data-lang="' + l + '" lang="' + l + '" translate="no">' + I18N.langs[l].label + '</button>'; }).join("") + '</div>' +

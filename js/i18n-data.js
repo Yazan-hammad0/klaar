@@ -87,11 +87,11 @@ window.I18N_DATA = {rows: [
 /* ---- feed and lessons ---- */
 ["Learn first","تعلّم أولًا","Önce öğren"],
 ["One thing to know","شيء واحد يجب معرفته","Bilmen gereken bir şey"],
-["Read these. Then you get asked about them.","اقرأ هذه، ثم ستُسأل عنها.","Şunları oku. Sonra bunlardan sorular gelecek."],
-["Read this. Then you get asked about it.","اقرأ هذا، ثم ستُسأل عنه.","Şunu oku. Sonra bundan soru gelecek."],
 ["Answer","الإجابة","Cevap"],
-["Test me on these","اختبرني في هذه","Beni bunlardan test et"],
-["Test me on this","اختبرني في هذا","Beni bundan test et"],
+["Try to answer in your head, then tap to check. You'll be asked about these a little later.","حاول أن تجيب في ذهنك ثم اضغط للتحقق. ستُسأل عن هذه بعد قليل.","Önce aklından cevapla, sonra kontrol etmek için dokun. Bunlar sana biraz sonra sorulacak."],
+["Try to answer in your head, then tap to check. You'll be asked about this a little later.","حاول أن تجيب في ذهنك ثم اضغط للتحقق. ستُسأل عن هذا بعد قليل.","Önce aklından cevapla, sonra kontrol etmek için dokun. Bu sana biraz sonra sorulacak."],
+["Show answer","إظهار الإجابة","Cevabı göster"],
+["Tap Show answer on each card first.","اضغط «إظهار الإجابة» على كل بطاقة أولًا.","Önce her kartta Cevabı göster'e dokun."],
 ["Want questions only? Change it on the Progress tab.","تفضّل الأسئلة فقط؟ غيّر ذلك من تبويب التقدّم.","Sadece soru mu istiyorsun? İlerleme sekmesinden değiştir."],
 ["What do you do?","ماذا تفعل؟","Ne yaparsın?"],
 ["Check","تحقّق","Kontrol et"],
@@ -205,7 +205,7 @@ window.I18N_DATA = {rows: [
 ["How you learn","طريقة التعلّم","Nasıl öğrenirsin"],
 ["Lessons first","الدرس أولًا","Önce ders"],
 ["Questions only","الأسئلة فقط","Sadece sorular"],
-["New facts come as a short lesson first, then questions on them. Mock exams are always the real test.","تأتي المعلومات الجديدة في درس قصير أولًا ثم أسئلة عنها. الامتحانات التجريبية هي دائمًا الاختبار الحقيقي.","Yeni bilgiler önce kısa bir dersle gelir, sonra soruları. Deneme sınavları her zaman gerçek testtir."],
+["New facts come as a short lesson first. You're asked about them a little later, and again after that. Mock exams are always the real test.","تأتي المعلومات الجديدة في درس قصير أولًا. تُسأل عنها بعد قليل ثم مرة أخرى بعد ذلك. الامتحانات التجريبية هي دائمًا الاختبار الحقيقي.","Yeni bilgiler önce kısa bir dersle gelir. Bunlar sana biraz sonra, sonra bir kez daha sorulur. Deneme sınavları her zaman gerçek testtir."],
 ["You get questions straight away and learn from the answers.","تحصل على الأسئلة مباشرة وتتعلّم من الإجابات.","Sorular hemen gelir, cevaplardan öğrenirsin."],
 ["Language","اللغة","Dil"],
 ["Your licence checklist","قائمة مهام رخصتك","Ehliyet kontrol listen"],
@@ -291,7 +291,7 @@ window.I18N_DATA = {rows: [
 ["Driving: extra focus on what's different here, like priority rules, cyclists and signs.","القيادة: تركيز إضافي على ما يختلف هنا، مثل قواعد الأولوية وراكبي الدراجات واللافتات.","Sürüş: burada farklı olanlara ekstra odak, geçiş önceliği, bisikletliler ve levhalar gibi."],
 ["Driving: the full mix, the way the CBR exam asks it.","القيادة: المزيج الكامل كما يسأل امتحان CBR.","Sürüş: tam karışım, CBR sınavının sorduğu şekilde."],
 ["Questions only: you learn from the explanation after each answer.","الأسئلة فقط: تتعلّم من الشرح بعد كل إجابة.","Sadece sorular: her cevaptan sonraki açıklamadan öğrenirsin."],
-["Lessons first: each new topic starts with a short lesson, then questions on it. Mock exams are always the real test.","الدرس أولًا: يبدأ كل موضوع جديد بدرس قصير ثم أسئلة عنه. الامتحانات التجريبية هي دائمًا الاختبار الحقيقي.","Önce ders: her yeni konu kısa bir dersle başlar, sonra soruları gelir. Deneme sınavları her zaman gerçek testtir."],
+["Lessons first: each new topic starts with a short lesson. You're asked about it a little later, and again after that. Mock exams are always the real test.","الدرس أولًا: يبدأ كل موضوع جديد بدرس قصير. تُسأل عنه بعد قليل ثم مرة أخرى بعد ذلك. الامتحانات التجريبية هي دائمًا الاختبار الحقيقي.","Önce ders: her yeni konu kısa bir dersle başlar. Bundan sana biraz sonra, sonra bir kez daha soru gelir. Deneme sınavları her zaman gerçek testtir."],
 
 /* ---- install guide ---- */
 ["Put Klaar on your home screen","ضع Klaar على شاشتك الرئيسية","Klaar'ı ana ekranına ekle"],
@@ -377,6 +377,7 @@ window.I18N_DATA = {rows: [
 ["Update","تحديث","Güncelle"],
 ["Show me how","أرني كيف","Nasıl yapılır göster"],
 ["New: lessons first. Each topic starts with a short lesson, then you get asked about it. Switch it off on the Progress tab.","جديد: الدرس أولًا. يبدأ كل موضوع بدرس قصير ثم تُسأل عنه. يمكنك إيقافه من تبويب التقدّم.","Yeni: önce ders. Her konu kısa bir dersle başlar, sonra soruları gelir. İlerleme sekmesinden kapatabilirsin."],
+["New: lessons make you think first. Questions come back later, so you really remember them.","جديد: الدروس تجعلك تفكّر أولًا. تعود الأسئلة لاحقًا حتى تتذكّرها فعلًا.","Yeni: dersler önce düşündürür. Sorular sonra geri gelir, böylece gerçekten hatırlarsın."],
 ["New: Arabic and Turkish. Pick your language on the Progress tab.","جديد: العربية والتركية. اختر لغتك من تبويب التقدّم.","Yeni: Arapça ve Türkçe. Dilini İlerleme sekmesinden seç."]
 ],
 /* patterns for text that contains numbers or names: [regex, Arabic, Turkish]; $1 $2 are the captured parts */

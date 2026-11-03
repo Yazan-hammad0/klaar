@@ -546,3 +546,8 @@ html[lang="ar"] body{line-height:1.6}
 html[lang="ar"] *:not(.brand){letter-spacing:0 !important;font-style:normal !important}
 html[dir="rtl"] .ring b,html[dir="rtl"] .tabular,html[dir="rtl"] .score b,html[dir="rtl"] .hist{direction:ltr;unicode-bidi:isolate}
 html[lang="ar"] .label,html[lang="ar"] .eyebrow,html[lang="ar"] .m-cap{text-transform:none}
+
+/* lesson: answers stay hidden until you tap */
+.les-item [hidden]{display:none !important}
+.les-show{width:100%;min-height:44px;margin-top:4px}
+.les-ans{margin-top:8px}
