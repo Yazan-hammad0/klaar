@@ -1,5 +1,5 @@
 // Klaar offline cache. Version changes with every build so phones pick up new questions.
-const VERSION = "ddeb6398d2";
+const VERSION = "173675dd4f";
 const CACHE = "klaar-" + VERSION, FONTS = "klaar-fonts";
 const SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icon-180.png", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png"];
 self.addEventListener("install", e => {
