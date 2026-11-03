@@ -63,7 +63,7 @@ function freshState(){ return {v:1, updated:0, track:"drive", view:"feed", t:{dr
 function mergeState(raw){
   var s = freshState();
   if (!raw || typeof raw !== "object") return s;
-  ["updated", "track", "view", "goal", "arrived", "onboarded"].forEach(function(k){ if (raw[k] != null) s[k] = raw[k]; });
+  ["updated", "track", "view", "goal", "arrived", "onboarded", "prof"].forEach(function(k){ if (raw[k] != null) s[k] = raw[k]; });
   if (raw.days) s.days = raw.days;
   if (raw.plan) s.plan = raw.plan;
   ["drive", "civic"].forEach(function(t){ if (raw.t && raw.t[t]) s.t[t] = Object.assign(freshTrack(), raw.t[t]); });
@@ -342,6 +342,7 @@ function bodyHtml(q){
   if (q.audio) h += '<div class="audio"><button class="btn" data-act="play">' + PLAY + 'Luister</button><button class="small" data-act="showtx">Can\'t play? Show text</button></div><div class="passage" data-tx hidden>' + esc(q.audio) + '</div>';
   if (q.kind === "hazard") h += '<div class="passage scenario">' + mark(q.track, q.q) + '</div><p class="qtext">What do you do?</p>';
   else h += '<p class="qtext">' + mark(q.track, q.q) + '</p>';
+  if (!run && helpEN(q) && q.kind !== "hazard") h += '<p class="en-pre">' + esc(q.en) + '</p>';
   return h;
 }
 function correctText(q){ return q.o ? q.o[q.c] : q.a[0]; }
@@ -358,6 +359,22 @@ function wireAudio(root, q){
 
 /* ---------------- FEED ---------------- */
 var cur = null, waitingForQuestions = false, lastId = null;
+/* ---------------- personal profile (set in the level chat) ---------------- */
+function prof(){ return S.prof || {}; }
+function goals(){ var g = prof().goals; return g && g.length ? g : ["drive", "civic"]; }
+function helpEN(q){ var nl = prof().nl; return q.track === "civic" && !!q.en && (nl === "none" || nl === "a1"); }
+var DUTCH_SPECIFIC = {"Priority":1, "Signs":1, "Road markings":1, "Lane use":1, "Railway crossings":1};
+function fitsProfile(q){
+  var pr = prof();
+  if (q.track === "civic"){
+    var a = S.t.civic.ans;
+    if (pr.nl === "none" && a < 30) return q.sec === "basics";
+    if ((pr.nl === "none" || pr.nl === "a1") && a < 60) return q.sec === "basics" || q.sec === "knm" || q.sec === "a2-schrijven";
+  }
+  if (q.track === "drive" && pr.drive === "new" && S.t.drive.ans < 30) return q.kind !== "hazard";
+  return true;
+}
+function profileBoost(q){ return q.track === "drive" && prof().drive === "abroad" && DUTCH_SPECIFIC[q.topic] ? 2 : 0; }
 function levelCap(t){ return t === "drive" ? 99 : S.t.civic.level; }
 function pickNext(t){
   var tr = S.t[t];
@@ -370,6 +387,7 @@ function pickNext(t){
   }
   var cap = levelCap(t);
   var p = pool(t).filter(function(q){ return (q.lvl || 1) <= cap; });
+  var fit = p.filter(fitsProfile); if (fit.length >= 12) p = fit;
   var unseen = p.filter(function(q){ return !tr.seen[q.id] && q.id !== lastId; });
   if (unseen.length <= 8) maybeAutoGen(t);
   var cand = unseen;
@@ -378,7 +396,7 @@ function pickNext(t){
     cand = p.filter(function(q){ return q.id !== lastId; }).sort(function(a, b){ return (tr.seen[a.id] || 0) - (tr.seen[b.id] || 0); }).slice(0, Math.max(6, Math.floor(p.length / 3)));
   }
   var weights = cand.map(function(q){
-    return 1 + 3 * (1 - topicAcc(tr, q.topic)) + ((q.lvl || 1) === cap && t === "civic" ? 1.5 : 0) + (q.gen ? 0.5 : 0);
+    return 1 + profileBoost(q) + 3 * (1 - topicAcc(tr, q.topic)) + ((q.lvl || 1) === cap && t === "civic" ? 1.5 : 0) + (q.gen ? 0.5 : 0);
   });
   var sum = weights.reduce(function(a, b){ return a + b; }, 0), r = Math.random() * sum;
   for (var k = 0; k < cand.length; k++){ r -= weights[k]; if (r <= 0) return cand[k]; }
@@ -757,6 +775,7 @@ function renderProgress(){
     var done = !!S.plan[p[0]];
     html += '<label class="check' + (done ? " done" : "") + '"><input type="checkbox" id="pl-' + p[0] + '" data-plan="' + p[0] + '"' + (done ? " checked" : "") + '><span>' + esc(p[1]) + '</span></label>';
   });
+  html += '<div class="label">Your level and goals</div><div class="ai-box"><p>' + esc(profileLine()) + '</p><button class="btn ghost" data-act="redo-prof" style="width:100%">Change my level and goals</button></div>';
   html += '<div class="label">Share Klaar</div><div class="ai-box"><p>Know someone preparing for these exams? Send them the link. It shows them how to install it.</p><button class="btn ghost" data-act="share-app" style="width:100%">Share the link</button></div>';
   html += '<div class="label">Show Claude your progress</div><div class="ai-box"><p>The app is offline, so nobody can see your progress, including Claude. Tap below, then paste the text into your chat with Claude. Nothing else is sent anywhere.</p><button class="btn" data-act="share-prog" style="width:100%">Copy my progress</button></div>';
   html += '<div class="label">Backup</div><div class="ai-box"><p>Progress lives on this phone only. Save a backup file now and then, so a new phone or a cleared browser doesn\'t wipe it.</p><div class="pair"><button class="btn ghost" data-act="bk-save">Save backup</button><label class="btn ghost" for="bk-file">Restore<input type="file" id="bk-file" accept="application/json,.json" hidden></label></div></div>';
@@ -766,6 +785,7 @@ function renderProgress(){
   var as = $('[data-act="arr-set"]', v); if (as) as.addEventListener("click", function(){ var val = $("#arr-in", v).value; if (!/^\d{4}-\d{2}-\d{2}$/.test(val)) return toast("Pick a date first."); S.arrived = val; save(); renderProgress(); });
   var ae = $('[data-act="arr-edit"]', v); if (ae) ae.addEventListener("click", function(){ S.arrived = null; save(); renderProgress(); });
   var jg = $('[data-act="j-go"]', v); if (jg) jg.addEventListener("click", function(){ setView("exams"); });
+  var rp = $('[data-act="redo-prof"]', v); if (rp) rp.addEventListener("click", function(){ if (window.KLAAR_PROFILE) window.KLAAR_PROFILE(); });
   var sa = $('[data-act="share-app"]', v); if (sa) sa.addEventListener("click", shareApp);
   var sp = $('[data-act="share-prog"]', v); if (sp) sp.addEventListener("click", shareProgress);
   var dg = $("#diag", v); if (dg && window.KLAAR_DIAG) dg.textContent = window.KLAAR_DIAG();
@@ -910,16 +930,17 @@ function renderHome(){
     '<div class="today-mid"><div class="today-streak">' + FLAME + ' ' + st + '-day streak</div><div class="week" aria-label="Last 7 days">' + week + '</div></div></div>';
 
   /* one next step: the track that is further behind */
-  var pick = trackFrac("civic") < trackFrac("drive") ? "civic" : "drive";
-  if ((S.days[dayKey()] || 0) > 0 && S.t[pick].ans > 0 && trackFrac("civic") === trackFrac("drive")) pick = S.track === "drive" ? "civic" : "drive";
+  var G = goals();
+  var pick = G.length === 1 ? G[0] : (trackFrac("civic") < trackFrac("drive") ? "civic" : "drive");
+  if (G.length > 1 && (S.days[dayKey()] || 0) > 0 && S.t[pick].ans > 0 && trackFrac("civic") === trackFrac("drive")) pick = S.track === "drive" ? "civic" : "drive";
   var jp = journey(pick), np = jp.steps[jp.at];
   if (np){
     html += '<div class="label">Next for you</div><button class="next-up" data-go-t="' + pick + '" data-go-v="' + (np.go ? "exams" : "feed") + '"><span class="ic ic-' + pick + '">' + TRACK_ICON[pick] + '</span><span class="nu-main"><b>' + esc(np.name) + '</b><span>' + esc(NAMES[pick]) + ' · step ' + (jp.at + 1) + ' of ' + jp.steps.length + '</span></span><span class="nu-go">›</span></button>';
   }
 
   /* both tracks */
-  html += '<div class="label">Your two goals</div>';
-  ["drive", "civic"].forEach(function(t){
+  html += '<div class="label">' + (G.length > 1 ? "Your two goals" : "Your goal") + '</div>';
+  G.forEach(function(t){
     var tr = S.t[t], j = journey(t), n = j.steps.length, cur = j.steps[j.at], f = trackFrac(t);
     var acc = tr.ans ? Math.round(tr.ok / tr.ans * 100) + "%" : "–";
     var mocks = Object.keys(tr.mocks).reduce(function(s, k){ return s + (tr.mocks[k] || []).filter(function(x){ return x.p; }).length; }, 0);
@@ -932,7 +953,8 @@ function renderHome(){
 
   /* citizenship countdown */
   var cd = citizenDates();
-  if (cd){
+  if (G.indexOf("civic") < 0){}
+  else if (cd){
     var left = Math.max(0, Math.ceil((cd.at - new Date()) / 86400000));
     html += '<div class="cz"><span class="ic ic-civic">' + TRACK_ICON.civic + '</span><span><b class="tabular">' + (left ? left + " days" : "Now") + '</b><span>' + (left ? "until you can apply for citizenship (" + fmtDate(cd.at) + ")" : "you can apply for citizenship") + '</span></span></div>';
   } else {
@@ -978,7 +1000,25 @@ function renderAll(){
 $$(".switch button").forEach(function(b){ b.addEventListener("click", function(){ setTrack(b.getAttribute("data-track")); }); });
 $$(".tab").forEach(function(b){ b.addEventListener("click", function(){ if (b.getAttribute("data-view") === "exams" && view === "exams" && run) return; setView(b.getAttribute("data-view")); }); });
 
-window.KLAAR = {isOnboarded:function(){ return !!S.onboarded; }, goal:function(){ return S.goal; }, finish:function(t, g){ if (t === 'drive' || t === 'civic') setTrack(t); if (g) S.goal = g; S.onboarded = true; save(); renderAll(); }};
+function profileLine(){
+  var pr = prof(); if (!pr.at) return "Not set yet.";
+  var NL = {none:"Dutch: starting from zero", a1:"Dutch: the basics", a2:"Dutch: simple conversations", b1:"Dutch: past A2"};
+  var DR = {"new":"driving: never driven", abroad:"driving: licensed abroad", lessons:"driving: lessons here"};
+  var bits = [];
+  if (goals().indexOf("civic") >= 0 && pr.nl) bits.push(NL[pr.nl]);
+  if (goals().indexOf("drive") >= 0 && pr.drive) bits.push(DR[pr.drive]);
+  bits.push(S.goal + " questions a day");
+  var s = bits.join(", "); return s.charAt(0).toUpperCase() + s.slice(1) + ".";
+}
+function applyProfile(p, fresh){
+  if (fresh){ var keep = {arrived:S.arrived, goal:S.goal, view:"home"}; S = freshState(); S.arrived = keep.arrived; S.view = "home"; cur = null; lastId = null; }
+  S.prof = p; S.prof.at = Date.now(); S.onboarded = true;
+  if (p.goal) S.goal = p.goal;
+  if (p.nl === "b1" && S.t.civic.level < 2) S.t.civic.level = 2;
+  var g = goals(); if (g.indexOf(S.track) < 0){ S.track = g[0]; applyTrack(); }
+  cur = null; save(); view = "home"; renderAll(); setView("home");
+}
+window.KLAAR = {isProfiled:function(){ return !!(S.prof && S.prof.at); }, hasProgress:function(){ return S.t.drive.ans + S.t.civic.ans; }, profile:function(){ return S.prof || null; }, applyProfile:applyProfile, isOnboarded:function(){ return !!S.onboarded; }, goal:function(){ return S.goal; }, finish:function(t, g){ if (t === 'drive' || t === 'civic') setTrack(t); if (g) S.goal = g; S.onboarded = true; save(); renderAll(); }};
 applyTrack();
 renderSync();
 setView(view);

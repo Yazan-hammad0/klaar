@@ -1,5 +1,5 @@
 /* Screen-tall layout for the home-screen app, update notice, service worker. */
-var KLAAR_VERSION = "5364918936", KLAAR_NEWS = "New Home tab: both goals, your week and what to do next, on one screen.";
+var KLAAR_VERSION = "b7b9d5b48c", KLAAR_NEWS = "New: a quick chat sets Klaar up for your level and goals. Tap Update, then answer a few taps.";
 (function(){
   /* iOS home-screen apps sometimes get a layout viewport shorter than the screen, which leaves a strip under the tab bar.
      Measure it and push the bottom chrome down into that strip. */

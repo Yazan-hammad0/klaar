@@ -171,10 +171,77 @@
     if (st) st.addEventListener("click", function(){ if (window.KLAAR) window.KLAAR.finish(choice.track, choice.goal); close(); });
     el.scrollTop = 0;
   }
+
+  /* ---------- level chat: a few taps, not a questionnaire ---------- */
+  function levelChat(){
+    if (!window.KLAAR) return;
+    var K = window.KLAAR, old = K.profile() || {}, a = {}, done = K.hasProgress();
+    var el = open('<div class="chat-top"><div class="onb-brand">' + ICON + 'Klaar</div><button class="onb-link" id="chat-skip"' + (K.isProfiled() ? "" : " hidden") + '>Cancel</button></div><div class="chat" id="chat" aria-live="polite"></div><div class="replies" id="chips"></div>');
+    el.classList.add("chatmode");
+    var box = el.querySelector("#chat"), chips = el.querySelector("#chips");
+    var sk = el.querySelector("#chat-skip"); if (sk) sk.addEventListener("click", function(){ close(); });
+    function scroll(){ el.scrollTop = el.scrollHeight; }
+    function bot(html, then){
+      var t = document.createElement("div"); t.className = "msg bot typing"; t.innerHTML = '<span class="dots-t"><i></i><i></i><i></i></span>';
+      box.appendChild(t); scroll();
+      setTimeout(function(){ t.classList.remove("typing"); t.innerHTML = html; scroll(); if (then) then(); }, reduce ? 0 : 650);
+    }
+    function me(text){ var m = document.createElement("div"); m.className = "msg me"; m.textContent = text; box.appendChild(m); scroll(); }
+    function ask(q, opts, cb){
+      bot(q, function(){
+        chips.innerHTML = opts.map(function(o, i){ return '<button class="chip-a" data-i="' + i + '">' + o[0] + (o[1] ? '<small>' + o[1] + '</small>' : "") + '</button>'; }).join("");
+        chips.classList.add("on"); scroll();
+        Array.prototype.forEach.call(chips.querySelectorAll(".chip-a"), function(b){
+          b.addEventListener("click", function(){
+            var o = opts[+b.getAttribute("data-i")]; chips.classList.remove("on"); chips.innerHTML = ""; me(o[0]); setTimeout(function(){ cb(o[2]); }, reduce ? 0 : 250);
+          });
+        });
+      });
+    }
+    var steps = [
+      function(next){ bot(K.isProfiled() ? "Let's redo your setup. Same few taps." : "Hi, I'm Klaar. Before you start, a few quick taps so I can set things up around you.", next); },
+      function(next){ ask("What are you working towards?", [["Driving licence", "CBR theory exam", ["drive"]], ["Inburgering and Dutch", "KNM and A2, then beyond", ["civic"]], ["Both", "", ["drive", "civic"]]], function(v){ a.goals = v; next(); }); },
+      function(next){
+        if (a.goals.indexOf("civic") < 0) return next();
+        ask("How's your Dutch right now? Pick what sounds most like you.", [
+          ["I know almost no Dutch", "", "none"],
+          ["I can say hello and read simple signs", "", "a1"],
+          ["I can have a short, simple chat", "", "a2"],
+          ["I follow most conversations", "", "b1"]], function(v){ a.nl = v; next(); });
+      },
+      function(next){
+        if (a.goals.indexOf("drive") < 0) return next();
+        ask("And driving?", [["I've never driven", "", "new"], ["I drive, but not in the Netherlands", "", "abroad"], ["I've had lessons here", "", "lessons"]], function(v){ a.drive = v; next(); });
+      },
+      function(next){ ask("How much time do you have on most days?", [["About 5 minutes", "15 questions", 15], ["About 10 minutes", "30 questions", 30], ["20 minutes or more", "50 questions", 50]], function(v){ a.goal = v; next(); }); },
+      function(next){
+        if (!done) return next();
+        ask("You've already answered " + done + " questions. Start fresh with this plan, or keep them?", [["Start fresh", "Your progress goes back to zero", true], ["Keep my progress", "", false]], function(v){ a.fresh = v; next(); });
+      },
+      function(next){
+        var L = [];
+        if (a.goals.indexOf("civic") >= 0) L.push({
+          none:"Inburgering: we start in English with how the Netherlands works. Dutch comes in step by step, always with the English underneath.",
+          a1:"Inburgering: KNM and short, simple Dutch first, with the English shown under each question. Reading and listening join after 60 answers.",
+          a2:"Inburgering: the full A2 exam practice, KNM, reading, listening and writing.",
+          b1:"Inburgering: you're past A2, so B1 reading is open from day one. Do the A2 mock exams to confirm you're ready to book."}[a.nl]);
+        if (a.goals.indexOf("drive") >= 0) L.push({
+          "new":"Driving: rules and signs first. Hazard scenes join after 30 answers.",
+          abroad:"Driving: extra focus on what's different here, like priority rules, cyclists and signs.",
+          lessons:"Driving: the full mix, the way the CBR exam asks it."}[a.drive]);
+        L.push(a.goal + " questions a day. Tap an answer, then swipe up for the next one.");
+        bot("Here's your plan:<ul>" + L.map(function(x){ return "<li>" + x + "</li>"; }).join("") + "</ul>You can change this any time on the Progress tab.", function(){
+          chips.innerHTML = '<button class="btn chip-go" id="chat-go">Let\'s go</button>'; chips.classList.add("on"); scroll();
+          chips.querySelector("#chat-go").addEventListener("click", function(){ K.applyProfile({goals:a.goals, nl:a.nl || old.nl, drive:a.drive || old.drive, goal:a.goal}, !!a.fresh); close(); });
+        });
+      }
+    ];
+    var i = 0; (function run(){ if (i < steps.length) steps[i++](run); })();
+  }
+  window.KLAAR_PROFILE = levelChat;
   function maybeIntro(){
-    if (!window.KLAAR || window.KLAAR.isOnboarded()) return;
-    choice.track = null; choice.goal = window.KLAAR.goal() || 30; lastSlide = -1;
-    open(""); slide(0);
+    if (!window.KLAAR || window.KLAAR.isProfiled()) return;
+    levelChat();
   }
   window.KLAAR_GUIDE = showInstall;
   if (!standalone && !lsGet("klaarInstallSeen")) showInstall();
