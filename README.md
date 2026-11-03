@@ -15,6 +15,8 @@ No framework and no build step. GitHub Pages serves this folder as-is.
 | `css/app.css` | All styles, light and dark |
 | `js/content.js` | Question banks, road-sign drawings, glossaries. `EXTRA` holds the sourced questions added in Nov 2026 |
 | `js/app.js` | The app: feed with spaced repetition and teach-first lessons, mock exams, progress, home, journey steps |
+| `js/i18n.js` | Language switch (English, Arabic, Turkish). Translates the screen as text appears, sets `dir="rtl"` for Arabic |
+| `js/i18n-data.js` | The Arabic and Turkish strings, one row per English string |
 | `js/shell.js` | Screen-tall layout for the home-screen app, the "new version" card, service worker registration |
 | `js/onboard.js` | Install guide per device and browser, and the 3-screen intro |
 | `sw.js` | Offline cache |

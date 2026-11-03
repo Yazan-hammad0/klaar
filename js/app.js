@@ -25,7 +25,8 @@ function citizenDates(){
   var p = S.arrived.split("-"), f = new Date(+p[0], +p[1] - 1, +p[2]), at = new Date(+p[0] + 5, +p[1] - 1, +p[2]);
   return {from:f, at:at};
 }
-function fmtDate(d){ return d.toLocaleDateString("en-GB", {day:"numeric", month:"short", year:"numeric"}); }
+function loc(){ return window.I18N ? I18N.loc() : "en-GB"; }
+function fmtDate(d){ return d.toLocaleDateString(loc(), {day:"numeric", month:"short", year:"numeric"}); }
 function hashId(s){ var h = 5381; s = String(s); for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
 
 /* ---------------- question bank ---------------- */
@@ -813,6 +814,11 @@ function renderProgress(){
   html += '<div class="label">How you learn</div><div class="pair" role="group" aria-label="How you learn">' + [["learn", "Lessons first"], ["test", "Questions only"]].map(function(s){ return '<button class="btn ' + ((teachFirst() ? "learn" : "test") === s[0] ? "" : "ghost") + '" data-style="' + s[0] + '">' + s[1] + '</button>'; }).join("") + '</div>' +
     '<p class="note">' + (teachFirst() ? "New facts come as a short lesson first, then questions on them. Mock exams are always the real test." : "You get questions straight away and learn from the answers.") + '</p>';
 
+  if (window.I18N){
+    html += '<div class="label">Language</div><div class="stats" role="group" aria-label="Language">' + Object.keys(I18N.langs).map(function(l){ return '<button class="btn ' + (I18N.get() === l ? "" : "ghost") + '" data-lang="' + l + '" lang="' + l + '" translate="no">' + I18N.langs[l].label + '</button>'; }).join("") + '</div>' +
+      '<p class="note">Menus and instructions are in your language. Questions are still in English and Dutch.</p>';
+  }
+
   html += '<div class="label">Your ' + (t === "drive" ? "licence" : "citizenship") + ' checklist</div>';
   PLAN[t].forEach(function(p){
     var done = !!S.plan[p[0]];
@@ -835,6 +841,7 @@ function renderProgress(){
   var bx = $('[data-act="bk-save"]', v); if (bx) bx.addEventListener("click", backupSave);
   var bi = $("#bk-file", v); if (bi) bi.addEventListener("change", function(){ if (bi.files && bi.files[0]) backupLoad(bi.files[0]); });
   $$("[data-goal]", v).forEach(function(b){ b.addEventListener("click", function(){ S.goal = +b.getAttribute("data-goal"); save(); renderProgress(); }); });
+  $$("[data-lang]", v).forEach(function(b){ b.addEventListener("click", function(){ I18N.set(b.getAttribute("data-lang")); }); });
   $$("[data-style]", v).forEach(function(b){ b.addEventListener("click", function(){ S.prof = S.prof || {}; S.prof.style = b.getAttribute("data-style"); lesson = null; save(); renderProgress(); }); });
   $$("[data-plan]", v).forEach(function(c){ c.addEventListener("change", function(){ S.plan[c.getAttribute("data-plan")] = c.checked; save(); renderProgress(); }); });
 }
@@ -965,7 +972,7 @@ function renderHome(){
   var html = '<div class="home-hi"><h2 class="h2">' + hi + '</h2><p class="lead">' + esc(line) + '</p></div>';
 
   /* today: ring + streak + last 7 days */
-  var week = "", d = new Date(), names = ["S", "M", "T", "W", "T", "F", "S"];
+  var week = "", d = new Date(), names = [0, 1, 2, 3, 4, 5, 6].map(function(i){ return new Date(2023, 0, 1 + i).toLocaleDateString(loc(), {weekday:"narrow"}); });
   for (var i = 6; i >= 0; i--){
     var day = new Date(d.getFullYear(), d.getMonth(), d.getDate() - i), n = S.days[dayKey(day)] || 0;
     week += '<span class="wk' + (n ? " on" : "") + (i === 0 ? " now" : "") + '"><i style="height:' + Math.max(4, Math.min(100, n / S.goal * 100)) + '%"></i><b>' + names[day.getDay()] + '</b></span>';
@@ -1029,8 +1036,8 @@ function setView(v){
   document.body.setAttribute("data-view", v);
   $("#v-home").hidden = v !== "home"; $("#v-feed").hidden = v !== "feed"; $("#v-exams").hidden = v !== "exams"; $("#v-progress").hidden = v !== "progress";
   $$(".tab").forEach(function(b){ b.setAttribute("aria-selected", String(b.getAttribute("data-view") === v)); });
-  var ind = $(".tab-ind"); if (ind) ind.style.transform = "translateX(" + (ORDER.indexOf(v) * 100) + "%)";
-  if (changed){ var sec = $("#v-" + v); sec.style.setProperty("--dir", dir); sec.classList.remove("v-in"); void sec.offsetWidth; sec.classList.add("v-in"); }
+  var flip = window.I18N && I18N.rtl() ? -1 : 1, ind = $(".tab-ind"); if (ind) ind.style.transform = "translateX(" + (flip * ORDER.indexOf(v) * 100) + "%)";
+  if (changed){ var sec = $("#v-" + v); sec.style.setProperty("--dir", dir * flip); sec.classList.remove("v-in"); void sec.offsetWidth; sec.classList.add("v-in"); }
   if (v === "feed"){ if (!cur || cur.q.track !== S.track) nextQuestion(); else renderFeed(); }
   if (v === "exams" && !run) renderExams();
   if (v === "progress") renderProgress();
@@ -1067,6 +1074,7 @@ window.KLAAR = {isProfiled:function(){ return !!(S.prof && S.prof.at); }, hasPro
 applyTrack();
 renderSync();
 setView(view);
+window.addEventListener("klaar-lang", function(){ renderSync(); renderAll(); });
 initSample();
 initCloud();
 try{ if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}

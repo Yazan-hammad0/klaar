@@ -71,8 +71,16 @@
   function stepsHtml(list){
     return '<ol class="onb-steps">' + list.map(function(s, i){ return '<li data-i="' + i + '"><span class="n">' + (i + 1) + '</span><div><b>' + s[0] + '</b><span>' + s[1] + '</span></div></li>'; }).join("") + '</ol>';
   }
+  function langRow(){
+    if (!window.I18N) return "";
+    return '<div class="langrow" role="group" aria-label="Language">' + Object.keys(I18N.langs).map(function(l){ return '<button data-lang="' + l + '" lang="' + l + '" translate="no" aria-pressed="' + (I18N.get() === l) + '">' + I18N.langs[l].label + '</button>'; }).join("") + '</div>';
+  }
+  function wireLang(el){
+    var bs = Array.prototype.slice.call(el.querySelectorAll(".langrow [data-lang]"));
+    bs.forEach(function(b){ b.addEventListener("click", function(){ I18N.set(b.getAttribute("data-lang")); bs.forEach(function(x){ x.setAttribute("aria-pressed", String(x.getAttribute("data-lang") === I18N.get())); }); }); });
+  }
   function showInstall(){
-    var head = '<div class="onb-brand">' + ICON + 'Klaar</div>';
+    var head = '<div class="onb-brand">' + ICON + 'Klaar</div>' + langRow();
     var pitch = "Practise for the Dutch driving theory exam and the integration exam, one question at a time. Free, and it works offline.";
     var OPEN = ["Open Klaar from your home screen", "It opens full screen and works without internet."];
     var g = guide(), html = head;
@@ -116,6 +124,7 @@
     }
     html += '<div class="onb-foot"><button class="onb-link" id="onb-later">Try it in the browser first</button></div>';
     var el = open(html);
+    wireLang(el);
     var copy = el.querySelector("#onb-copy");
     if (copy) copy.addEventListener("click", function(){ if (navigator.clipboard) navigator.clipboard.writeText(URL_NOW).then(function(){ copy.textContent = "Copied"; }, function(){}); });
     var inst = el.querySelector("#onb-install");
@@ -199,6 +208,10 @@
       });
     }
     var steps = [
+      function(next){
+        if (!window.I18N || I18N.chosen()) return next();
+        ask('<span translate="no">Language · اللغة · Dil</span>', [["English", "", "en"], ["العربية", "", "ar"], ["Türkçe", "", "tr"]], function(v){ I18N.set(v); next(); });
+      },
       function(next){ bot(K.isProfiled() ? "Let's redo your setup. Same few taps." : "Hi, I'm Klaar. Before you start, a few quick taps so I can set things up around you.", next); },
       function(next){ ask("What are you working towards?", [["Driving licence", "CBR theory exam", ["drive"]], ["Inburgering and Dutch", "KNM and A2, then beyond", ["civic"]], ["Both", "", ["drive", "civic"]]], function(v){ a.goals = v; next(); }); },
       function(next){
