@@ -252,7 +252,8 @@ label.btn{display:inline-flex;align-items:center;justify-content:center;cursor:p
   --font-mono:ui-monospace,"SF Mono",Menlo,monospace;--vgap:0px;--tabbar:58px}
 button,.opt,.tab,.row,.btn,.chip,.switch button{touch-action:manipulation}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.top{padding-block:10px 12px;box-shadow:none}
+.top{padding-block:16px 14px;box-shadow:none}
+html.pinbar .tabbar{top:var(--bar-top);bottom:auto}
 .top::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:3px;background:var(--pop)}
 .top-in{flex-direction:row;align-items:center;gap:12px}
 .brand{font-size:28px;letter-spacing:-.035em;flex:none}
@@ -261,7 +262,7 @@ button,.opt,.tab,.row,.btn,.chip,.switch button{touch-action:manipulation}
 .switch button svg{width:16px;height:16px}
 .thumb{top:3px;bottom:3px;left:3px;width:calc(50% - 3px);border-radius:8px;transition:transform .38s cubic-bezier(.2,.9,.25,1);box-shadow:0 1px 3px rgba(0,0,0,.18)}
 body{padding-bottom:calc(var(--tabbar) + env(safe-area-inset-bottom,0px) + 18px)}
-.tabbar{bottom:calc(-1 * var(--vgap));padding-bottom:calc(env(safe-area-inset-bottom,0px) + var(--vpad,0px));
+.tabbar{bottom:0;padding-bottom:calc(env(safe-area-inset-bottom,0px) + var(--vpad,0px));
   background:color-mix(in srgb, var(--surface) 74%, transparent);-webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%);
   border-top:.5px solid color-mix(in srgb, var(--fg) 14%, transparent)}
 .tab{font-size:10.5px;letter-spacing:.02em;text-transform:none;font-weight:700;gap:2px;transition:transform .1s ease-out}
@@ -398,6 +399,29 @@ body{padding-bottom:calc(var(--tabbar) + env(safe-area-inset-bottom,0px) + 18px)
 @keyframes slideBack{from{transform:translateX(-40px);opacity:0}}
 .tabbar::after{content:"";position:absolute;left:0;right:0;top:100%;height:140px;background:inherit}
 @media (prefers-reduced-motion: reduce){.mini,.finger,.ring,.row-m.hl::after,.add-m .addbtn::after{animation:none!important}}
+
+/* where you are */
+.journey{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:16px;margin-top:12px}
+.journey.compact{background:var(--raise);margin:16px 0 4px}
+.j-cap{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.j-track{display:flex;align-items:center;margin-bottom:14px}
+.j-dot{flex:none;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:800;background:var(--raise);border:1.5px solid var(--line);color:var(--muted);position:relative}
+.j-dot.done{background:var(--accent);border-color:var(--accent);color:var(--on)}
+.j-dot.now{background:var(--pop);border-color:var(--pop);color:#1A1405}
+.j-dot.now::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--pop);animation:ring 1.8s ease-out infinite}
+.j-line{flex:1;height:3px;background:var(--line);margin:0 3px;border-radius:2px}
+.j-line.done{background:var(--accent)}
+.j-step{font-size:12px;font-weight:700;color:var(--muted)}
+.j-now{font-size:19px;font-weight:800;letter-spacing:-.02em;line-height:1.25;margin:2px 0 8px}
+.j-bar{height:8px;border-radius:8px;background:var(--line);overflow:hidden;margin-bottom:8px}
+.j-bar i{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,var(--accent),var(--pop))}
+.j-msg{font-size:14px;color:var(--muted);line-height:1.45;margin:0}
+.j-go{width:100%;margin-top:12px}
+.milestone{text-align:center}
+.m-big{font-size:64px;font-weight:900;letter-spacing:-.04em;line-height:1;color:var(--accent);animation:popIn .5s cubic-bezier(.2,1.4,.4,1) both}
+.m-cap{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
+.m-cheer{font-size:16px;font-weight:700;margin:12px 0 0}
+.milestone .journey{text-align:left}
 </style>
 </head>
 <body>
@@ -1225,6 +1249,7 @@ function pickNext(t){
   return cand[cand.length - 1];
 }
 function nextQuestion(){
+  if (milestoneDue){ milestoneDue = false; renderMilestone(); return; }
   var q = pickNext(S.track);
   if (!q){ cur = null; waitingForQuestions = true; renderFeed(); return; }
   waitingForQuestions = false;
@@ -1320,6 +1345,7 @@ function answer(a, btnRect){
   var fbx = $("#v-feed .fb");
   if (fbx){ var r = fbx.getBoundingClientRect(), tbh = ($(".tabbar") || {offsetHeight:0}).offsetHeight, want = r.top + 150 - (window.innerHeight - tbh);
     if (want > 0) window.scrollBy({top: want, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"}); }
+  var dn = S.days[dayKey()] || 0; if (dn > 0 && dn % 10 === 0) milestoneDue = true;
   if (leveled) toast("Level up: " + levelName(q.track) + ". Questions get harder now.");
   else if (ok && T().combo > 0 && T().combo % 10 === 0) toast(T().combo + " in a row");
   if ((S.days[dayKey()] || 0) === S.goal) toast("Daily goal done. Anything now is bonus.");
@@ -1569,6 +1595,7 @@ function renderProgress(){
     for (var i = full.length - 1; i >= 0 && full[i].p; i--) inRow++;
     html += '<div class="hero"><div class="cap">Full mocks passed in a row</div><div class="big tabular">' + Math.min(inRow, 3) + '<span style="font-size:24px;opacity:.7">/3</span></div><div class="bar"><i style="width:' + (Math.min(inRow, 3) / 3 * 100) + '%"></i></div><div class="meta"><span>' + full.length + ' full mocks taken</span><span>' + (inRow >= 3 ? "Ready to book" : "3 in a row = book it") + '</span></div></div>';
   }
+  html += journeyHtml(t, false);
   var acc = tr.ans ? Math.round(tr.ok / tr.ans * 100) + "%" : "–";
   html += '<div class="stats"><div class="stat"><b class="tabular">' + tr.ans + '</b><span>Answered</span></div><div class="stat"><b class="tabular">' + acc + '</b><span>Accuracy</span></div><div class="stat"><b class="tabular">' + streak() + '</b><span>Day streak</span></div></div>';
   html += '<div class="stats"><div class="stat"><b>' + esc(levelName(t)) + '</b><span>Level</span></div><div class="stat"><b class="tabular">' + tr.xp + '</b><span>XP</span></div><div class="stat"><b class="tabular">' + pool(t).length + '</b><span>In bank</span></div></div>';
@@ -1594,6 +1621,7 @@ function renderProgress(){
     var done = !!S.plan[p[0]];
     html += '<label class="check' + (done ? " done" : "") + '"><input type="checkbox" id="pl-' + p[0] + '" data-plan="' + p[0] + '"' + (done ? " checked" : "") + '><span>' + esc(p[1]) + '</span></label>';
   });
+  html += '<div class="label">Share Klaar</div><div class="ai-box"><p>Know someone preparing for these exams? Send them the link. It shows them how to install it.</p><button class="btn ghost" data-act="share-app" style="width:100%">Share the link</button></div>';
   html += '<div class="label">Show Claude your progress</div><div class="ai-box"><p>The app is offline, so nobody can see your progress, including Claude. Tap below, then paste the text into your chat with Claude. Nothing else is sent anywhere.</p><button class="btn" data-act="share-prog" style="width:100%">Copy my progress</button></div>';
   html += '<div class="label">Backup</div><div class="ai-box"><p>Progress lives on this phone only. Save a backup file now and then, so a new phone or a cleared browser doesn\'t wipe it.</p><div class="pair"><button class="btn ghost" data-act="bk-save">Save backup</button><label class="btn ghost" for="bk-file">Restore<input type="file" id="bk-file" accept="application/json,.json" hidden></label></div></div>';
   html += '<p class="note">Works offline. Practice questions are original and in the style of the real exams, not official CBR or DUO material.</p><p class="note diag" id="diag"></p>';
@@ -1601,6 +1629,8 @@ function renderProgress(){
   var g = $('[data-act="gen"]', v); if (g) g.addEventListener("click", function(){ generate(t, 8); renderProgress(); });
   var as = $('[data-act="arr-set"]', v); if (as) as.addEventListener("click", function(){ var val = $("#arr-in", v).value; if (!/^\d{4}-\d{2}-\d{2}$/.test(val)) return toast("Pick a date first."); S.arrived = val; save(); renderProgress(); });
   var ae = $('[data-act="arr-edit"]', v); if (ae) ae.addEventListener("click", function(){ S.arrived = null; save(); renderProgress(); });
+  var jg = $('[data-act="j-go"]', v); if (jg) jg.addEventListener("click", function(){ setView("exams"); });
+  var sa = $('[data-act="share-app"]', v); if (sa) sa.addEventListener("click", shareApp);
   var sp = $('[data-act="share-prog"]', v); if (sp) sp.addEventListener("click", shareProgress);
   var dg = $("#diag", v); if (dg && window.KLAAR_DIAG) dg.textContent = window.KLAAR_DIAG();
   var bx = $('[data-act="bk-save"]', v); if (bx) bx.addEventListener("click", backupSave);
@@ -1659,6 +1689,64 @@ function backupLoad(f){
     }catch(e){ toast("That file isn't a Klaar backup."); }
   };
   r.readAsText(f);
+}
+
+/* ---------------- where you are (journey), milestone cards, share ---------------- */
+function journey(t){
+  var tr = S.t[t], rec = tr.recent || [], recAcc = rec.length ? rec.reduce(function(a, b){ return a + b; }, 0) / rec.length : 0;
+  var full = tr.mocks.full || [], inRow = 0; for (var i = full.length - 1; i >= 0 && full[i].p; i--) inRow++;
+  var steps;
+  if (t === "drive") steps = [
+    {name:"Learn the rules", done:tr.ans >= 100, p:Math.min(1, tr.ans / 100), msg:tr.ans + " of 100 questions answered. " + Math.max(0, 100 - tr.ans) + " more and you know the basics."},
+    {name:"Score 85% in practice", done:tr.level >= 2 || (rec.length >= 20 && recAcc >= 0.85), p:Math.min(1, recAcc / 0.85), msg:rec.length < 10 ? "Answer " + (10 - rec.length) + " more to see your score." : "Your last " + rec.length + " answers: " + Math.round(recAcc * 100) + "% right. Aim for 85%."},
+    {name:"Pass the quick mock", done:mockPassed(t, "quick"), p:0, msg:"20 questions in 12 minutes. You need 18 right.", go:true},
+    {name:"Pass the full mock 3 in a row", done:inRow >= 3 || !!S.plan["d-mock3"], p:inRow / 3, msg:"Full mocks passed in a row: " + Math.min(inRow, 3) + " of 3. Three in a row means you're ready.", go:true},
+    {name:"Book the real exam", done:!!S.plan["d-book"], p:0, msg:"You're ready. Book the CBR theory exam in English, then tick it off in your checklist below."}
+  ];
+  else steps = [
+    {name:"Learn the basics", done:tr.ans >= 60, p:Math.min(1, tr.ans / 60), msg:tr.ans + " of 60 questions answered. " + Math.max(0, 60 - tr.ans) + " more and you know the basics."},
+    {name:"Pass the KNM mock", done:mockPassed(t, "knm"), p:0, msg:"Dutch society, scored like the real KNM exam.", go:true},
+    {name:"Pass the reading mock", done:mockPassed(t, "a2-lezen"), p:0, msg:"Short Dutch texts at A2, like the real reading exam.", go:true},
+    {name:"Pass listening and writing", done:mockPassed(t, "a2-luisteren") && mockPassed(t, "a2-schrijven"), p:(mockPassed(t, "a2-luisteren") ? 0.5 : 0) + (mockPassed(t, "a2-schrijven") ? 0.5 : 0), msg:"Two more practice exams and the A2 part is covered.", go:true},
+    {name:"Book your real exams", done:!!S.plan["c-knm"], p:0, msg:"You're ready. Book KNM and A2 in Mijn Inburgering, then tick them off below."}
+  ];
+  var at = 0; while (at < steps.length && steps[at].done) at++;
+  return {steps:steps, at:at};
+}
+var CHEERS = ["Nice work.", "Keep it up.", "That's real progress.", "You're getting there.", "Solid session."];
+function journeyHtml(t, compact){
+  var j = journey(t), n = j.steps.length, all = j.at >= n, cur = all ? null : j.steps[j.at];
+  var html = '<div class="journey' + (compact ? " compact" : "") + '"><div class="j-cap">Where you are</div><div class="j-track" aria-hidden="true">';
+  j.steps.forEach(function(s, i){
+    html += '<span class="j-dot' + (s.done ? " done" : (i === j.at ? " now" : "")) + '">' + (s.done ? "✓" : (i + 1)) + '</span>' + (i < n - 1 ? '<span class="j-line' + (s.done ? " done" : "") + '"></span>' : "");
+  });
+  html += '</div>';
+  if (all) html += '<div class="j-now">All ' + n + ' steps done</div><p class="j-msg">You did the work. Keep a short streak going until exam day.</p>';
+  else {
+    html += '<div class="j-step">Step ' + (j.at + 1) + ' of ' + n + '</div><div class="j-now">' + esc(cur.name) + '</div>';
+    if (cur.p > 0) html += '<div class="j-bar"><i style="width:' + Math.round(cur.p * 100) + '%"></i></div>';
+    html += '<p class="j-msg">' + esc(cur.msg) + '</p>';
+    if (cur.go && !compact) html += '<button class="btn pop j-go" data-act="j-go">Go to exams</button>';
+  }
+  return html + '</div>';
+}
+var milestoneDue = false;
+function renderMilestone(){
+  var t = S.track, today = S.days[dayKey()] || 0, j = journey(t), cur = j.steps[j.at];
+  var v = $("#v-feed");
+  var html = feedHead() + '<article class="qcard enter milestone"><div class="m-big tabular">' + today + '</div><div class="m-cap">questions today</div><p class="m-cheer">' +
+    esc(CHEERS[Math.floor(today / 10) % CHEERS.length]) + (today >= S.goal ? " Daily goal done." : " " + (S.goal - today) + " to go for your daily goal.") + '</p>' + journeyHtml(t, true) +
+    '<div class="fb-actions">' + (cur && cur.go ? '<button class="btn ghost" data-act="m-exam">Try the mock</button>' : "") + '<button class="btn" data-act="m-next">Keep going</button></div></article>';
+  v.innerHTML = html;
+  $('[data-act="m-next"]', v).addEventListener("click", nextQuestion);
+  var me = $('[data-act="m-exam"]', v); if (me) me.addEventListener("click", function(){ setView("exams"); });
+  window.scrollTo(0, 0);
+}
+function shareApp(){
+  var url = location.origin + location.pathname.replace(/index\.html$/, "");
+  var text = "Klaar: free practice for the Dutch driving theory exam and the inburgering exam. Works offline.";
+  if (navigator.share) navigator.share({title:"Klaar", text:text, url:url}).catch(function(){});
+  else if (navigator.clipboard) navigator.clipboard.writeText(text + " " + url).then(function(){ toast("Link copied."); });
 }
 
 /* ---------------- shell ---------------- */
@@ -1720,7 +1808,11 @@ try{ if (navigator.storage && navigator.storage.persist) navigator.storage.persi
     var gap = st && top > 0 ? Math.round(full - window.innerHeight) : 0;
     if (gap < 2 || gap > 140) gap = 0;
     var pad = st && gap && bot < 1 && /iphone/i.test(navigator.userAgent) && full >= 812 ? 26 : 0;
-    /* measured for the readout only: pushing the bar down over-shot on a real iPhone, the bar's ::after now fills any strip */
+    var bar = document.querySelector(".tabbar"), root = document.documentElement;
+    if (gap && bar){
+      root.style.setProperty("--vpad", pad + "px"); root.style.setProperty("--vgap", gap + "px"); root.classList.add("pinbar");
+      root.style.setProperty("--bar-top", (full - bar.offsetHeight) + "px");
+    } else { root.classList.remove("pinbar"); root.style.setProperty("--vgap", "0px"); root.style.setProperty("--vpad", "0px"); }
     info = {st:st, full:full, inner:window.innerHeight, top:top, bot:bot, gap:gap, pad:pad};
   }
   window.KLAAR_DIAG = function(){ fit(); return "Screen " + info.full + " · view " + info.inner + " · safe " + info.top + "/" + info.bot + " · fix " + info.gap + "/" + info.pad + (info.st ? " · app" : " · browser"); };
@@ -1728,6 +1820,8 @@ try{ if (navigator.storage && navigator.storage.persist) navigator.storage.persi
   window.addEventListener("resize", fit);
   window.addEventListener("orientationchange", function(){ setTimeout(fit, 300); });
   window.addEventListener("pageshow", fit);
+  document.addEventListener("visibilitychange", function(){ if (!document.hidden) setTimeout(fit, 120); });
+  [400, 1200, 2500].forEach(function(ms){ setTimeout(fit, ms); });
   if ("serviceWorker" in navigator) window.addEventListener("load", function(){ navigator.serviceWorker.register("sw.js").catch(function(){}); });
   var standalone = window.navigator.standalone === true || (window.matchMedia && matchMedia("(display-mode: standalone)").matches);
   var ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -1748,7 +1842,8 @@ try{ if (navigator.storage && navigator.storage.persist) navigator.storage.persi
   var ua = navigator.userAgent;
   var standalone = window.navigator.standalone === true || (window.matchMedia && matchMedia("(display-mode: standalone)").matches);
   var ios = /iphone|ipad|ipod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
-  var iosOther = ios && /CriOS|FxiOS|EdgiOS|GSA\//.test(ua);
+  var inApp = /Instagram|FBAN|FBAV|FB_IAB|LinkedInApp|Snapchat|TikTok|musical_ly|BytedanceWebview|Twitter|Line\//i.test(ua);
+  var iosOther = ios && (inApp || /CriOS|FxiOS|EdgiOS|GSA\//.test(ua));
   var android = /android/i.test(ua);
   var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
   var deferred = null, timer = null;
@@ -1798,7 +1893,10 @@ try{ if (navigator.storage && navigator.storage.persist) navigator.storage.persi
       html = head + '<h1>Put Klaar on your home screen</h1><p class="sub">Practise for the Dutch driving theory exam and the integration exam, one question at a time. Free, and it works offline. Takes 20 seconds:</p>' +
         mockIOS() + stepsHtml(IOS_STEPS);
     } else if (iosOther){
-      html = head + '<h1>Open this page in Safari</h1><p class="sub">On iPhone, apps from a link install best from Safari. Copy the link, open Safari, paste it in the address bar.</p>' +
+      html = head + '<h1>Open this page in Safari</h1><p class="sub">' + (inApp ? "You opened this inside another app. Tap the \u2022\u2022\u2022 or share icon in the corner and choose Open in Safari, or copy the link and paste it in Safari." : "Klaar installs from Safari. Copy the link, open Safari and paste it in the address bar.") + '</p>' +
+        '<div class="onb-url">' + URL_NOW + '</div><div class="onb-foot" style="margin-top:14px"><button class="btn" id="onb-copy">Copy link</button></div>';
+    } else if (android && inApp){
+      html = head + '<h1>Open this page in Chrome</h1><p class="sub">You opened this inside another app. Tap \u22ee in the corner and choose Open in Chrome (or Open in browser). Then you can install Klaar.</p>' +
         '<div class="onb-url">' + URL_NOW + '</div><div class="onb-foot" style="margin-top:14px"><button class="btn" id="onb-copy">Copy link</button></div>';
     } else if (android){
       html = head + '<h1>Install Klaar</h1><p class="sub">Practise for the Dutch driving theory exam and the integration exam. Free, and it works offline.</p>' +
