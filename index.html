@@ -423,6 +423,14 @@ body{padding-bottom:calc(var(--tabbar) + env(safe-area-inset-bottom,0px) + 18px)
 .m-cap{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
 .m-cheer{font-size:16px;font-weight:700;margin:12px 0 0}
 .milestone .journey{text-align:left}
+
+/* tab changes */
+.tabbar-in{position:relative}
+.tab{position:relative;z-index:1}
+.tab-ind{position:absolute;left:0;top:6px;bottom:6px;width:calc(100% / 3);pointer-events:none;transition:transform .42s cubic-bezier(.2,.9,.25,1)}
+.tab-ind::before{content:"";position:absolute;inset:0 22%;border-radius:14px;background:color-mix(in srgb,var(--accent) 16%,transparent)}
+.v-in{animation:viewIn .34s cubic-bezier(.2,.9,.25,1) both}
+@keyframes viewIn{from{opacity:0;transform:translateX(calc(var(--dir,1) * 28px))}}
 </style>
 </head>
 <body>
@@ -446,6 +454,7 @@ body{padding-bottom:calc(var(--tabbar) + env(safe-area-inset-bottom,0px) + 18px)
 
 <nav class="tabbar" aria-label="Sections">
   <div class="tabbar-in" role="tablist">
+    <span class="tab-ind" aria-hidden="true"></span>
     <button class="tab" role="tab" data-view="feed"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 10l3-3 3 3M12 7v9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Feed</button>
     <button class="tab" role="tab" data-view="exams"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 9v4l3 2M9 2h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Exams</button>
     <button class="tab" role="tab" data-view="progress"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Progress</button>
@@ -1766,10 +1775,13 @@ function setTrack(t){
 }
 function confirmLeave(){ return true; }
 function setView(v){
+  var ORDER = ["feed", "exams", "progress"], changed = v !== view, dir = ORDER.indexOf(v) >= ORDER.indexOf(view) ? 1 : -1;
   view = v; S.view = v; save();
   document.body.setAttribute("data-view", v);
   $("#v-feed").hidden = v !== "feed"; $("#v-exams").hidden = v !== "exams"; $("#v-progress").hidden = v !== "progress";
   $$(".tab").forEach(function(b){ b.setAttribute("aria-selected", String(b.getAttribute("data-view") === v)); });
+  var ind = $(".tab-ind"); if (ind) ind.style.transform = "translateX(" + (ORDER.indexOf(v) * 100) + "%)";
+  if (changed){ var sec = $("#v-" + v); sec.style.setProperty("--dir", dir); sec.classList.remove("v-in"); void sec.offsetWidth; sec.classList.add("v-in"); }
   if (v === "feed"){ if (!cur || cur.q.track !== S.track) nextQuestion(); else renderFeed(); }
   if (v === "exams" && !run) renderExams();
   if (v === "progress") renderProgress();
@@ -1800,13 +1812,17 @@ try{ if (navigator.storage && navigator.storage.persist) navigator.storage.persi
   var probe = document.createElement("div");
   probe.style.cssText = "position:fixed;left:0;top:0;width:0;visibility:hidden;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)";
   document.body.appendChild(probe);
+  var fixedProbe = document.createElement("div");
+  fixedProbe.style.cssText = "position:fixed;left:0;bottom:0;width:1px;height:1px;visibility:hidden;pointer-events:none";
+  document.body.appendChild(fixedProbe);
   var info = {};
   function fit(){
     var st = window.navigator.standalone === true || (window.matchMedia && matchMedia("(display-mode: standalone)").matches);
     var cs = getComputedStyle(probe), top = parseFloat(cs.paddingTop) || 0, bot = parseFloat(cs.paddingBottom) || 0;
     var portrait = !window.matchMedia || matchMedia("(orientation: portrait)").matches;
     var full = portrait ? Math.max(screen.width, screen.height) : Math.min(screen.width, screen.height);
-    var gap = st && top > 0 ? Math.round(full - window.innerHeight) : 0;
+    var fb = Math.round(fixedProbe.getBoundingClientRect().bottom);  /* where position:fixed bottom:0 really lands */
+    var gap = st && top > 0 ? Math.round(full - fb) : 0;
     if (gap < 2 || gap > 140) gap = 0;
     var pad = st && gap && bot < 1 && /iphone/i.test(navigator.userAgent) && full >= 812 ? 26 : 0;
     var bar = document.querySelector(".tabbar"), root = document.documentElement;
@@ -1815,9 +1831,9 @@ try{ if (navigator.storage && navigator.storage.persist) navigator.storage.persi
       root.style.setProperty("--bar-top", (full - bar.offsetHeight) + "px");
       root.style.setProperty("--full-h", full + "px");
     } else { root.classList.remove("pinbar"); root.style.setProperty("--vgap", "0px"); root.style.setProperty("--vpad", "0px"); }
-    info = {st:st, full:full, inner:window.innerHeight, top:top, bot:bot, gap:gap, pad:pad};
+    info = {st:st, full:full, inner:window.innerHeight, fb:fb, top:top, bot:bot, gap:gap, pad:pad};
   }
-  window.KLAAR_DIAG = function(){ fit(); return "Screen " + info.full + " · view " + info.inner + " · safe " + info.top + "/" + info.bot + " · fix " + info.gap + "/" + info.pad + (info.st ? " · app" : " · browser"); };
+  window.KLAAR_DIAG = function(){ fit(); return "Screen " + info.full + " · view " + info.inner + "/" + info.fb + " · safe " + info.top + "/" + info.bot + " · fix " + info.gap + "/" + info.pad + (info.st ? " · app" : " · browser"); };
   fit();
   window.addEventListener("resize", fit);
   window.addEventListener("orientationchange", function(){ setTimeout(fit, 300); });
