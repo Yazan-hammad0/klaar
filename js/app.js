@@ -58,7 +58,7 @@ function reindex(){
 function pool(t){ return STATIC[t].concat(GEN[t]); }
 
 /* ---------------- state ---------------- */
-function freshTrack(){ return {xp:0, ans:0, ok:0, level:1, recent:[], topics:{}, seen:{}, wrong:[], mocks:{}, combo:0, aiOk:false}; }
+function freshTrack(){ return {xp:0, ans:0, ok:0, level:1, recent:[], topics:{}, seen:{}, taught:{}, wrong:[], mocks:{}, combo:0, aiOk:false}; }
 function freshState(){ return {v:1, updated:0, track:"drive", view:"feed", t:{drive:freshTrack(), civic:freshTrack()}, days:{}, goal:30, plan:{}}; }
 function mergeState(raw){
   var s = freshState();
@@ -257,7 +257,7 @@ function refreshAiBits(){
 
 /* ---------------- stats ---------------- */
 function topicAcc(tr, topic){ var x = tr.topics[topic]; return x && x.a ? x.ok / x.a : 0.6; }
-function record(q, ok, fromExam){
+function record(q, ok, fromExam, justTaught){
   var tr = S.t[q.track];
   tr.ans++; if (ok) tr.ok++;
   var tp = tr.topics[q.topic] || (tr.topics[q.topic] = {a:0, ok:0});
@@ -268,7 +268,8 @@ function record(q, ok, fromExam){
   if (!fromExam){
     tr.combo = ok ? tr.combo + 1 : 0;
     tr.xp += ok ? 10 + Math.min(tr.combo, 10) : 2;
-    tr.recent.push(ok ? 1 : 0); if (tr.recent.length > 20) tr.recent = tr.recent.slice(-20);
+    /* Just-taught answers are too easy to count towards a civic level-up, or B1 would open after a few lessons. */
+    if (!(justTaught && q.track === "civic")){ tr.recent.push(ok ? 1 : 0); if (tr.recent.length > 20) tr.recent = tr.recent.slice(-20); }
     if (!ok) tr.wrong.push({id:q.id, due:tr.ans + 5});
     if (tr.recent.length >= 20 && tr.recent.reduce(function(a, b){ return a + b; }, 0) >= 17 && tr.level < MAXLV[q.track]){
       tr.level++; tr.recent = []; leveled = true;
@@ -376,6 +377,21 @@ function fitsProfile(q){
 }
 function profileBoost(q){ return q.track === "drive" && prof().drive === "abroad" && DUTCH_SPECIFIC[q.topic] ? 2 : 0; }
 function levelCap(t){ return t === "drive" ? 99 : S.t.civic.level; }
+/* Teach first: a new fact is shown with its answer in a short lesson, and only then asked. On by default; "test" turns it off. */
+function teachFirst(){ return prof().style !== "test"; }
+/* Facts can be taught. Reading, listening and B1+ texts can't: what's missing there is Dutch, not a fact. */
+function lessonable(q){ return q.track === "drive" || q.sec === "basics" || q.sec === "knm" || q.sec === "a2-schrijven"; }
+function needsLesson(q){ var tr = S.t[q.track]; return teachFirst() && lessonable(q) && !tr.seen[q.id] && !tr.taught[q.id]; }
+var lesson = null;
+function startLesson(first){
+  var t = S.track, tr = S.t[t], cap = levelCap(t);
+  var more = pool(t).filter(function(x){ return x.id !== first.id && x.topic === first.topic && (x.lvl || 1) <= cap && lessonable(x) && !tr.seen[x.id] && !tr.taught[x.id]; });
+  var fit = more.filter(fitsProfile); if (fit.length) more = fit;
+  lesson = {track:t, topic:first.topic, items:[first].concat(shuffle(more).slice(0, 2))};
+  cur = null; waitingForQuestions = false;
+  renderFeed(true);
+  scrollTop0();
+}
 function pickNext(t){
   var tr = S.t[t];
   for (var i = 0; i < tr.wrong.length; i++){
@@ -384,6 +400,10 @@ function pickNext(t){
       if (INDEX[w.id] && w.id !== lastId) return INDEX[w.id];
       i--;
     }
+  }
+  if (teachFirst()){
+    var pend = pool(t).filter(function(x){ return tr.taught[x.id] && !tr.seen[x.id] && x.id !== lastId; });
+    if (pend.length) return pend[Math.floor(Math.random() * pend.length)];
   }
   var cap = levelCap(t);
   var p = pool(t).filter(function(q){ return (q.lvl || 1) <= cap; });
@@ -404,8 +424,10 @@ function pickNext(t){
 }
 function nextQuestion(){
   if (milestoneDue){ milestoneDue = false; renderMilestone(); return; }
+  if (lesson && lesson.track === S.track){ renderFeed(); return; }
   var q = pickNext(S.track);
   if (!q){ cur = null; waitingForQuestions = true; renderFeed(); return; }
+  if (needsLesson(q)){ startLesson(q); return; }
   waitingForQuestions = false;
   lastId = q.id;
   cur = {q:q, done:false, sel:null, order:q.kind === "mc" ? shuffle(q.o.map(function(_, i){ return i; })) : (q.o ? q.o.map(function(_, i){ return i; }) : null), input:""};
@@ -428,8 +450,26 @@ function feedHead(){
     '</div></div>' +
     '<div class="xpbar" title="Progress to next level"><i style="width:' + (tr.level >= MAXLV[S.track] ? 100 : lvlPct) + '%"></i></div>';
 }
+function renderLesson(v, entering){
+  var L = lesson, n = L.items.length, one = n === 1;
+  var h = feedHead() + '<article class="qcard lesson' + (entering ? " enter" : "") + '" id="qcard"><div class="eyebrow"><span>' + esc(L.topic) + '</span><span class="tag">Learn first</span></div>' +
+    '<h3 class="les-h">' + (one ? "One thing to know" : n + " things to know") + '</h3><p class="les-sub">Read ' + (one ? "this" : "these") + '. Then you get asked about ' + (one ? "it" : "them") + '.</p>';
+  L.items.forEach(function(q){
+    h += '<div class="les-item">' + visualFor(q) + '<p class="les-q">' + mark(q.track, q.kind === "num" ? q.q.replace(/\s*\(type a number\)\s*$/i, "") : q.q) + '</p>' + (q.en ? '<p class="les-en">' + esc(q.en) + '</p>' : "") +
+      '<p class="les-a"><span>Answer</span><b>' + esc(correctText(q)) + '</b></p>' + (q.e ? '<p class="les-e">' + mark(q.track, q.e) + '</p>' : "") +
+      (q.src ? '<p class="src">Source: ' + esc(srcName(q.src)) + '</p>' : "") + '</div>';
+  });
+  h += '<button class="btn pop les-go" data-act="learned">Test me on ' + (one ? "this" : "these") + '</button><p class="hint">Want questions only? Change it on the Progress tab.</p></article>';
+  v.innerHTML = h;
+  $('[data-act="learned"]', v).addEventListener("click", function(){
+    var tr = S.t[L.track], now = Date.now();
+    L.items.forEach(function(q){ tr.taught[q.id] = now; });
+    lesson = null; save(); nextQuestion();
+  });
+}
 function renderFeed(entering){
   var v = $("#v-feed");
+  if (lesson){ renderLesson(v, entering); return; }
   if (!cur){
     var t = S.track, busy = ai[t] === "busy";
     var html = feedHead() + '<article class="qcard"><div class="empty">';
@@ -489,9 +529,9 @@ function burst(btn){
 }
 function answer(a, btnRect){
   if (cur.done) return;
-  var q = cur.q, ok = isRight(q, a);
+  var q = cur.q, ok = isRight(q, a), tr0 = S.t[q.track], justTaught = !!tr0.taught[q.id] && !tr0.seen[q.id];
   cur.done = true; cur.sel = a; cur.ok = ok;
-  var leveled = record(q, ok, false);
+  var leveled = record(q, ok, false, justTaught);
   renderFeed();
   var card = $("#qcard");
   if (card){ card.classList.add(ok ? "hit" : "miss"); }
@@ -770,6 +810,9 @@ function renderProgress(){
 
   html += '<div class="label">Daily goal</div><div class="stats" role="group" aria-label="Daily goal">' + [15, 30, 50].map(function(g){ return '<button class="btn ' + (S.goal === g ? "" : "ghost") + '" data-goal="' + g + '">' + g + ' a day</button>'; }).join("") + '</div>';
 
+  html += '<div class="label">How you learn</div><div class="pair" role="group" aria-label="How you learn">' + [["learn", "Lessons first"], ["test", "Questions only"]].map(function(s){ return '<button class="btn ' + ((teachFirst() ? "learn" : "test") === s[0] ? "" : "ghost") + '" data-style="' + s[0] + '">' + s[1] + '</button>'; }).join("") + '</div>' +
+    '<p class="note">' + (teachFirst() ? "New facts come as a short lesson first, then questions on them. Mock exams are always the real test." : "You get questions straight away and learn from the answers.") + '</p>';
+
   html += '<div class="label">Your ' + (t === "drive" ? "licence" : "citizenship") + ' checklist</div>';
   PLAN[t].forEach(function(p){
     var done = !!S.plan[p[0]];
@@ -792,6 +835,7 @@ function renderProgress(){
   var bx = $('[data-act="bk-save"]', v); if (bx) bx.addEventListener("click", backupSave);
   var bi = $("#bk-file", v); if (bi) bi.addEventListener("change", function(){ if (bi.files && bi.files[0]) backupLoad(bi.files[0]); });
   $$("[data-goal]", v).forEach(function(b){ b.addEventListener("click", function(){ S.goal = +b.getAttribute("data-goal"); save(); renderProgress(); }); });
+  $$("[data-style]", v).forEach(function(b){ b.addEventListener("click", function(){ S.prof = S.prof || {}; S.prof.style = b.getAttribute("data-style"); lesson = null; save(); renderProgress(); }); });
   $$("[data-plan]", v).forEach(function(c){ c.addEventListener("change", function(){ S.plan[c.getAttribute("data-plan")] = c.checked; save(); renderProgress(); }); });
 }
 
@@ -975,7 +1019,7 @@ function setTrack(t){
   if (t === S.track) return;
   if (run && !confirmLeave()) return;
   if ("speechSynthesis" in window) try{ speechSynthesis.cancel(); }catch(e){}
-  S.track = t; save(); applyTrack(); cur = null; lastId = null; stopTimer(); run = null;
+  S.track = t; save(); applyTrack(); cur = null; lesson = null; lastId = null; stopTimer(); run = null;
   renderAll(true);
 }
 function confirmLeave(){ return true; }
@@ -1007,12 +1051,13 @@ function profileLine(){
   var bits = [];
   if (goals().indexOf("civic") >= 0 && pr.nl) bits.push(NL[pr.nl]);
   if (goals().indexOf("drive") >= 0 && pr.drive) bits.push(DR[pr.drive]);
+  bits.push(teachFirst() ? "lessons first" : "questions only");
   bits.push(S.goal + " questions a day");
   var s = bits.join(", "); return s.charAt(0).toUpperCase() + s.slice(1) + ".";
 }
 function applyProfile(p, fresh){
   if (fresh){ var keep = {arrived:S.arrived, goal:S.goal, view:"home"}; S = freshState(); S.arrived = keep.arrived; S.view = "home"; cur = null; lastId = null; }
-  S.prof = p; S.prof.at = Date.now(); S.onboarded = true;
+  S.prof = p; S.prof.at = Date.now(); S.onboarded = true; lesson = null;
   if (p.goal) S.goal = p.goal;
   if (p.nl === "b1" && S.t.civic.level < 2) S.t.civic.level = 2;
   var g = goals(); if (g.indexOf(S.track) < 0){ S.track = g[0]; applyTrack(); }

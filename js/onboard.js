@@ -213,6 +213,7 @@
         if (a.goals.indexOf("drive") < 0) return next();
         ask("And driving?", [["I've never driven", "", "new"], ["I drive, but not in the Netherlands", "", "abroad"], ["I've had lessons here", "", "lessons"]], function(v){ a.drive = v; next(); });
       },
+      function(next){ ask("How do you like to learn?", [["Teach me first, then test me", "A short lesson, then questions on it", "learn"], ["Test me straight away", "I learn from the answers", "test"]], function(v){ a.style = v; next(); }); },
       function(next){ ask("How much time do you have on most days?", [["About 5 minutes", "15 questions", 15], ["About 10 minutes", "30 questions", 30], ["20 minutes or more", "50 questions", 50]], function(v){ a.goal = v; next(); }); },
       function(next){
         if (!done) return next();
@@ -229,10 +230,11 @@
           "new":"Driving: rules and signs first. Hazard scenes join after 30 answers.",
           abroad:"Driving: extra focus on what's different here, like priority rules, cyclists and signs.",
           lessons:"Driving: the full mix, the way the CBR exam asks it."}[a.drive]);
+        L.push(a.style === "test" ? "Questions only: you learn from the explanation after each answer." : "Lessons first: each new topic starts with a short lesson, then questions on it. Mock exams are always the real test.");
         L.push(a.goal + " questions a day. Tap an answer, then swipe up for the next one.");
         bot("Here's your plan:<ul>" + L.map(function(x){ return "<li>" + x + "</li>"; }).join("") + "</ul>You can change this any time on the Progress tab.", function(){
           chips.innerHTML = '<button class="btn chip-go" id="chat-go">Let\'s go</button>'; chips.classList.add("on"); scroll();
-          chips.querySelector("#chat-go").addEventListener("click", function(){ K.applyProfile({goals:a.goals, nl:a.nl || old.nl, drive:a.drive || old.drive, goal:a.goal}, !!a.fresh); close(); });
+          chips.querySelector("#chat-go").addEventListener("click", function(){ K.applyProfile({goals:a.goals, nl:a.nl || old.nl, drive:a.drive || old.drive, style:a.style, goal:a.goal}, !!a.fresh); close(); });
         });
       }
     ];

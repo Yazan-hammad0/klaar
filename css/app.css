@@ -491,3 +491,18 @@ html.shell .toast{bottom:auto;top:calc(var(--app-h) - var(--tabbar) - env(safe-a
 .chip-a small{display:block;font-weight:600;font-size:12px;color:var(--muted);margin-top:2px}
 .chip-go{width:100%;padding:16px;font-size:16px;border-radius:16px}
 .en-pre{margin:-8px 0 14px;font-size:14.5px;color:var(--muted);font-style:italic;line-height:1.45}
+
+/* lesson card: facts with their answers, shown before the questions */
+.lesson .les-h{font-family:var(--font-display);font-weight:900;font-size:24px;letter-spacing:-.02em;line-height:1.15;margin:0 0 4px}
+.lesson .les-sub{margin:0 0 16px;font-size:14.5px;color:var(--muted)}
+.les-item{background:var(--raise);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:10px}
+.les-item .visual{margin:0 0 10px}
+.les-item .visual svg{width:64px;height:64px}
+.les-item p{margin:0 0 8px}
+.les-item p:last-child{margin-bottom:0}
+.les-q{font-weight:700;font-size:15.5px;line-height:1.4}
+.les-en{font-size:13.5px;color:var(--muted);font-style:italic;line-height:1.4}
+.les-a{display:flex;flex-direction:column;gap:2px;border-left:4px solid var(--ok);padding:2px 0 2px 10px;font-size:16px;line-height:1.35}
+.les-a span{font:700 10.5px var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ok)}
+.les-e{font-size:14.5px;line-height:1.5}
+.les-go{width:100%;margin-top:6px;padding:16px;font-size:16px}

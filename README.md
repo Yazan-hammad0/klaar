@@ -14,7 +14,7 @@ No framework and no build step. GitHub Pages serves this folder as-is.
 | `index.html` | Page markup: header, four tabs (Home, Feed, Exams, Progress), menu bar |
 | `css/app.css` | All styles, light and dark |
 | `js/content.js` | Question banks, road-sign drawings, glossaries. `EXTRA` holds the sourced questions added in Nov 2026 |
-| `js/app.js` | The app: feed with spaced repetition, mock exams, progress, home, journey steps |
+| `js/app.js` | The app: feed with spaced repetition and teach-first lessons, mock exams, progress, home, journey steps |
 | `js/shell.js` | Screen-tall layout for the home-screen app, the "new version" card, service worker registration |
 | `js/onboard.js` | Install guide per device and browser, and the 3-screen intro |
 | `sw.js` | Offline cache |
