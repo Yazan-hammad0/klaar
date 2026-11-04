@@ -27,6 +27,7 @@ window.I18N_DATA = {rows: [
 ["Next lesson:","الدرس التالي:","Sonraki ders:"],
 ["Start the next lesson","ابدأ الدرس التالي","Sonraki derse başla"],
 ["Swipe for the next step","اسحب للخطوة التالية","Sonraki adım için kaydır"],
+["Listening: all clips are now read by one clearer, calmer Dutch voice.","الاستماع: كل المقاطع الآن بصوت هولندي واحد أوضح وأهدأ.","Dinleme: tüm kayıtlar artık daha net ve sakin tek bir Hollandaca sesle okunuyor."],
 ["Stopping or parking? It depends on why you stand still", "توقف أم ركن؟ يعتمد ذلك على سبب وقوفك", "Durmak mı, park etmek mi? Neden durduğuna bağlı"],
 ["Standing still just to let someone in or out, or to load or unload, is stopping (stilstaan). Leaving your car for anything else is parking, even for two minutes to buy a coffee.", "الوقوف فقط لإنزال أو إركاب شخص، أو للتحميل والتفريغ، هو توقف (stilstaan). أما ترك سيارتك لأي سبب آخر فهو ركن، حتى لو لدقيقتين لشراء قهوة.", "Sadece birini indirmek ya da bindirmek veya yük indirip bindirmek için durmak duraklamadır (stilstaan). Arabanı başka bir şey için bırakmak, kahve almak için iki dakika bile olsa, park etmektir."],
 ["Many places ban parking but still allow a quick drop-off, so you need to know which one you are doing.", "أماكن كثيرة تمنع الركن لكنها تسمح بالإنزال السريع، لذا عليك أن تعرف أيهما تفعل.", "Birçok yerde park yasaktır ama kısa bir indirme serbesttir; bu yüzden hangisini yaptığını bilmelisin."],
