@@ -27,6 +27,7 @@ window.I18N_DATA = {rows: [
 ["Next lesson:","الدرس التالي:","Sonraki ders:"],
 ["Start the next lesson","ابدأ الدرس التالي","Sonraki derse başla"],
 ["Swipe for the next step","اسحب للخطوة التالية","Sonraki adım için kaydır"],
+["New: hazard questions now show the road ahead, as you see it through the windscreen.", "جديد: أسئلة إدراك الخطر تعرض الآن الطريق أمامك كما تراه من الزجاج الأمامي.", "Yeni: tehlike algısı soruları artık önündeki yolu ön camdan gördüğün gibi gösteriyor."],
 ["Smoother scrolling: the question card no longer holds up your swipes.", "تمرير أكثر سلاسة: بطاقة السؤال لم تعد تعيق السحب.", "Daha akıcı kaydırma: soru kartı artık kaydırmanı yavaşlatmıyor."],
 ["Your road to a licence", "طريقك إلى رخصة القيادة", "Ehliyete giden yolun"],
 ["Your road to inburgering and citizenship", "طريقك إلى الاندماج والجنسية", "Uyum ve vatandaşlığa giden yolun"],

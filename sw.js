@@ -1,7 +1,7 @@
 // Klaar offline cache. release.py stamps VERSION; a new VERSION makes phones download everything fresh.
-const VERSION = "c55a0f9ae3";
+const VERSION = "5240138ee6";
 const CACHE = "klaar-" + VERSION, FONTS = "klaar-fonts";
-const SHELL = ["./", "./index.html", "./css/app.css", "./js/i18n-data.js", "./js/i18n.js", "./js/content.js", "./js/audio.js", "./js/lessons.js", "./js/glossary.js", "./js/app.js", "./js/shell.js", "./js/setup.js", "./js/onboard.js", "./manifest.webmanifest", "./icon-180.png", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png"];
+const SHELL = ["./", "./index.html", "./css/app.css", "./js/i18n-data.js", "./js/i18n.js", "./js/content.js", "./js/audio.js", "./js/lessons.js", "./js/view.js", "./js/glossary.js", "./js/app.js", "./js/shell.js", "./js/setup.js", "./js/onboard.js", "./manifest.webmanifest", "./icon-180.png", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png"];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL.map(u => new Request(u, {cache: "reload"})))).then(() => self.skipWaiting()));
 });
