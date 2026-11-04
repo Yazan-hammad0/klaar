@@ -59,7 +59,7 @@ function reindex(){
 function pool(t){ return STATIC[t].concat(GEN[t]); }
 
 /* ---------------- state ---------------- */
-function freshTrack(){ return {xp:0, ans:0, ok:0, level:1, recent:[], topics:{}, seen:{}, taught:{}, wrong:[], mocks:{}, combo:0, aiOk:false}; }
+function freshTrack(){ return {xp:0, ans:0, ok:0, level:1, recent:[], topics:{}, seen:{}, taught:{}, primers:{}, wrong:[], mocks:{}, combo:0, aiOk:false}; }
 function freshState(){ return {v:1, updated:0, track:"drive", view:"feed", t:{drive:freshTrack(), civic:freshTrack()}, days:{}, goal:30, plan:{}}; }
 function mergeState(raw){
   var s = freshState();
@@ -388,7 +388,9 @@ function startLesson(first){
   var t = S.track, tr = S.t[t], cap = levelCap(t);
   var more = pool(t).filter(function(x){ return x.id !== first.id && x.topic === first.topic && (x.lvl || 1) <= cap && lessonable(x) && !tr.seen[x.id] && !tr.taught[x.id]; });
   var fit = more.filter(fitsProfile); if (fit.length) more = fit;
-  lesson = {track:t, topic:first.topic, items:[first].concat(shuffle(more).slice(0, 2)), shown:{}};
+  var steps = window.LESSONS && LESSONS[t] && LESSONS[t][first.topic];
+  lesson = {track:t, topic:first.topic, items:[first].concat(shuffle(more).slice(0, 2)), shown:{},
+    primer:steps && !(tr.primers || {})[first.topic] ? {steps:steps, i:0} : null};
   cur = null; waitingForQuestions = false;
   renderFeed(true);
   scrollTop0();
@@ -459,7 +461,24 @@ function feedHead(){
     '</div></div>' +
     '<div class="xpbar" title="Progress to next level"><i style="width:' + (tr.level >= MAXLV[S.track] ? 100 : lvlPct) + '%"></i></div>';
 }
+/* the topic lesson: a few steps with an animated scene, shown once before the first questions on a topic */
+function renderPrimer(v, entering){
+  var L = lesson, P = L.primer, st = P.steps[P.i], last = P.i === P.steps.length - 1;
+  var h = feedHead() + '<article class="qcard lesson primer' + (entering ? " enter" : "") + '" id="qcard"><div class="eyebrow"><span>' + esc(L.topic) + '</span><span class="tag">Lesson</span><span class="pr-count tabular">' + (P.i + 1) + ' / ' + P.steps.length + '</span></div>' +
+    '<div class="lscene">' + (window.LESSON_SCENE ? LESSON_SCENE(st.scene) : "") + '</div>' +
+    '<h3 class="les-h">' + esc(st.h) + '</h3><p class="pr-t">' + (window.I18N && I18N.get() !== "en" ? esc(st.t) : mark(L.track, st.t)) + '</p>' +
+    '<p class="pr-why"><b>Why</b><span>' + esc(st.why) + '</span></p>' + (st.src ? '<p class="src">Source: ' + esc(srcName(st.src)) + '</p>' : "") +
+    '<div class="pr-dots" aria-hidden="true">' + P.steps.map(function(_, k){ return '<i class="' + (k === P.i ? "on" : (k < P.i ? "done" : "")) + '"></i>'; }).join("") + '</div>' +
+    '<div class="fb-actions">' + (P.i > 0 ? '<button class="btn ghost" data-act="pr-back">Back</button>' : "") + '<button class="btn' + (last ? " pop" : "") + '" data-act="pr-next">' + (last ? "Now practise" : "Next") + '</button></div></article>';
+  v.innerHTML = h;
+  var b = $('[data-act="pr-back"]', v); if (b) b.addEventListener("click", function(){ P.i--; renderFeed(); scrollTop0(); });
+  $('[data-act="pr-next"]', v).addEventListener("click", function(){
+    if (!last){ P.i++; renderFeed(); scrollTop0(); return; }
+    var tr = S.t[L.track]; tr.primers = tr.primers || {}; tr.primers[L.topic] = Date.now(); L.primer = null; save(); renderFeed(true); scrollTop0();
+  });
+}
 function renderLesson(v, entering){
+  if (lesson.primer) return renderPrimer(v, entering);
   var L = lesson, n = L.items.length, one = n === 1;
   var h = feedHead() + '<article class="qcard lesson' + (entering ? " enter" : "") + '" id="qcard"><div class="eyebrow"><span>' + esc(L.topic) + '</span><span class="tag">Learn first</span></div>' +
     '<h3 class="les-h">' + (one ? "One thing to know" : n + " things to know") + '</h3><p class="les-sub">' + (one ? "Try to answer in your head, then tap to check. You'll be asked about this a little later." : "Try to answer in your head, then tap to check. You'll be asked about these a little later.") + '</p>';

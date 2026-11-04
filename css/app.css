@@ -566,3 +566,36 @@ html[lang="ar"] .label,html[lang="ar"] .eyebrow,html[lang="ar"] .m-cap{text-tran
 .prof-id{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
 .prof-id .inp{width:100%;font-size:18px;padding:10px 12px}
 .prof-line{font-size:13.5px;color:var(--muted);line-height:1.4}
+
+/* topic lessons with animated scenes */
+.lscene{margin:4px 0 18px}
+.lscene svg{display:block;width:100%;max-width:240px;margin:0 auto;aspect-ratio:1;border-radius:18px}
+.sc-bg{fill:#DCEFD9}
+.sc-road{fill:#A7AFBD}
+.sc-drive{fill:#C3C9D3}
+.sc-dash{stroke:#fff;stroke-width:1.6;stroke-dasharray:7 6;fill:none;opacity:.9}
+.sc-kerb{stroke:#fff;stroke-width:2;stroke-dasharray:3 3}
+.sc-rail{stroke:#6B7280;stroke-width:1.4;fill:none}
+.sc-car{stroke:#fff;stroke-width:1.4}
+.c-you{fill:#1C4FA0}.c-red{fill:#C0392B}.c-tram{fill:#F2B705}
+.sc-glass{fill:#fff;opacity:.75}
+.sc-bike{fill:#374151}.sc-rider{fill:#E67E22;stroke:#fff;stroke-width:1}
+.sc-teeth{fill:#fff}
+.sc-diamond{fill:#F2B705;stroke:#fff;stroke-width:2}
+.sc-post{stroke:#6B7280;stroke-width:2}
+.sc-badge{fill:#0F1A2E;stroke:#fff;stroke-width:1.5}
+.sc-num{fill:#fff;font:800 11px var(--font-body);text-anchor:middle}
+.sc-label{fill:#0F1A2E;font:800 10px var(--font-body);text-anchor:middle;paint-order:stroke;stroke:#fff;stroke-width:3px}
+.sc-a{animation-duration:7s;animation-iteration-count:infinite;animation-timing-function:ease-in-out}
+@media (prefers-reduced-motion: reduce){.sc-a{animation:none !important}}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .sc-bg{fill:#17301F}:root:not([data-theme="light"]) .sc-road{fill:#465063}:root:not([data-theme="light"]) .sc-drive{fill:#56607A}}
+:root[data-theme="dark"] .sc-bg{fill:#17301F}
+:root[data-theme="dark"] .sc-road{fill:#465063}
+.pr-count{margin-inline-start:auto;font-family:var(--font-body);color:var(--muted);letter-spacing:0}
+.pr-t{font-size:16.5px;line-height:1.55;margin:0 0 14px}
+.pr-why{display:flex;gap:10px;align-items:flex-start;background:var(--raise);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 0 10px;font-size:14.5px;line-height:1.5}
+.pr-why b{flex:none;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);padding-top:2px}
+.pr-dots{display:flex;justify-content:center;gap:6px;margin:14px 0 4px}
+.pr-dots i{width:7px;height:7px;border-radius:50%;background:var(--line)}
+.pr-dots i.done{background:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.pr-dots i.on{width:20px;border-radius:4px;background:var(--accent)}
