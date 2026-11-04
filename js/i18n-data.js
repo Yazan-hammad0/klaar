@@ -21,6 +21,12 @@ window.I18N_DATA = {rows: [
 ["Date you started living in the Netherlands","تاريخ بدء إقامتك في هولندا","Hollanda'da yaşamaya başladığın tarih"],
 ["Got it","فهمت","Anladım"],
 ["Cancel","إلغاء","İptal"],
+["Words to know","مصطلحات مهمة","Bilinmesi gereken kelimeler"],
+["Search","بحث","Ara"],
+["No term matches.","لا يوجد مصطلح مطابق.","Eşleşen terim yok."],
+["Your progress","تقدّمك","İlerlemen"],
+["Your exam is today. Good luck!","امتحانك اليوم. بالتوفيق!","Sınavın bugün. Bol şans!"],
+["New: one clear Home per goal, a glossary with the logic behind each term, and natural voices.","جديد: صفحة رئيسية واضحة لكل هدف، ومسرد يشرح منطق كل مصطلح، وأصوات طبيعية.","Yeni: her hedef için tek ve net bir Ana sayfa, her terimin mantığını anlatan bir sözlük ve doğal sesler."],
 ["New setup","إعداد جديد","Yeni kurulum"],
 ["Later","لاحقًا","Sonra"],
 ["Two minutes, and Klaar fits you better","دقيقتان، ويناسبك Klaar أكثر","İki dakika, Klaar sana daha iyi uysun"],
@@ -524,6 +530,8 @@ window.I18N_DATA = {rows: [
 ],
 /* patterns for text that contains numbers or names: [regex, Arabic, Turkish]; $1 $2 are the captured parts */
 pats: [
+[/^(\d+) terms, with the logic behind them$/, "$1 مصطلحًا مع المنطق وراءها", "$1 terim, arkasındaki mantıkla"],
+[/^Your exam: in (\d+) days$/, "امتحانك: بعد $1 يومًا", "Sınavın: $1 gün içinde"],
 [/^Nice to meet you, (.+)\. What are you working towards\?$/, "تشرّفنا يا $1. ما هدفك؟", "Tanıştığımıza memnun oldum, $1. Neyi hedefliyorsun?"],
 [/^Your plan, (.+)$/, "خطتك يا $1", "Planın, $1"],
 [/^(\d+) of (\d+) right$/, "$1 من $2 صحيحة", "$2 sorudan $1 doğru"],

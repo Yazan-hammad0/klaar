@@ -69,7 +69,7 @@ function mergeState(raw){
   if (raw.plan) s.plan = raw.plan;
   ["drive", "civic"].forEach(function(t){ if (raw.t && raw.t[t]) s.t[t] = Object.assign(freshTrack(), raw.t[t]); });
   if (s.track !== "civic") s.track = "drive";
-  if (["home", "feed", "exams", "progress"].indexOf(s.view) < 0) s.view = "home";
+  if (["home", "feed", "exams"].indexOf(s.view) < 0) s.view = "home";
   return s;
 }
 var LS = "klaarStateV1", LSG = "klaarGenV1";
@@ -128,7 +128,7 @@ function initCloud(){
             if (GEN[t].length > remoteItems.length) saveGen(t); else lsSet(LSG, GEN);
           });
         }));
-      }).then(function(){ reindex(); cloud = "cloud"; renderSync(); if (view === "progress") renderProgress(); });
+      }).then(function(){ reindex(); cloud = "cloud"; renderSync(); if (view === "home") renderHome(); });
     });
   }).catch(function(){ DB = null; cloud = "device"; renderSync(); });
 }
@@ -252,7 +252,7 @@ function maybeAutoGen(t){
   if (aiAvailable() && S.t[t].aiOk && ai[t] === "idle") generate(t, 8);
 }
 function refreshAiBits(){
-  if (view === "progress") renderProgress();
+  if (view === "home") renderHome();
   if (view === "feed" && waitingForQuestions) renderFeed();
 }
 
@@ -788,8 +788,8 @@ var PLAN = {
   drive: [["d-mock3", "Pass the full mock 3 times in a row"], ["d-course", "Do an English CBR theory course"], ["d-book", "Book the CBR theory exam (in English)"], ["d-theory", "Pass the theory exam"], ["d-lessons", "Start driving lessons"], ["d-practical", "Pass the practical exam"]],
   civic: [["c-oefen", "Do the free practice exams on inburgeren.nl"], ["c-tma", "Ask your employer or gemeente about Dutch classes"], ["c-knm", "Pass KNM"], ["c-lezen", "Pass A2 Lezen"], ["c-luisteren", "Pass A2 Luisteren"], ["c-schrijven", "Pass A2 Schrijven"], ["c-spreken", "Pass A2 Spreken"], ["c-jordan", "Ask your embassy how giving up your nationality works"], ["c-docs", "Get your birth certificate legalised or apostilled"], ["c-apply", "Apply for citizenship at your gemeente"]]
 };
-function renderProgress(){
-  var t = S.track, tr = S.t[t], v = $("#v-progress"), html = "";
+function renderProgress(pre){
+  var t = S.track, tr = S.t[t], v = $("#v-home"), html = "";
   if (t === "civic"){
     var cd = citizenDates();
     if (cd){
@@ -804,10 +804,11 @@ function renderProgress(){
     for (var i = full.length - 1; i >= 0 && full[i].p; i--) inRow++;
     html += '<div class="hero"><div class="cap">Full mocks passed in a row</div><div class="big tabular">' + Math.min(inRow, 3) + '<span style="font-size:24px;opacity:.7">/3</span></div><div class="bar"><i style="width:' + (Math.min(inRow, 3) / 3 * 100) + '%"></i></div><div class="meta"><span>' + full.length + ' full mocks taken</span><span>' + (inRow >= 3 ? "Ready to book" : "3 in a row = book it") + '</span></div></div>';
   }
-  html += journeyHtml(t, false);
+  var ex = ((prof().exam || {})[t]) || null;
+  if (ex && ex.date){ var dp = ex.date.split("-"), dl = Math.ceil((new Date(+dp[0], +dp[1] - 1, +dp[2]) - new Date()) / 86400000); if (dl >= 0) html += '<p class="exam-date">' + (dl === 0 ? "Your exam is today. Good luck!" : "Your exam: in " + dl + " days") + '</p>'; }
   var acc = tr.ans ? Math.round(tr.ok / tr.ans * 100) + "%" : "–";
+  html = (pre || "") + html;
   html += '<div class="stats"><div class="stat"><b class="tabular">' + tr.ans + '</b><span>Answered</span></div><div class="stat"><b class="tabular">' + acc + '</b><span>Accuracy</span></div><div class="stat"><b class="tabular">' + streak() + '</b><span>Day streak</span></div></div>';
-  html += '<div class="stats"><div class="stat"><b>' + esc(levelName(t)) + '</b><span>Level</span></div><div class="stat"><b class="tabular">' + tr.xp + '</b><span>XP</span></div><div class="stat"><b class="tabular">' + pool(t).length + '</b><span>In bank</span></div></div>';
 
   var tp = tr.topics, keys = Object.keys(tp).filter(function(k){ return tp[k].a >= 2; }).sort(function(a, b){ return tp[a].ok / tp[a].a - tp[b].ok / tp[b].a; }).slice(0, 5);
   html += '<div class="label">Weakest topics</div>';
@@ -815,13 +816,11 @@ function renderProgress(){
     html += '<div class="weak">' + keys.map(function(k){ var p = Math.round(tp[k].ok / tp[k].a * 100); return '<div><span style="width:140px;flex:none">' + esc(k) + '</span><span class="meter"><i style="width:' + (100 - p) + '%"></i></span><span class="pct">' + p + '%</span></div>'; }).join("") + '</div><p class="note">Bar = how often you miss it. These topics come up more in your feed and in new questions.</p>';
   } else html += '<p class="note">Answer a few more questions and your weak spots show up here.</p>';
 
-  html += '<div class="label">Fresh questions</div><div class="ai-box">';
-  if (aiOff || !SAMPLE) html += '<p>This offline version has ' + pool(t).length + ' questions. New ones arrive with app updates. Questions you miss come back first.</p>';
-  else {
+  if (!aiOff && SAMPLE){
+    html += '<div class="label">Fresh questions</div><div class="ai-box">';
     html += '<p>' + GEN[t].length + ' questions written for you so far. When you run low, new batches arrive automatically while you scroll, tuned to your level and weak topics.</p>';
-    html += '<button class="btn pop" data-act="gen"' + (ai[t] === "busy" ? " disabled" : "") + '>' + (ai[t] === "busy" ? "Writing questions…" : "Write 8 new questions now") + '</button>';
+    html += '<button class="btn pop" data-act="gen"' + (ai[t] === "busy" ? " disabled" : "") + '>' + (ai[t] === "busy" ? "Writing questions…" : "Write 8 new questions now") + '</button></div>';
   }
-  html += '</div>';
 
   html += '<div class="label">Your ' + (t === "drive" ? "licence" : "citizenship") + ' checklist</div>';
   PLAN[t].forEach(function(p){
@@ -829,11 +828,11 @@ function renderProgress(){
     html += '<label class="check' + (done ? " done" : "") + '"><input type="checkbox" id="pl-' + p[0] + '" data-plan="' + p[0] + '"' + (done ? " checked" : "") + '><span>' + esc(p[1]) + '</span></label>';
   });
   v.innerHTML = html;
-  var g = $('[data-act="gen"]', v); if (g) g.addEventListener("click", function(){ generate(t, 8); renderProgress(); });
-  var as = $('[data-act="arr-set"]', v); if (as) as.addEventListener("click", function(){ var val = $("#arr-in", v).value; if (!/^\d{4}-\d{2}-\d{2}$/.test(val)) return toast("Pick a date first."); S.arrived = val; save(); renderProgress(); });
-  var ae = $('[data-act="arr-edit"]', v); if (ae) ae.addEventListener("click", function(){ S.arrived = null; save(); renderProgress(); });
+  var g = $('[data-act="gen"]', v); if (g) g.addEventListener("click", function(){ generate(t, 8); renderHome(); });
+  var as = $('[data-act="arr-set"]', v); if (as) as.addEventListener("click", function(){ var val = $("#arr-in", v).value; if (!/^\d{4}-\d{2}-\d{2}$/.test(val)) return toast("Pick a date first."); S.arrived = val; save(); renderHome(); });
+  var ae = $('[data-act="arr-edit"]', v); if (ae) ae.addEventListener("click", function(){ S.arrived = null; save(); renderHome(); });
   var jg = $('[data-act="j-go"]', v); if (jg) jg.addEventListener("click", function(){ setView("exams"); });
-  $$("[data-plan]", v).forEach(function(c){ c.addEventListener("change", function(){ S.plan[c.getAttribute("data-plan")] = c.checked; save(); renderProgress(); }); });
+  $$("[data-plan]", v).forEach(function(c){ c.addEventListener("change", function(){ S.plan[c.getAttribute("data-plan")] = c.checked; save(); renderHome(); }); });
 }
 
 /* ---------------- PROFILE: your details and every setting in one place ---------------- */
@@ -966,7 +965,6 @@ function journeyHtml(t, compact){
     html += '<div class="j-step">Step ' + (j.at + 1) + ' of ' + n + '</div><div class="j-now">' + esc(cur.name) + '</div>';
     if (cur.p > 0) html += '<div class="j-bar"><i style="width:' + Math.round(cur.p * 100) + '%"></i></div>';
     html += '<p class="j-msg">' + esc(cur.msg) + '</p>';
-    if (cur.go && !compact) html += '<button class="btn pop j-go" data-act="j-go">Go to exams</button>';
   }
   return html + '</div>';
 }
@@ -1013,46 +1011,18 @@ function renderHome(){
   html += '<div class="today"><div class="ring big">' + ringSvg(today, S.goal) + '<b class="tabular">' + today + '<small>/' + S.goal + '</small></b></div>' +
     '<div class="today-mid"><div class="today-streak">' + FLAME + ' ' + st + '-day streak</div><div class="week" aria-label="Last 7 days">' + week + '</div></div></div>';
 
-  /* one next step: the track that is further behind */
-  var G = goals();
-  var pick = G.length === 1 ? G[0] : (trackFrac("civic") < trackFrac("drive") ? "civic" : "drive");
-  if (G.length > 1 && (S.days[dayKey()] || 0) > 0 && S.t[pick].ans > 0 && trackFrac("civic") === trackFrac("drive")) pick = S.track === "drive" ? "civic" : "drive";
-  var jp = journey(pick), np = jp.steps[jp.at];
-  if (np){
-    html += '<div class="label">Next for you</div><button class="next-up" data-go-t="' + pick + '" data-go-v="' + (np.go ? "exams" : "feed") + '"><span class="ic ic-' + pick + '">' + TRACK_ICON[pick] + '</span><span class="nu-main"><b>' + esc(np.name) + '</b><span>' + esc(NAMES[pick]) + ' · step ' + (jp.at + 1) + ' of ' + jp.steps.length + '</span></span><span class="nu-go">›</span></button>';
-  }
+  /* where you are on this goal, with one button to the next thing to do */
+  var t = S.track, jy = journey(t), nx = jy.steps[jy.at];
+  html += journeyHtml(t, false);
+  if (nx) html += '<button class="btn pop home-go" data-go-t="' + t + '" data-go-v="' + (nx.go ? "exams" : "feed") + '">' + (nx.go ? "Go to exams" : (t === "drive" ? "Practise driving" : "Practise inburgering")) + '</button>';
 
-  /* lessons you can open any time */
-  G.forEach(function(t){
-    var L = window.LESSONS && LESSONS[t], ks = L ? Object.keys(L) : [];
-    if (!ks.length) return;
-    var done = S.t[t].primers || {};
-    html += '<div class="label">Lessons</div><div class="les-list">' + ks.map(function(k){ return '<button class="les-chip' + (done[k] > 0 ? " done" : "") + '" data-les-t="' + t + '" data-les="' + esc(k) + '">' + (done[k] > 0 ? '<i aria-hidden="true">&#10003;</i>' : '<i aria-hidden="true">&#9654;</i>') + '<span>' + esc(k) + '</span></button>'; }).join("") + '</div>';
-  });
-
-  /* both tracks */
-  html += '<div class="label">' + (G.length > 1 ? "Your two goals" : "Your goal") + '</div>';
-  G.forEach(function(t){
-    var tr = S.t[t], j = journey(t), n = j.steps.length, cur = j.steps[j.at], f = trackFrac(t);
-    var acc = tr.ans ? Math.round(tr.ok / tr.ans * 100) + "%" : "–";
-    var mocks = Object.keys(tr.mocks).reduce(function(s, k){ return s + (tr.mocks[k] || []).filter(function(x){ return x.p; }).length; }, 0);
-    html += '<div class="tcard tc-' + t + '"><div class="tc-head"><span class="ic ic-' + t + '">' + TRACK_ICON[t] + '</span><span><b>' + esc(NAMES[t]) + '</b><span>' + esc(HOME_SUB[t]) + '</span></span><span class="tc-pct tabular">' + Math.round(f * 100) + '%</span></div>' +
-      '<div class="tc-bar"><i style="width:' + Math.round(f * 100) + '%"></i></div>' +
-      '<p class="tc-step">' + (cur ? 'Step ' + (j.at + 1) + ' of ' + n + ': <b>' + esc(cur.name) + '</b>' : '<b>All steps done</b>') + '</p>' +
-      '<div class="tc-stats"><span><b class="tabular">' + tr.ans + '</b> answered</span><span><b class="tabular">' + acc + '</b> right</span><span><b class="tabular">' + mocks + '</b> mocks passed</span></div>' +
-      '<button class="btn tc-go" data-go-t="' + t + '" data-go-v="feed">Practise ' + (t === "drive" ? "driving" : "inburgering") + '</button></div>';
-  });
-
-  /* citizenship countdown */
-  var cd = citizenDates();
-  if (G.indexOf("civic") < 0){}
-  else if (cd){
-    var left = Math.max(0, Math.ceil((cd.at - new Date()) / 86400000));
-    html += '<div class="cz"><span class="ic ic-civic">' + TRACK_ICON.civic + '</span><span><b class="tabular">' + (left ? left + " days" : "Now") + '</b><span>' + (left ? "until you can apply for citizenship (" + fmtDate(cd.at) + ")" : "you can apply for citizenship") + '</span></span></div>';
-  } else {
-    html += '<button class="cz" data-go-t="civic" data-go-v="progress"><span class="ic ic-civic">' + TRACK_ICON.civic + '</span><span><b>Citizenship countdown</b><span>Add the date you moved here to see how long until you can apply</span></span></button>';
-  }
-  v.innerHTML = html;
+  /* lessons and words for this goal */
+  var L = window.LESSONS && LESSONS[t], ks = L ? Object.keys(L) : [], done = S.t[t].primers || {};
+  if (ks.length) html += '<div class="label">Lessons</div><div class="les-list">' + ks.map(function(k){ return '<button class="les-chip' + (done[k] > 0 ? " done" : "") + '" data-les-t="' + t + '" data-les="' + esc(k) + '">' + (done[k] > 0 ? '<i aria-hidden="true">&#10003;</i>' : '<i aria-hidden="true">&#9654;</i>') + '<span>' + esc(k) + '</span></button>'; }).join("") + '</div>';
+  if (window.KLAAR_GLOSSARY) html += '<button class="row gl-open" data-act="glossary"><span class="badge">Aa</span><span class="row-main"><span class="row-title">Words to know</span><span class="row-sub">' + KLAAR_GLOSSARY.count(t) + ' terms, with the logic behind them</span></span><span class="nu-go">›</span></button>';
+  html += '<div class="label">Your progress</div>';
+  renderProgress(html);
+  var gl = $('[data-act="glossary"]', v); if (gl) gl.addEventListener("click", function(){ setView("glossary"); });
   $$("[data-les]", v).forEach(function(b){ b.addEventListener("click", function(){ var t = b.getAttribute("data-les-t"), k = b.getAttribute("data-les"); if (t !== S.track) setTrack(t); lesson = {track:t, topic:k, primer:{steps:LESSONS[t][k], i:0}}; cur = null; setView("feed"); }); });
   $$("[data-go-t]", v).forEach(function(b){ b.addEventListener("click", function(){ var t = b.getAttribute("data-go-t"), to = b.getAttribute("data-go-v"); if (t !== S.track) setTrack(t); setView(to); }); });
 }
@@ -1075,18 +1045,19 @@ function setTrack(t){
 }
 function confirmLeave(){ return true; }
 function setView(v){
-  var ORDER = ["home", "feed", "exams", "progress"], changed = v !== view, dir = ORDER.indexOf(v) >= ORDER.indexOf(view) ? 1 : -1;
-  if (v === "profile" && view !== "profile") backTo = view;
+  if (v === "progress") v = "home";
+  var ORDER = ["home", "feed", "exams"], changed = v !== view, dir = ORDER.indexOf(v) >= ORDER.indexOf(view) ? 1 : -1;
+  if ((v === "profile" || v === "glossary") && view !== v) backTo = view === "profile" || view === "glossary" ? "home" : view;
   view = v; S.view = v; save();
   document.body.setAttribute("data-view", v);
-  $("#v-home").hidden = v !== "home"; $("#v-feed").hidden = v !== "feed"; $("#v-exams").hidden = v !== "exams"; $("#v-progress").hidden = v !== "progress"; $("#v-profile").hidden = v !== "profile";
+  $("#v-home").hidden = v !== "home"; $("#v-feed").hidden = v !== "feed"; $("#v-exams").hidden = v !== "exams"; $("#v-glossary").hidden = v !== "glossary"; $("#v-profile").hidden = v !== "profile";
   $$(".tab").forEach(function(b){ b.setAttribute("aria-selected", String(b.getAttribute("data-view") === v)); });
   var flip = window.I18N && I18N.rtl() ? -1 : 1, ind = $(".tab-ind"); if (ind){ ind.style.transform = "translateX(" + (flip * Math.max(0, ORDER.indexOf(v)) * 100) + "%)"; ind.style.opacity = ORDER.indexOf(v) < 0 ? "0" : ""; }
   var pb = $("#prof-btn"); if (pb) pb.setAttribute("aria-pressed", String(v === "profile"));
   if (changed){ var sec = $("#v-" + v); sec.style.setProperty("--dir", dir * flip); sec.classList.remove("v-in"); void sec.offsetWidth; sec.classList.add("v-in"); }
   if (v === "feed"){ if (!cur || cur.q.track !== S.track) nextQuestion(); else renderFeed(); }
   if (v === "exams" && !run) renderExams();
-  if (v === "progress") renderProgress();
+  if (v === "glossary" && window.KLAAR_GLOSSARY) KLAAR_GLOSSARY.render($("#v-glossary"), S.track, function(){ setView(backTo); });
   if (v === "home") renderHome();
   if (v === "profile") renderProfile();
   scrollTop0();
