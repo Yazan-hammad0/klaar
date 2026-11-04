@@ -1,5 +1,5 @@
 // Klaar offline cache. release.py stamps VERSION; a new VERSION makes phones download everything fresh.
-const VERSION = "b6dcddd6fd";
+const VERSION = "fe8e7bae6d";
 const CACHE = "klaar-" + VERSION, FONTS = "klaar-fonts";
 const SHELL = ["./", "./index.html", "./css/app.css", "./js/i18n-data.js", "./js/i18n.js", "./js/content.js", "./js/lessons.js", "./js/app.js", "./js/shell.js", "./js/onboard.js", "./manifest.webmanifest", "./icon-180.png", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png"];
 self.addEventListener("install", e => {

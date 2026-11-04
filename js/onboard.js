@@ -243,7 +243,7 @@
           "new":"Driving: rules and signs first. Hazard scenes join after 30 answers.",
           abroad:"Driving: extra focus on what's different here, like priority rules, cyclists and signs.",
           lessons:"Driving: the full mix, the way the CBR exam asks it."}[a.drive]);
-        L.push(a.style === "test" ? "Questions only: you learn from the explanation after each answer." : "Lessons first: each new topic starts with a short lesson. You're asked about it a little later, and again after that. Mock exams are always the real test.");
+        L.push(a.style === "test" ? "Questions only: you learn from the explanation after each answer." : "Lessons first: each new topic starts with a short animated lesson, then questions on it. Mock exams are always the real test.");
         L.push(a.goal + " questions a day. Tap an answer, then swipe up for the next one.");
         bot("Here's your plan:<ul>" + L.map(function(x){ return "<li>" + x + "</li>"; }).join("") + "</ul>You can change this any time on the Progress tab.", function(){
           chips.innerHTML = '<button class="btn chip-go" id="chat-go">Let\'s go</button>'; chips.classList.add("on"); scroll();

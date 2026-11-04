@@ -1,5 +1,5 @@
 /* Screen-tall layout for the home-screen app, update notice, service worker. */
-var KLAAR_VERSION = "b6dcddd6fd", KLAAR_NEWS = "New: Priority now starts with a short animated lesson. More topics follow.";
+var KLAAR_VERSION = "fe8e7bae6d", KLAAR_NEWS = "New: animated lessons for hazards, distances, lanes, railway crossings, road markings and motorways.";
 (function(){
   /* iOS home-screen apps sometimes get a layout viewport shorter than the screen, which leaves a strip under the tab bar.
      Measure it and push the bottom chrome down into that strip. */
@@ -25,6 +25,8 @@ var KLAAR_VERSION = "b6dcddd6fd", KLAAR_NEWS = "New: Priority now starts with a 
   window.addEventListener("resize", fit);
   window.addEventListener("orientationchange", function(){ setTimeout(fit, 300); });
   window.addEventListener("pageshow", fit);
+  /* an app, not a web page: no pinch zoom (iPhone ignores user-scalable=no; double-tap zoom is off via touch-action in app.css). The system Zoom in Accessibility still works. */
+  ["gesturestart", "gesturechange"].forEach(function(n){ document.addEventListener(n, function(e){ e.preventDefault(); }, {passive:false}); });
   window.addEventListener("scroll", function(){ if (root.classList.contains("shell") && window.scrollY) window.scrollTo(0, 0); }, {passive:true});
 
   /* updates: check when the app comes back to the front; when a new version takes over, offer a one-tap reload */

@@ -14,7 +14,7 @@ No framework and no build step. GitHub Pages serves this folder as-is.
 | `index.html` | Page markup: header, four tabs (Home, Feed, Exams, Progress), menu bar |
 | `css/app.css` | All styles, light and dark |
 | `js/content.js` | Question banks, road-sign drawings, glossaries. `EXTRA` holds the sourced questions added in Nov 2026 |
-| `js/lessons.js` | Topic lessons: short steps with an animated scene, the rule and why. Shown once before a topic's first questions. Only Priority so far |
+| `js/lessons.js` | Topic lessons: short steps with an animated scene, the rule and why. Shown once before a topic's first questions. Driving: Priority, Hazard perception, Distances, Lane use, Railway crossings, Road markings, Motorway |
 | `js/app.js` | The app: feed with spaced repetition and teach-first lessons, mock exams, progress, home, journey steps |
 | `js/i18n.js` | Language switch (English, Arabic, Turkish). Translates the screen as text appears, sets `dir="rtl"` for Arabic |
 | `js/i18n-data.js` | The Arabic and Turkish strings, one row per English string |

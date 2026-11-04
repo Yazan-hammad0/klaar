@@ -494,18 +494,6 @@ html.shell .toast{bottom:auto;top:calc(var(--app-h) - var(--tabbar) - env(safe-a
 
 /* lesson card: facts with their answers, shown before the questions */
 .lesson .les-h{font-family:var(--font-display);font-weight:900;font-size:24px;letter-spacing:-.02em;line-height:1.15;margin:0 0 4px}
-.lesson .les-sub{margin:0 0 16px;font-size:14.5px;color:var(--muted)}
-.les-item{background:var(--raise);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:10px}
-.les-item .visual{margin:0 0 10px}
-.les-item .visual svg{width:64px;height:64px}
-.les-item p{margin:0 0 8px}
-.les-item p:last-child{margin-bottom:0}
-.les-q{font-weight:700;font-size:15.5px;line-height:1.4}
-.les-en{font-size:13.5px;color:var(--muted);font-style:italic;line-height:1.4}
-.les-a{display:flex;flex-direction:column;gap:2px;border-left:4px solid var(--ok);padding:2px 0 2px 10px;font-size:16px;line-height:1.35}
-.les-a span{font:700 10.5px var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ok)}
-.les-e{font-size:14.5px;line-height:1.5}
-.les-go{width:100%;margin-top:6px;padding:16px;font-size:16px}
 
 /* language row (install guide) */
 .langrow{display:flex;gap:4px;margin:0 0 20px;padding:3px;border-radius:13px;background:var(--raise);border:1px solid var(--line)}
@@ -518,8 +506,6 @@ html.shell .toast{bottom:auto;top:calc(var(--app-h) - var(--tabbar) - env(safe-a
 .link{padding-block:12px}
 .tag{font-size:11px}
 .ring b small{font-size:10px}
-.les-item{padding:16px;margin-bottom:16px}
-.lesson .les-sub{margin-bottom:24px}
 
 /* right to left (Arabic). Question text is English or Dutch, so it stays left to right. */
 html[dir="rtl"] .sync{text-align:left}
@@ -537,7 +523,7 @@ html[dir="rtl"] .msg.me{border-bottom-right-radius:20px;border-bottom-left-radiu
 html[dir="rtl"] .msg ul{padding-left:0;padding-right:18px}
 html[dir="rtl"] .upd{padding:12px 16px 12px 12px}
 html[dir="rtl"] .mock,html[dir="rtl"] .intro-vis{direction:ltr}
-html[dir="rtl"] .qtext,html[dir="rtl"] .passage,html[dir="rtl"] .opt,html[dir="rtl"] .les-item,html[dir="rtl"] .rv,
+html[dir="rtl"] .qtext,html[dir="rtl"] .passage,html[dir="rtl"] .opt,html[dir="rtl"] .rv,
 html[dir="rtl"] .en-pre,html[dir="rtl"] .fb .ex,html[dir="rtl"] .fb .en,html[dir="rtl"] .ai-out,html[dir="rtl"] .inp{direction:ltr;text-align:left}
 
 /* Arabic: letter-spacing and italics break the joined letters */
@@ -547,10 +533,6 @@ html[lang="ar"] *:not(.brand){letter-spacing:0 !important;font-style:normal !imp
 html[dir="rtl"] .ring b,html[dir="rtl"] .tabular,html[dir="rtl"] .score b,html[dir="rtl"] .hist{direction:ltr;unicode-bidi:isolate}
 html[lang="ar"] .label,html[lang="ar"] .eyebrow,html[lang="ar"] .m-cap{text-transform:none}
 
-/* lesson: answers stay hidden until you tap */
-.les-item [hidden]{display:none !important}
-.les-show{width:100%;min-height:44px;margin-top:4px}
-.les-ans{margin-top:8px}
 
 /* profile button in the header, profile page */
 .avatar{flex:none;width:44px;height:44px;border-radius:50%;border:2px solid color-mix(in srgb,var(--on) 55%,transparent);background:rgba(0,0,0,.22);color:var(--on);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;margin-inline-start:auto}
@@ -599,3 +581,21 @@ html[lang="ar"] .label,html[lang="ar"] .eyebrow,html[lang="ar"] .m-cap{text-tran
 .pr-dots i{width:7px;height:7px;border-radius:50%;background:var(--line)}
 .pr-dots i.done{background:color-mix(in srgb,var(--accent) 45%,var(--line))}
 .pr-dots i.on{width:20px;border-radius:4px;background:var(--accent)}
+.sc-solid{stroke:#fff;stroke-width:2;fill:none}
+.sc-sleeper{fill:#8B7355;opacity:.8}
+.sc-tree{fill:#3F8F4E}
+.c-parked{fill:#9CA3AF}.c-truck{fill:#6B7280}.c-train{fill:#E5E7EB;stroke:#1F2937}.c-tractor{fill:#3F8F4E}
+.sc-ball{fill:#E67E22;stroke:#fff;stroke-width:1}
+.sc-kid{fill:#E67E22;stroke:#fff;stroke-width:1.5}
+.sc-brakeline{stroke:#C0392B;stroke-width:2;stroke-dasharray:4 3}
+.sc-barrier{fill:#fff;stroke:#C0392B;stroke-width:1.5;stroke-dasharray:5 5}
+.sc-light{fill:#E11D48}
+.sc-blink{animation:scBlink 1s steps(1) infinite}.sc-blink2{animation:scBlink 1s steps(1) infinite .5s}
+@keyframes scBlink{0%{opacity:1}50%{opacity:.15}}
+@media (prefers-reduced-motion: reduce){.sc-blink,.sc-blink2{animation:none}}
+.primer .visual svg{width:88px;height:88px}
+
+/* app feel: no double-tap zoom, no grey tap flash */
+html{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+*{-webkit-tap-highlight-color:transparent}
+.top,.tabbar,.btn,.tab,.chip,.opt,.row,.switch,.avatar,.eyebrow,.label{-webkit-user-select:none;user-select:none}
