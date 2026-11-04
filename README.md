@@ -22,7 +22,7 @@ No framework and no build step. GitHub Pages serves this folder as-is.
 | `js/shell.js` | Screen-tall layout for the home-screen app, the "new version" card, service worker registration |
 | `js/setup.js` | Step-by-step setup: language, name, goals, exam dates, a short placement check, time per day, then a plan. Existing users see it once |
 | `js/onboard.js` | Install guide per device and browser; hands over to the setup |
-| `audio/` | Recorded Dutch audio for the listening questions (natural Piper voices, CC0). `audio/make_audio.py` records any new ones; `js/audio.js` lists what exists |
+| `audio/` | Recorded Dutch audio for the listening questions (two speakers that take turns: Piper's ronnie voice, and a female voice made by converting ronnie's speech into the sound of Piper's nathalie with kNN-VC; voices CC0, kNN-VC MIT). `audio/make_audio.py` records any new ones; `js/audio.js` lists what exists |
 | `sw.js` | Offline cache |
 | `release.py` | Stamps a new version so installed apps show the update card |
 
