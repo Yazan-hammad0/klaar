@@ -599,3 +599,51 @@ html[lang="ar"] .label,html[lang="ar"] .eyebrow,html[lang="ar"] .m-cap{text-tran
 html{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 *{-webkit-tap-highlight-color:transparent}
 .top,.tabbar,.btn,.tab,.chip,.opt,.row,.switch,.avatar,.eyebrow,.label{-webkit-user-select:none;user-select:none}
+
+/* step-by-step setup */
+.setup .onb-in{min-height:100%}
+.su-top{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.su-back{flex:none;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--fg);font-size:20px;cursor:pointer}
+.su-back[hidden]{display:block;visibility:hidden}
+html[dir="rtl"] .su-back{transform:scaleX(-1)}
+.su-bar{flex:1;height:6px;border-radius:6px;background:var(--line);overflow:hidden}
+.su-bar i{display:block;height:100%;border-radius:6px;background:var(--accent);transition:width .35s cubic-bezier(.2,.9,.25,1)}
+.su-brand img{display:block;width:32px;height:32px;border-radius:8px}
+.su-count{flex:none;min-width:32px;text-align:center;font-weight:800;color:var(--muted)}
+.su-body{display:flex;flex-direction:column;flex:1}
+.setup h1{margin-top:4px}
+.su-kicker{margin:0 0 6px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.su-opts{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.su-opt{display:flex;align-items:center;gap:14px;width:100%;min-height:62px;padding:14px 16px;border-radius:18px;border:2px solid var(--line);background:var(--surface);color:var(--fg);text-align:start;font-size:16.5px;cursor:pointer;transition:transform .1s,border-color .15s,background .15s}
+.su-opt:active{transform:scale(.98)}
+.su-opt b{display:block;font-weight:800;line-height:1.25}
+.su-opt small{display:block;margin-top:3px;font-size:13.5px;font-weight:600;color:var(--muted)}
+.su-opt[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.su-emoji{flex:none;width:34px;font-size:26px;text-align:center}
+.su-foot{margin-top:auto;padding-top:22px;display:flex;flex-direction:column;gap:8px}
+.su-main{width:100%;padding:16px;font-size:16px;border-radius:16px}
+.su-name{width:100%;margin-top:6px;font-size:20px;padding:16px}
+.su-date{display:flex;flex-direction:column;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
+.su-date label{font-weight:700;font-size:14px;color:var(--muted)}
+.su-date .inp{width:100%}
+.su-note{background:var(--raise);border:1px solid var(--line);border-radius:14px;padding:12px 14px;font-size:14.5px;line-height:1.5;color:var(--muted)}
+.su-tags{display:flex;flex-wrap:wrap;gap:8px}
+.su-tag{padding:8px 12px;border-radius:999px;background:var(--ok-soft);color:var(--ok);font-weight:700;font-size:14px}
+.su-plan{margin:6px 0 16px;padding-inline-start:20px;font-size:16px;line-height:1.5}
+.su-plan li{margin:0 0 10px}
+.su-idk{align-self:center;margin-top:14px}
+.setup .qtext{font-size:19px}
+.su-in{animation:suIn .32s cubic-bezier(.2,.9,.25,1) both}
+.su-in-back{animation:suBack .32s cubic-bezier(.2,.9,.25,1) both}
+html[dir="rtl"] .su-in{animation-name:suBack}
+html[dir="rtl"] .su-in-back{animation-name:suIn}
+@keyframes suIn{from{opacity:0;transform:translateX(24px)}}
+@keyframes suBack{from{opacity:0;transform:translateX(-24px)}}
+
+/* lessons on Home, reset in the profile */
+.les-list{display:flex;flex-wrap:wrap;gap:8px}
+.les-chip{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:8px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);font-weight:700;font-size:14px;cursor:pointer}
+.les-chip i{font-style:normal;font-size:11px;color:var(--accent)}
+.les-chip.done{border-color:color-mix(in srgb,var(--ok) 45%,var(--line))}
+.les-chip.done i{color:var(--ok);font-size:13px}
+.btn.danger{color:var(--bad)}

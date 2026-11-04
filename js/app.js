@@ -846,6 +846,7 @@ function renderProfile(){
   html += '<div class="label">Your level and goals</div><div class="ai-box"><p>' + esc(profileLine()) + '</p><button class="btn ghost" data-act="redo-prof" style="width:100%">Change my level and goals</button></div>';
   html += '<div class="label">Share Klaar</div><div class="ai-box"><p>Know someone preparing for these exams? Send them the link. It shows them how to install it.</p><button class="btn ghost" data-act="share-app" style="width:100%">Share the link</button></div>';
   html += '<div class="label">Show Claude your progress</div><div class="ai-box"><p>The app is offline, so nobody can see your progress, including Claude. Tap below, then paste the text into your chat with Claude. Nothing else is sent anywhere.</p><button class="btn" data-act="share-prog" style="width:100%">Copy my progress</button></div>';
+  html += '<div class="label">Start again</div><div class="ai-box"><p>Clears your answers, mocks and streak on this phone. Your name, language and goals stay.</p><button class="btn ghost danger" data-act="reset" style="width:100%">Start from scratch</button></div>';
   html += '<div class="label">Backup</div><div class="ai-box"><p>Progress lives on this phone only. Save a backup file now and then, so a new phone or a cleared browser doesn\'t wipe it.</p><div class="pair"><button class="btn ghost" data-act="bk-save">Save backup</button><label class="btn ghost" for="bk-file">Restore<input type="file" id="bk-file" accept="application/json,.json" hidden></label></div></div>';
   html += '<p class="note">Works offline. Practice questions are original and in the style of the real exams, not official CBR or DUO material.</p><p class="note diag" id="diag"></p>';
   v.innerHTML = html;
@@ -857,6 +858,7 @@ function renderProfile(){
   var sp = $('[data-act="share-prog"]', v); if (sp) sp.addEventListener("click", shareProgress);
   var dg = $("#diag", v); if (dg && window.KLAAR_DIAG) dg.textContent = window.KLAAR_DIAG();
   var bx = $('[data-act="bk-save"]', v); if (bx) bx.addEventListener("click", backupSave);
+  var rs = $('[data-act="reset"]', v); if (rs) rs.addEventListener("click", function(){ if (rs.getAttribute("data-sure")){ resetProgress(); toast("Fresh start. Your progress is back to zero."); return; } rs.setAttribute("data-sure", "1"); rs.textContent = "Tap again to clear everything"; });
   var bi = $("#bk-file", v); if (bi) bi.addEventListener("change", function(){ if (bi.files && bi.files[0]) backupLoad(bi.files[0]); });
   $$("[data-goal]", v).forEach(function(b){ b.addEventListener("click", function(){ S.goal = +b.getAttribute("data-goal"); save(); renderProfile(); }); });
   $$("[data-lang]", v).forEach(function(b){ b.addEventListener("click", function(){ I18N.set(b.getAttribute("data-lang")); }); });
@@ -1006,6 +1008,14 @@ function renderHome(){
     html += '<div class="label">Next for you</div><button class="next-up" data-go-t="' + pick + '" data-go-v="' + (np.go ? "exams" : "feed") + '"><span class="ic ic-' + pick + '">' + TRACK_ICON[pick] + '</span><span class="nu-main"><b>' + esc(np.name) + '</b><span>' + esc(NAMES[pick]) + ' · step ' + (jp.at + 1) + ' of ' + jp.steps.length + '</span></span><span class="nu-go">›</span></button>';
   }
 
+  /* lessons you can open any time */
+  G.forEach(function(t){
+    var L = window.LESSONS && LESSONS[t], ks = L ? Object.keys(L) : [];
+    if (!ks.length) return;
+    var done = S.t[t].primers || {};
+    html += '<div class="label">Lessons</div><div class="les-list">' + ks.map(function(k){ return '<button class="les-chip' + (done[k] > 0 ? " done" : "") + '" data-les-t="' + t + '" data-les="' + esc(k) + '">' + (done[k] > 0 ? '<i aria-hidden="true">&#10003;</i>' : '<i aria-hidden="true">&#9654;</i>') + '<span>' + esc(k) + '</span></button>'; }).join("") + '</div>';
+  });
+
   /* both tracks */
   html += '<div class="label">' + (G.length > 1 ? "Your two goals" : "Your goal") + '</div>';
   G.forEach(function(t){
@@ -1029,6 +1039,7 @@ function renderHome(){
     html += '<button class="cz" data-go-t="civic" data-go-v="progress"><span class="ic ic-civic">' + TRACK_ICON.civic + '</span><span><b>Citizenship countdown</b><span>Add the date you moved here to see how long until you can apply</span></span></button>';
   }
   v.innerHTML = html;
+  $$("[data-les]", v).forEach(function(b){ b.addEventListener("click", function(){ var t = b.getAttribute("data-les-t"), k = b.getAttribute("data-les"); if (t !== S.track) setTrack(t); lesson = {track:t, topic:k, primer:{steps:LESSONS[t][k], i:0}}; cur = null; setView("feed"); }); });
   $$("[data-go-t]", v).forEach(function(b){ b.addEventListener("click", function(){ var t = b.getAttribute("data-go-t"), to = b.getAttribute("data-go-v"); if (t !== S.track) setTrack(t); setView(to); }); });
 }
 
@@ -1089,11 +1100,31 @@ function applyProfile(p, fresh){
   if (fresh){ var keep = {arrived:S.arrived, goal:S.goal, view:"home"}; S = freshState(); S.arrived = keep.arrived; S.view = "home"; cur = null; lastId = null; }
   S.prof = p; S.prof.at = Date.now(); S.onboarded = true; lesson = null;
   if (p.goal) S.goal = p.goal;
-  if (p.nl === "b1" && S.t.civic.level < 2) S.t.civic.level = 2;
+  if (p.civicLevel && S.t.civic.level < p.civicLevel) S.t.civic.level = p.civicLevel;
+  else if (p.nl === "b1" && S.t.civic.level < 2) S.t.civic.level = 2;
   var g = goals(); if (g.indexOf(S.track) < 0) S.track = g[0]; applyTrack();
   cur = null; save(); view = "home"; renderAll(); setView("home");
 }
-window.KLAAR = {isProfiled:function(){ return !!(S.prof && S.prof.at); }, hasProgress:function(){ return S.t.drive.ans + S.t.civic.ans; }, profile:function(){ return S.prof || null; }, applyProfile:applyProfile, isOnboarded:function(){ return !!S.onboarded; }, goal:function(){ return S.goal; }, finish:function(t, g){ if (t === 'drive' || t === 'civic') setTrack(t); if (g) S.goal = g; S.onboarded = true; save(); renderAll(); }};
+/* placement: a few questions per goal; drive = one per key topic, civic = a ladder of Dutch levels */
+var PLACE_DRIVE = ["Priority", "Signs", "Speed limits", "Distances", "Hazard perception", "Road markings", "Stopping & parking", "Motorway"];
+function slim(q){ return {id:q.id, q:q.q, o:q.o, c:q.c, p:q.p, kind:q.kind, topic:q.topic, sign:q.sign, sec:q.sec}; }
+function placementPool(t){
+  var tr = S.t[t], mc = function(q){ return q.o && (q.kind === "mc" || q.kind === "hazard") && !tr.seen[q.id]; };
+  if (t === "drive") return PLACE_DRIVE.map(function(topic){ var c = shuffle(STATIC.drive.filter(function(q){ return q.topic === topic && mc(q); })); return c[0] ? slim(c[0]) : null; }).filter(Boolean);
+  var rungs = [["a1", function(q){ return q.sec === "basics" && q.topic === "Vocabulary"; }], ["a2", function(q){ return q.sec === "a2-lezen"; }], ["b1", function(q){ return q.sec === "b1"; }], ["b2", function(q){ return q.sec === "b2"; }]];
+  return rungs.map(function(r){ return {rung:r[0], qs:shuffle(STATIC.civic.filter(function(q){ return r[1](q) && mc(q); })).slice(0, 2).map(slim)}; });
+}
+function placementSave(t, results){
+  results.forEach(function(r){ var q = INDEX[r.id]; if (q) record(q, r.ok, true); });
+  if (t === "drive"){
+    var tr = S.t.drive; tr.primers = tr.primers || {};
+    results.forEach(function(r){ var q = INDEX[r.id]; if (q && r.ok) tr.primers[q.topic] = tr.primers[q.topic] || -1; });  /* known: skip that lesson, still on Home */
+  }
+  save();
+}
+function resetProgress(){ var keep = {arrived:S.arrived, prof:S.prof, goal:S.goal}; S = freshState(); S.arrived = keep.arrived; S.prof = keep.prof; S.goal = keep.goal; S.onboarded = true; cur = null; lesson = null; focus = null; lastId = null; save(); applyTrack(); setView("home"); }
+window.KLAAR = {needsSetup:function(){ return !(S.prof && S.prof.v >= 2); }, placementPool:placementPool, placementSave:placementSave, poolSize:function(t){ return pool(t).length; }, seenCount:function(t){ return Object.keys(S.t[t].seen).length; },
+  isProfiled:function(){ return !!(S.prof && S.prof.at); }, hasProgress:function(){ return S.t.drive.ans + S.t.civic.ans; }, profile:function(){ return S.prof || null; }, applyProfile:applyProfile, isOnboarded:function(){ return !!S.onboarded; }, goal:function(){ return S.goal; }, finish:function(t, g){ if (t === 'drive' || t === 'civic') setTrack(t); if (g) S.goal = g; S.onboarded = true; save(); renderAll(); }};
 applyTrack();
 renderSync();
 setView(view);

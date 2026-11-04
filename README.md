@@ -19,7 +19,8 @@ No framework and no build step. GitHub Pages serves this folder as-is.
 | `js/i18n.js` | Language switch (English, Arabic, Turkish). Translates the screen as text appears, sets `dir="rtl"` for Arabic |
 | `js/i18n-data.js` | The Arabic and Turkish strings, one row per English string |
 | `js/shell.js` | Screen-tall layout for the home-screen app, the "new version" card, service worker registration |
-| `js/onboard.js` | Install guide per device and browser, and the 3-screen intro |
+| `js/setup.js` | Step-by-step setup: language, name, goals, exam dates, a short placement check, time per day, then a plan. Existing users see it once |
+| `js/onboard.js` | Install guide per device and browser; hands over to the setup |
 | `sw.js` | Offline cache |
 | `release.py` | Stamps a new version so installed apps show the update card |
 
