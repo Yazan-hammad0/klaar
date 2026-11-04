@@ -32,7 +32,7 @@ function hashId(s){ var h = 5381; s = String(s); for (var i = 0; i < s.length; i
 /* ---------------- question bank ---------------- */
 var STATIC = {drive: [], civic: []};
 DRIVE.QUESTIONS.forEach(function(q, i){
-  STATIC.drive.push({id:"d" + i, track:"drive", topic:q.t, kind:q.hz ? "hazard" : (q.num ? "num" : "mc"), q:q.q, o:q.o, c:q.c, a:q.a, e:q.e, sign:q.sign, lvl:1});
+  STATIC.drive.push({id:"d" + i, track:"drive", topic:q.t, kind:q.hz ? "hazard" : (q.num ? "num" : "mc"), q:q.q, o:q.o, c:q.c, a:q.a, e:q.e, sign:q.sign, src:q.source, lvl:1});
 });
 CIVIC.QUESTIONS.forEach(function(q, i){
   STATIC.civic.push({id:"c" + i, track:"civic", topic:q.t, kind:"mc", q:q.q, o:q.o, c:q.c, e:q.e, icon:q.icon, sec:"basics", lvl:1});

@@ -27,6 +27,7 @@ window.I18N_DATA = {rows: [
 ["Next lesson:","الدرس التالي:","Sonraki ders:"],
 ["Start the next lesson","ابدأ الدرس التالي","Sonraki derse başla"],
 ["Swipe for the next step","اسحب للخطوة التالية","Sonraki adım için kaydır"],
+["Fix: in a woonerf (erf) the limit is 15 km/h, not walking pace. The law changed in 2012.","تصحيح: الحد الأقصى للسرعة في الـ woonerf (erf) هو 15 كم/س وليس سرعة المشي. تغيّر القانون في 2012.","Düzeltme: woonerf (erf) içinde sınır yürüme hızı değil, 15 km/s. Kanun 2012'de değişti."],
 ["New: lessons come in a set order, each followed by its own questions, with drawings on every step.","جديد: الدروس تأتي بترتيب ثابت، يتبع كلًّا منها أسئلته، مع رسوم في كل خطوة.","Yeni: dersler belirli bir sırayla geliyor, her birinin ardından kendi soruları, her adımda çizimler."],
 ["Words to know","مصطلحات مهمة","Bilinmesi gereken kelimeler"],
 ["Search","بحث","Ara"],

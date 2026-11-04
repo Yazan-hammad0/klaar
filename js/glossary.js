@@ -54,7 +54,7 @@ var MORE = {
     {label:"Matrix sign", def:"An electronic sign above a lane. Its speed or red cross always beats the signs at the roadside.", why:"It can change the limit for accidents, roadworks or traffic jams."},
     {label:"Blue zone (blauwe zone)", def:"An area where you may park for free for a limited time, using a parking disc.", why:"Free short parking for everyone, without a meter."},
     {label:"Parking disc (parkeerschijf)", def:"A blue card behind your windscreen that shows your arrival time. You may round up to the next half hour.", why:"It lets anyone check how long you have been parked."},
-    {label:"Woonerf", def:"A residential zone where children may play on the street. Drive at walking pace and park only in marked spots.", why:"The street belongs to the people who live there."},
+    {label:"Woonerf", def:"A residential zone where children may play on the street. The limit is 15 km/h and you park only in marked spots.", why:"The street belongs to the people who live there."},
     {label:"Bicycle street (fietsstraat)", def:"A street where cyclists come first and cars are guests. Do not push cyclists.", why:"It gives bikes a safe route without a separate cycle path."}
   ],
   civic: [

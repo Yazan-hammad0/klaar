@@ -131,7 +131,7 @@ var QUESTIONS = [
   /* ---- Speed & distances ---- */
   {t:"Speed limits", q:"Between 06:00 and 19:00, what is the maximum speed on most Dutch motorways?", o:["100 km/h","120 km/h","130 km/h","110 km/h"], c:0, e:"Daytime default is 100. Higher limits only apply where signed, usually 19:00 to 06:00."},
   {t:"Speed limits", q:"Maximum speed on an autoweg (expressway)?", o:["80 km/h","100 km/h","90 km/h","120 km/h"], c:1, e:"Autoweg: 100 km/h unless signed otherwise."},
-  {t:"Speed limits", q:"Maximum speed in a woonerf (erf)?", o:["Walking pace","30 km/h","20 km/h","10 km/h"], c:0, e:"In an erf you drive 'stapvoets': walking pace."},
+  {t:"Speed limits", q:"Maximum speed in a woonerf (erf)?", o:["15 km/h","30 km/h","Walking pace","10 km/h"], c:0, e:"In an erf the limit is 15 km/h (RVV 1990, article 45). Older books say 'stapvoets' (walking pace), but the law has said 15 km/h since 2012.", source:"https://wetten.overheid.nl/jci1.3:c:BWBR0004825&artikel=45"},
   {t:"Speed limits", q:"Default speed limit outside built-up areas on a normal road?", o:["60 km/h","100 km/h","80 km/h","70 km/h"], c:2, e:"80 km/h, unless signs say otherwise. Many rural roads are signed 60."},
   {t:"Distances", num:true, q:"You drive 90 km/h. How many metres do you travel in one second? (type a number)", a:["25"], e:"Divide km/h by 3.6: 90 / 3.6 = 25 m per second."},
   {t:"Distances", num:true, q:"Your speed doubles from 40 to 80 km/h. How many times longer does your braking distance become? (type a number)", a:["4"], e:"Braking distance grows with the square of speed: 2x speed = 4x braking distance."},
