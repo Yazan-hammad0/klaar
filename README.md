@@ -18,8 +18,8 @@ No framework and no build step. GitHub Pages serves this folder as-is.
 | `js/view.js` | Driver's-eye pictures for hazard-perception questions: the road ahead in perspective, with every object placed in metres. Each question has a `view` spec |
 | `js/glossary.js` | Words to know: every term with its meaning and the logic behind it, one page per goal |
 | `js/app.js` | The app: feed with spaced repetition and teach-first lessons, mock exams, progress, home, journey steps |
-| `js/i18n.js` | Language switch (English, Arabic, Turkish). Translates the screen as text appears, sets `dir="rtl"` for Arabic |
-| `js/i18n-data.js` | The Arabic and Turkish strings, one row per English string |
+| `js/i18n.js` | Language switch (English, Arabic). Translates the screen as text appears, sets `dir="rtl"` for Arabic |
+| `js/i18n-data.js` | The Arabic strings, one row `[English, Arabic]` per English string |
 | `js/shell.js` | Screen-tall layout for the home-screen app, the "new version" card, service worker registration |
 | `js/setup.js` | Step-by-step setup: language, name, goals, exam dates, a short placement check, time per day, then a plan. Existing users see it once |
 | `js/onboard.js` | Install guide per device and browser; hands over to the setup |

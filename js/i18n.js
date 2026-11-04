@@ -1,22 +1,21 @@
-/* Languages: English (the text in the code), Arabic (right to left) and Turkish.
+/* Languages: English (the text in the code) and Arabic (right to left).
    Translates what is on screen as it appears, so the app code keeps plain English strings.
    Strings live in js/i18n-data.js. Questions and their explanations are not translated yet. */
 (function(){
 "use strict";
 var LANGS = {
   en:{label:"English", dir:"ltr", loc:"en-GB"},
-  ar:{label:"العربية", dir:"rtl", loc:"ar-u-nu-latn"},
-  tr:{label:"Türkçe", dir:"ltr", loc:"tr-TR"}
+  ar:{label:"العربية", dir:"rtl", loc:"ar-u-nu-latn"}
 };
-var KEY = "klaarLang", IDX = {ar:1, tr:2};
+var KEY = "klaarLang", IDX = {ar:1};
 var ATTRS = ["placeholder", "aria-label", "title", "alt"];
 /* question content stays as written; labels around it are translated */
 var SKIP = "script,style,textarea,input,[translate=no],.qtext,.passage,.les-q,.les-en,.les-e,.les-a b,.opt > span:last-child,.rq,.rv .mut,.fb .ex,.fb .en,.en-pre,.ai-out,.term,.sheet h2,.sheet p,.onb-url,.mock .url";
 var DATA = window.I18N_DATA || {rows:[], pats:[], parts:[]};
-var M = {ar:{}, tr:{}};
-DATA.rows.forEach(function(r){ M.ar[r[0]] = r[1]; M.tr[r[0]] = r[2]; });
-var PM = {ar:{}, tr:{}};
-DATA.parts.forEach(function(r){ PM.ar[r[0]] = r[1]; PM.tr[r[0]] = r[2]; });
+var M = {ar:{}};
+DATA.rows.forEach(function(r){ M.ar[r[0]] = r[1]; });
+var PM = {ar:{}};
+DATA.parts.forEach(function(r){ PM.ar[r[0]] = r[1]; });
 
 function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
 function lsSet(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }
