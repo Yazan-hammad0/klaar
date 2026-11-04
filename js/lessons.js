@@ -155,6 +155,38 @@ var SCENES = {
     you([[0, 120, 232], [8, 120, 215], [16, 96, 195, -20], [24, 80, 170, 0], [34, 80, 140, 0], [42, 98, 118, 22], [50, 120, 102, 0], [100, 120, -40, 0]], {still:[0, 80, 150]})
   ]); },
 
+  /* seconds and metres */
+  secondsAway: function(){
+    var m = ""; [["3 s", 170], ["2 s", 125], ["1 s", 80]].forEach(function(x){ m += '<path class="sc-tick" d="M60 ' + x[1] + 'H140"/><text class="sc-mark" x="32" y="' + (x[1] + 4) + '">' + x[0] + '</text>'; });
+    return svg("sa", road(), m + '<circle class="sc-kid" cx="146" cy="44" r="5"/><circle class="sc-ball" cx="134" cy="52" r="4"/>', [
+      you([[0, 120, 215], [70, 120, 92], [80, 120, 88], [100, 120, 88]], {steady:true, still:[0, 120, 125]})
+    ]);
+  },
+  mps: function(){
+    var m = ""; [["0 m", 180], ["25 m", 135], ["50 m", 90], ["75 m", 45]].forEach(function(x){ m += '<path class="sc-tick" d="M60 ' + x[1] + 'H140"/><text class="sc-mark" x="30" y="' + (x[1] + 4) + '">' + x[0] + '</text>'; });
+    return svg("mp", road("none"), m, [
+      you([[0, 120, 205], [100, 120, -30]], {steady:true, badge:"90", still:[0, 120, 135]})
+    ]);
+  },
+  fog: function(){ return svg("fg", road(), parked(120, 45) + '<defs><linearGradient id="fgG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="sc-fog1"/><stop offset="1" class="sc-fog2"/></linearGradient></defs>', [
+    you([[0, 120, 215], [45, 120, 130], [60, 120, 112], [100, 120, 112]], {still:[0, 120, 112]})
+  ]).replace('</svg>', '<rect x="0" y="0" width="200" height="98" fill="url(#fgG)"/></svg>'); },
+  blueZone: function(){
+    var bays = '<rect class="sc-drive" x="140" y="0" width="30" height="200"/><path class="sc-blue" d="M140 0V200"/><path class="sc-tick" d="M140 50H170M140 100H170M140 150H170"/>' + parked(155, 75) + parked(155, 175);
+    var disc = '<g transform="translate(32 100)"><rect class="sc-disc" x="-20" y="-26" width="40" height="52" rx="6"/><circle class="sc-clock" cx="0" cy="-4" r="13"/><path class="sc-hand" d="M0 -4V-13M0 -4L6 0"/></g>';
+    return svg("bz", road(), bays + disc, [ you([[0, 120, 215], [40, 120, 125], [60, 155, 125, 0], [100, 155, 125, 0]], {still:[0, 155, 125]}) ]);
+  },
+  missedExit: function(){
+    var exitLane = '<path class="sc-road" d="M150 120L190 40V0H170V30L150 70Z"/>';
+    return svg("me", motorway(), exitLane, [
+      you([[0, 130, 215], [100, 130, -30]], {steady:true, still:[0, 130, 100]})
+    ]);
+  },
+  speedSigns: function(){
+    function sign(x, n){ return '<circle class="sc-sign" cx="' + x + '" cy="80" r="34"/><text class="sc-signnum" x="' + x + '" y="92">' + n + '</text>'; }
+    return svg("ss", "", sign(58, "100") + sign(142, "130") + '<rect class="sc-plate" x="22" y="126" width="72" height="24" rx="4"/><text class="sc-platet" x="58" y="143">06–19 h</text><rect class="sc-matrix" x="104" y="126" width="76" height="40" rx="4"/><text class="sc-matrixt" x="142" y="153">80</text>', []);
+  },
+
   /* motorway */
   mwJoin: function(){ return svg("mj", motorway(), "", [
     {shape:"car", color:"c-red", badge:"1", steady:true, path:[[0, 130, 240], [55, 130, -40], [100, 130, -40]], still:[0, 130, 60]},
@@ -192,7 +224,7 @@ window.LESSONS = {
       {scene:"hzNothing", h:"Do nothing: the road stays clear",
        t:"Your speed fits the situation and nobody is heading into your path. Keep going as you are.",
        why:"Braking without a reason surprises the driver behind you.", src:SRC.gov},
-      {h:"Distance and speed decide",
+      {scene:"secondsAway", h:"Distance and speed decide",
        t:"The same situation can need a different answer. Close or fast: brake. Far away or slow: release. Ask yourself how many seconds it takes to get there.",
        why:"At 50 km/h you cover about 14 m every second (50 ÷ 3.6).", src:SRC.gov}
     ],
@@ -200,13 +232,13 @@ window.LESSONS = {
       {scene:"twoSec", h:"Stay at least 2 seconds behind",
        t:"When the car ahead passes a tree or post, count: one thousand and one, one thousand and two. If you reach it before you finish, you are too close.",
        why:"You need about a second to react, and after that you still need room to brake.", src:SRC.anwbDistance},
-      {h:"Speed in metres per second: divide by 3.6",
+      {scene:"mps", h:"Speed in metres per second: divide by 3.6",
        t:"90 km/h is 25 m per second, so 2 seconds is 50 m. 120 km/h is about 33 m per second.",
        why:"The exam asks for distances in metres, and this one sum gets you there.", src:SRC.anwbDistance},
       {scene:"brake4x", h:"Twice as fast, four times the braking distance",
        t:"Braking distance grows with the square of your speed. From 50 to 100 km/h it becomes 4 times as long. Your reaction distance only doubles.",
        why:"At double the speed the brakes have to remove four times as much energy.", src:SRC.anwbSpeed},
-      {h:"Always stop within what you can see",
+      {scene:"fog", h:"Always stop within what you can see",
        t:"In fog, heavy rain or a bend, your speed must let you stop within the clear road you can see. The speed sign is only a maximum.",
        why:"Something just out of sight still needs you to be able to stop for it.", src:SRC.gov}
     ],
@@ -230,7 +262,7 @@ window.LESSONS = {
       {scene:"overtake", h:"Solid line: don't cross it. Broken line: you may, when safe",
        t:"A solid line in the middle of the road may not be crossed, so finish overtaking before it starts. Where the line is broken you may cross it if it is safe.",
        why:"Solid lines are painted where you can't see far enough ahead to overtake safely.", src:SRC.gov},
-      {h:"Blue line: park with a parking disc",
+      {scene:"blueZone", h:"Blue line: park with a parking disc",
        t:"In a disc zone (blauwe zone) you may park only in spaces with a blue line or marked bays, with a parking disc showing your arrival time. You may round the time up to the next half hour.",
        why:"It gives everyone free short-term parking without a meter.", src:SRC.gov}
     ],
@@ -238,15 +270,17 @@ window.LESSONS = {
       {scene:"mwJoin", h:"Joining: speed up, then fit in",
        t:"Use the whole acceleration lane (invoegstrook) to reach the speed of the traffic, then move in where there is a gap. Traffic already on the motorway goes first.",
        why:"Joining at a low speed forces others to brake hard.", src:SRC.rvv54},
-      {icon:"hardShoulder", h:"No reversing, U-turns or stopping",
+      {scene:"missedExit", h:"No reversing, U-turns or stopping",
        t:"Missed your exit? Drive on to the next one. Stop on the hard shoulder only in an emergency.",
        why:"On a road this fast, anything standing still or going backwards is very dangerous.", src:SRC.gov},
-      {h:"130 by law, often 100 by day",
+      {scene:"speedSigns", h:"130 by law, often 100 by day",
        t:"The maximum is 130 km/h, but on many motorways signs set 100 km/h from 06:00 to 19:00. A speed on a matrix sign above your lane always wins.",
        why:"Signs and matrix signs adjust the limit to the road, the time of day and the traffic.", src:SRC.speedRules}
     ]
   },
   civic: {}
 };
+/* the order lessons come in: basics first, motorway and hazards later */
+window.LESSON_ORDER = {drive:["Priority", "Road markings", "Distances", "Lane use", "Railway crossings", "Motorway", "Hazard perception"], civic:[]};
 window.LESSON_SCENE = function(id){ return SCENES[id] ? SCENES[id]() : ""; };
 })();

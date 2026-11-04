@@ -397,7 +397,17 @@ function levelCap(t){ return t === "drive" ? 99 : S.t.civic.level; }
 function teachFirst(){ return prof().style !== "test"; }
 function topicLesson(t, topic){ return window.LESSONS && LESSONS[t] && LESSONS[t][topic]; }
 function needsLesson(q){ var tr = S.t[q.track]; return teachFirst() && !!topicLesson(q.track, q.topic) && !(tr.primers || {})[q.topic]; }
-var lesson = null, focus = null, FOCUS_AFTER = 4;
+var lesson = null, focus = null, UNIT_MAX = 10;
+/* a unit = a topic's lesson, then its questions, then a short "topic done" card */
+function nextLessonTopic(t, p){
+  var order = (window.LESSON_ORDER && LESSON_ORDER[t]) || [], tr = S.t[t], done = tr.primers || {};
+  for (var i = 0; i < order.length; i++){
+    var k = order[i];
+    if (done[k] || !topicLesson(t, k)) continue;
+    if (p.some(function(x){ return x.topic === k && !tr.seen[x.id]; })) return k;
+  }
+  return null;
+}
 function startLesson(first){
   var t = S.track;
   lesson = {track:t, topic:first.topic, primer:{steps:topicLesson(t, first.topic), i:0}};
@@ -407,8 +417,9 @@ function startLesson(first){
 }
 function pickNext(t){
   var tr = S.t[t];
+  var inUnit = focus && focus.track === t && focus.asked < focus.n;
   for (var i = 0; i < tr.wrong.length; i++){
-    if (tr.wrong[i].due <= tr.ans){
+    if (tr.wrong[i].due <= tr.ans && !(inUnit && INDEX[tr.wrong[i].id] && INDEX[tr.wrong[i].id].topic !== focus.topic)){   /* other topics' retries wait until the unit is done */
       var w = tr.wrong.splice(i, 1)[0];
       if (INDEX[w.id] && w.id !== lastId) return INDEX[w.id];
       i--;
@@ -417,10 +428,14 @@ function pickNext(t){
   var cap = levelCap(t);
   var p = pool(t).filter(function(q){ return (q.lvl || 1) <= cap; });
   var fit = p.filter(fitsProfile); if (fit.length >= 12) p = fit;
-  if (focus && focus.track === t && focus.n > 0){
-    focus.n--;
+  if (focus && focus.track === t && focus.asked < focus.n){
     var fq = p.filter(function(x){ return x.topic === focus.topic && !tr.seen[x.id] && x.id !== lastId; });
     if (fq.length) return fq[Math.floor(Math.random() * fq.length)];
+    focus.n = focus.asked;
+  }
+  if (teachFirst() && !focus){
+    var nt = nextLessonTopic(t, p);
+    if (nt){ var lq = p.filter(function(x){ return x.topic === nt && !tr.seen[x.id]; }); return lq[Math.floor(Math.random() * lq.length)]; }
   }
   var unseen = p.filter(function(q){ return !tr.seen[q.id] && q.id !== lastId; });
   if (unseen.length <= 8) maybeAutoGen(t);
@@ -439,6 +454,7 @@ function pickNext(t){
 function nextQuestion(){
   if (milestoneDue){ milestoneDue = false; renderMilestone(); return; }
   if (lesson && lesson.track === S.track){ renderFeed(); return; }
+  if (focus && focus.track === S.track && focus.asked >= focus.n){ renderUnitDone(); return; }
   var q = pickNext(S.track);
   if (!q){ cur = null; waitingForQuestions = true; renderFeed(); return; }
   if (needsLesson(q)){ startLesson(q); return; }
@@ -446,6 +462,17 @@ function nextQuestion(){
   lastId = q.id;
   cur = {q:q, done:false, sel:null, order:q.kind === "mc" ? shuffle(q.o.map(function(_, i){ return i; })) : (q.o ? q.o.map(function(_, i){ return i; }) : null), input:""};
   renderFeed(true);
+  scrollTop0();
+}
+function renderUnitDone(){
+  var F = focus, t = F.track, tr = S.t[t], p = pool(t).filter(function(q){ return (q.lvl || 1) <= levelCap(t); }), nt = null;
+  focus = null; nt = teachFirst() ? nextLessonTopic(t, p) : null; focus = F;
+  var v = $("#v-feed");
+  v.innerHTML = feedHead() + '<article class="qcard enter milestone unit-done"><div class="eyebrow"><span>' + esc(F.topic) + '</span></div><div class="m-big tabular">' + F.ok + '<small>/' + F.n + '</small></div><div class="m-cap">Topic done</div>' +
+    '<p class="m-cheer">' + (F.ok >= F.n * 0.8 ? "Strong. You know this topic." : "Mistakes come back later, so you get another go.") + '</p>' +
+    (nt ? '<p class="unit-next">Next lesson: <b>' + esc(nt) + '</b></p>' : "") +
+    '<div class="fb-actions"><button class="btn pop" data-act="u-next">' + (nt ? "Start the next lesson" : "Keep going") + '</button></div></article>';
+  $('[data-act="u-next"]', v).addEventListener("click", function(){ focus = null; nextQuestion(); });
   scrollTop0();
 }
 function ringSvg(done, goal){
@@ -471,14 +498,23 @@ function renderPrimer(v, entering){
     (st.scene && window.LESSON_SCENE ? '<div class="lscene">' + LESSON_SCENE(st.scene) + '</div>' : (st.icon && LIBS[L.track].GLOSSARY[st.icon] ? '<div class="visual">' + LIBS[L.track].GLOSSARY[st.icon].icon + '</div>' : "")) +
     '<h3 class="les-h">' + esc(st.h) + '</h3><p class="pr-t">' + (window.I18N && I18N.get() !== "en" ? esc(st.t) : mark(L.track, st.t)) + '</p>' +
     '<p class="pr-why"><b>Why</b><span>' + esc(st.why) + '</span></p>' + (st.src ? '<p class="src">Source: ' + esc(srcName(st.src)) + '</p>' : "") +
-    '<div class="pr-dots" aria-hidden="true">' + P.steps.map(function(_, k){ return '<i class="' + (k === P.i ? "on" : (k < P.i ? "done" : "")) + '"></i>'; }).join("") + '</div>' +
+    '<p class="pr-swipe">Swipe for the next step</p><div class="pr-dots" aria-hidden="true">' + P.steps.map(function(_, k){ return '<i class="' + (k === P.i ? "on" : (k < P.i ? "done" : "")) + '"></i>'; }).join("") + '</div>' +
     '<div class="fb-actions">' + (P.i > 0 ? '<button class="btn ghost" data-act="pr-back">Back</button>' : "") + '<button class="btn' + (last ? " pop" : "") + '" data-act="pr-next">' + (last ? "Now practise" : "Next") + '</button></div></article>';
   v.innerHTML = h;
   var b = $('[data-act="pr-back"]', v); if (b) b.addEventListener("click", function(){ P.i--; renderFeed(); scrollTop0(); });
+  var card = $("#qcard", v), sx = null, sy = 0, rtl = window.I18N && I18N.rtl();
+  card.addEventListener("touchstart", function(e){ if (e.touches.length === 1){ sx = e.touches[0].clientX; sy = e.touches[0].clientY; } }, {passive:true});
+  card.addEventListener("touchend", function(e){
+    if (sx === null) return; var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy; sx = null;
+    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    var fwd = rtl ? dx > 0 : dx < 0;
+    if (fwd) $('[data-act="pr-next"]', v).click(); else if (P.i > 0){ P.i--; renderFeed(); scrollTop0(); }
+  }, {passive:true});
   $('[data-act="pr-next"]', v).addEventListener("click", function(){
     if (!last){ P.i++; renderFeed(); scrollTop0(); return; }
     var tr = S.t[L.track]; tr.primers = tr.primers || {}; tr.primers[L.topic] = Date.now();
-    focus = {track:L.track, topic:L.topic, n:FOCUS_AFTER}; lesson = null; save(); nextQuestion();
+    var unseen = pool(L.track).filter(function(x){ return x.topic === L.topic && !tr.seen[x.id] && (x.lvl || 1) <= levelCap(L.track); }).length;
+    focus = unseen ? {track:L.track, topic:L.topic, n:Math.min(UNIT_MAX, unseen), asked:0, ok:0} : null; lesson = null; save(); nextQuestion();
   });
 }
 function renderLesson(v, entering){ renderPrimer(v, entering); }
@@ -499,7 +535,8 @@ function renderFeed(entering){
   }
   var q = cur.q, html2 = feedHead();
   html2 += '<article class="qcard' + (entering ? " enter" : "") + (q.kind === "hazard" ? " hz" : "") + '" id="qcard">';
-  html2 += '<div class="eyebrow"><span>' + esc(q.topic) + '</span>' + (q.sec && q.sec !== "basics" && SEC_NAME[q.sec] !== q.topic ? '<span class="tag">' + esc(SEC_NAME[q.sec] || q.sec) + '</span>' : "") + (q.gen ? '<span class="tag ai">New</span>' : "") + '</div>';
+  var inUnit = focus && focus.track === q.track && q.topic === focus.topic;
+  html2 += '<div class="eyebrow"><span>' + esc(q.topic) + '</span>' + (inUnit ? '<span class="pr-count tabular">' + Math.min(focus.n, focus.asked + (cur.done ? 0 : 1)) + ' / ' + focus.n + '</span>' : "") + (q.sec && q.sec !== "basics" && SEC_NAME[q.sec] !== q.topic ? '<span class="tag">' + esc(SEC_NAME[q.sec] || q.sec) + '</span>' : "") + (q.gen ? '<span class="tag ai">New</span>' : "") + '</div>';
   html2 += bodyHtml(q);
   if (q.kind === "num" || q.kind === "type"){
     html2 += '<div class="inrow"><input class="inp" id="feed-inp" ' + (q.kind === "num" ? 'inputmode="decimal" placeholder="Type a number"' : 'autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="Type je antwoord"') + ' aria-label="Your answer" value="' + esc(cur.input) + '"' + (cur.done ? " disabled" : "") + '>' +
@@ -547,6 +584,7 @@ function answer(a, btnRect){
   var q = cur.q, ok = isRight(q, a);
   cur.done = true; cur.sel = a; cur.ok = ok;
   var leveled = record(q, ok, false);
+  if (focus && focus.track === q.track && q.topic === focus.topic){ focus.asked++; if (ok) focus.ok++; }
   renderFeed();
   var card = $("#qcard");
   if (card){ card.classList.add(ok ? "hit" : "miss"); }
