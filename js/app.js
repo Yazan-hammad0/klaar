@@ -59,15 +59,17 @@ function reindex(){
 function pool(t){ return STATIC[t].concat(GEN[t]); }
 
 /* ---------------- state ---------------- */
-function freshTrack(){ return {xp:0, ans:0, ok:0, level:1, recent:[], topics:{}, seen:{}, primers:{}, wrong:[], mocks:{}, combo:0, aiOk:false}; }
+function freshTrack(){ return {xp:0, ans:0, ok:0, level:1, recent:[], topics:{}, seen:{}, primers:{}, wrong:[], mocks:{}, combo:0, aiOk:false, days:{}, right:{}}; }
 function freshState(){ return {v:1, updated:0, track:"drive", view:"feed", t:{drive:freshTrack(), civic:freshTrack()}, days:{}, goal:30, plan:{}}; }
 function mergeState(raw){
   var s = freshState();
   if (!raw || typeof raw !== "object") return s;
-  ["updated", "track", "view", "goal", "arrived", "onboarded", "prof"].forEach(function(k){ if (raw[k] != null) s[k] = raw[k]; });
+  ["updated", "track", "view", "goal", "arrived", "onboarded", "prof", "split"].forEach(function(k){ if (raw[k] != null) s[k] = raw[k]; });
   if (raw.days) s.days = raw.days;
   if (raw.plan) s.plan = raw.plan;
   ["drive", "civic"].forEach(function(t){ if (raw.t && raw.t[t]) s.t[t] = Object.assign(freshTrack(), raw.t[t]); });
+  /* each goal now keeps its own days; days from before that split count for both, so streaks survive */
+  if (!s.split){ s.split = dayKey(); ["drive", "civic"].forEach(function(t){ Object.keys(s.days).forEach(function(d){ if (d !== s.split && !s.t[t].days[d]) s.t[t].days[d] = s.days[d]; }); }); }
   if (s.track !== "civic") s.track = "drive";
   if (["home", "feed", "exams"].indexOf(s.view) < 0) s.view = "home";
   return s;
@@ -265,6 +267,7 @@ function record(q, ok, fromExam){
   tp.a++; if (ok) tp.ok++;
   tr.seen[q.id] = Date.now();
   var dk = dayKey(); S.days[dk] = (S.days[dk] || 0) + 1;
+  tr.days[dk] = (tr.days[dk] || 0) + 1; if (ok) tr.right[dk] = (tr.right[dk] || 0) + 1;
   var leveled = false;
   if (!fromExam){
     tr.combo = ok ? tr.combo + 1 : 0;
@@ -280,12 +283,15 @@ function record(q, ok, fromExam){
   save();
   return leveled;
 }
-function streak(){
-  var n = 0, d = new Date();
-  if (!S.days[dayKey(d)]) d.setDate(d.getDate() - 1);
-  while (S.days[dayKey(d)]){ n++; d.setDate(d.getDate() - 1); }
+/* per goal: days you practised it, and right answers today (only right answers count toward the daily goal) */
+function streak(t){
+  var days = S.t[t || S.track].days, n = 0, d = new Date();
+  if (!days[dayKey(d)]) d.setDate(d.getDate() - 1);
+  while (days[dayKey(d)]){ n++; d.setDate(d.getDate() - 1); }
   return n;
 }
+function rightOn(t, day){ var tr = S.t[t]; return tr.right[day] || (S.split && day < S.split ? tr.days[day] || 0 : 0); }
+function rightToday(t){ return S.t[t || S.track].right[dayKey()] || 0; }
 function levelName(t){ return t === "drive" ? "Level " + S.t.drive.level : CIVIC_LV[S.t.civic.level]; }
 
 /* ---------------- glossary sheet ---------------- */
@@ -482,7 +488,7 @@ function ringSvg(done, goal){
 }
 var FLAME = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1c1 3 4 4 4 8a4 4 0 0 1-8 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 0-7z" fill="currentColor"/></svg>';
 function feedHead(){
-  var tr = T(), today = S.days[dayKey()] || 0, st = streak();
+  var tr = T(), today = rightToday(), st = streak();
   var lvlPct = Math.round(Math.min(1, (tr.recent.reduce(function(a, b){ return a + b; }, 0)) / 17) * 100);
   return '<div class="feed-head"><div class="ring">' + ringSvg(today, S.goal) + '<b class="tabular">' + today + '<small>/' + S.goal + '</small></b></div>' +
     '<div class="chips"><span class="chip' + (st >= 3 ? " hot" : "") + '">' + FLAME + st + '-day streak</span>' +
@@ -592,10 +598,10 @@ function answer(a, btnRect){
   var fbx = $("#v-feed .fb");
   if (fbx){ var r = fbx.getBoundingClientRect(), tbh = ($(".tabbar") || {offsetHeight:0}).offsetHeight, want = r.top + 150 - ($(".tabbar") ? $(".tabbar").getBoundingClientRect().top : window.innerHeight - tbh);
     if (want > 0) scroller().scrollBy({top: want, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"}); }
-  var dn = S.days[dayKey()] || 0; if (dn > 0 && dn % 10 === 0) milestoneDue = true;
+  var dn = T().days[dayKey()] || 0; if (dn > 0 && dn % 10 === 0) milestoneDue = true;
   if (leveled) toast("Level up: " + levelName(q.track) + ". Questions get harder now.");
   else if (ok && T().combo > 0 && T().combo % 10 === 0) toast(T().combo + " in a row");
-  if ((S.days[dayKey()] || 0) === S.goal) toast("Daily goal done. Anything now is bonus.");
+  if (ok && rightToday() === S.goal) toast("Daily goal done. Anything now is bonus.");
 }
 function wireFeed(v){
   $$(".opt", v).forEach(function(b){ b.addEventListener("click", function(){ answer(+b.getAttribute("data-o")); }); });
@@ -614,14 +620,20 @@ function wireFeed(v){
 }
 function atEnd(){ var se = scroller(); return se.scrollTop + se.clientHeight >= se.scrollHeight - 4; }
 function rubber(x, dim){ var c = 0.55; return (x * dim * c) / (dim + c * Math.abs(x)); }
+/* Swipe up past the end for the next question. The touchmove listener has to be able to stop scrolling, and such a
+   listener makes the phone wait for JavaScript on every frame, so it is only attached for a touch that can become a swipe
+   (answered and already at the bottom). Every other touch scrolls natively. */
 function wireSwipe(card){
-  var y0 = null, x0 = 0, live = false, end = false, hist = [];
+  var y0 = null, x0 = 0, live = false, end = false, hist = [], on = false;
+  function detach(){ if (on){ card.removeEventListener("touchmove", move, {passive:false}); on = false; } }
   card.addEventListener("touchstart", function(e){
-    if (!cur || !cur.done || e.touches.length > 1 || e.target.closest("input,textarea")) { y0 = null; return; }
-    y0 = e.touches[0].clientY; x0 = e.touches[0].clientX; live = false; end = atEnd(); hist = [{y:y0, t:performance.now()}];
+    detach();
+    if (!cur || !cur.done || e.touches.length > 1 || e.target.closest("input,textarea") || !atEnd()) { y0 = null; return; }
+    y0 = e.touches[0].clientY; x0 = e.touches[0].clientX; live = false; end = true; hist = [{y:y0, t:performance.now()}];
     card.style.transition = "none";
+    card.addEventListener("touchmove", move, {passive:false}); on = true;
   }, {passive:true});
-  card.addEventListener("touchmove", function(e){
+  function move(e){
     if (y0 === null) return;
     var y = e.touches[0].clientY, dy = y - y0, dx = e.touches[0].clientX - x0;
     if (!live){
@@ -634,8 +646,9 @@ function wireSwipe(card){
     var off = dy < 0 ? dy : rubber(dy, 300);
     card.style.transform = "translateY(" + off + "px)";
     card.style.opacity = String(Math.max(0.35, 1 + off / 700));
-  }, {passive:false});
+  }
   function release(){
+    detach();
     if (y0 === null) return;
     var was = live; y0 = null; live = false;
     if (!was) return;
@@ -822,10 +835,6 @@ function finishExam(timedOut){
 }
 
 /* ---------------- PROGRESS ---------------- */
-var PLAN = {
-  drive: [["d-mock3", "Pass the full mock 3 times in a row"], ["d-course", "Do an English CBR theory course"], ["d-book", "Book the CBR theory exam (in English)"], ["d-theory", "Pass the theory exam"], ["d-lessons", "Start driving lessons"], ["d-practical", "Pass the practical exam"]],
-  civic: [["c-oefen", "Do the free practice exams on inburgeren.nl"], ["c-tma", "Ask your employer or gemeente about Dutch classes"], ["c-knm", "Pass KNM"], ["c-lezen", "Pass A2 Lezen"], ["c-luisteren", "Pass A2 Luisteren"], ["c-schrijven", "Pass A2 Schrijven"], ["c-spreken", "Pass A2 Spreken"], ["c-jordan", "Ask your embassy how giving up your nationality works"], ["c-docs", "Get your birth certificate legalised or apostilled"], ["c-apply", "Apply for citizenship at your gemeente"]]
-};
 function renderProgress(pre){
   var t = S.track, tr = S.t[t], v = $("#v-home"), html = "";
   if (t === "civic"){
@@ -846,7 +855,7 @@ function renderProgress(pre){
   if (ex && ex.date){ var dp = ex.date.split("-"), dl = Math.ceil((new Date(+dp[0], +dp[1] - 1, +dp[2]) - new Date()) / 86400000); if (dl >= 0) html += '<p class="exam-date">' + (dl === 0 ? "Your exam is today. Good luck!" : "Your exam: in " + dl + " days") + '</p>'; }
   var acc = tr.ans ? Math.round(tr.ok / tr.ans * 100) + "%" : "–";
   html = (pre || "") + html;
-  html += '<div class="stats"><div class="stat"><b class="tabular">' + tr.ans + '</b><span>Answered</span></div><div class="stat"><b class="tabular">' + acc + '</b><span>Accuracy</span></div><div class="stat"><b class="tabular">' + streak() + '</b><span>Day streak</span></div></div>';
+  html += '<div class="stats"><div class="stat"><b class="tabular">' + tr.ans + '</b><span>Answered</span></div><div class="stat"><b class="tabular">' + acc + '</b><span>Accuracy</span></div><div class="stat"><b class="tabular">' + streak(t) + '</b><span>Day streak</span></div></div>';
 
   var tp = tr.topics, keys = Object.keys(tp).filter(function(k){ return tp[k].a >= 2; }).sort(function(a, b){ return tp[a].ok / tp[a].a - tp[b].ok / tp[b].a; }).slice(0, 5);
   html += '<div class="label">Weakest topics</div>';
@@ -860,17 +869,13 @@ function renderProgress(pre){
     html += '<button class="btn pop" data-act="gen"' + (ai[t] === "busy" ? " disabled" : "") + '>' + (ai[t] === "busy" ? "Writing questions…" : "Write 8 new questions now") + '</button></div>';
   }
 
-  html += '<div class="label">Your ' + (t === "drive" ? "licence" : "citizenship") + ' checklist</div>';
-  PLAN[t].forEach(function(p){
-    var done = !!S.plan[p[0]];
-    html += '<label class="check' + (done ? " done" : "") + '"><input type="checkbox" id="pl-' + p[0] + '" data-plan="' + p[0] + '"' + (done ? " checked" : "") + '><span>' + esc(p[1]) + '</span></label>';
-  });
+  html += roadmapHtml(t);
   v.innerHTML = html;
   var g = $('[data-act="gen"]', v); if (g) g.addEventListener("click", function(){ generate(t, 8); renderHome(); });
   var as = $('[data-act="arr-set"]', v); if (as) as.addEventListener("click", function(){ var val = $("#arr-in", v).value; if (!/^\d{4}-\d{2}-\d{2}$/.test(val)) return toast("Pick a date first."); S.arrived = val; save(); renderHome(); });
   var ae = $('[data-act="arr-edit"]', v); if (ae) ae.addEventListener("click", function(){ S.arrived = null; save(); renderHome(); });
   var jg = $('[data-act="j-go"]', v); if (jg) jg.addEventListener("click", function(){ setView("exams"); });
-  $$("[data-plan]", v).forEach(function(c){ c.addEventListener("change", function(){ S.plan[c.getAttribute("data-plan")] = c.checked; save(); renderHome(); }); });
+  $$("[data-plan]", v).forEach(function(c){ c.addEventListener("click", function(){ var k = c.getAttribute("data-plan"); S.plan[k] = !S.plan[k]; save(); renderHome(); }); });
 }
 
 /* ---------------- PROFILE: your details and every setting in one place ---------------- */
@@ -888,7 +893,7 @@ function renderProfile(){
     html += '<div class="label">Language</div><div class="stats" role="group" aria-label="Language">' + Object.keys(I18N.langs).map(function(l){ return '<button class="btn ' + (I18N.get() === l ? "" : "ghost") + '" data-lang="' + l + '" lang="' + l + '" translate="no">' + I18N.langs[l].label + '</button>'; }).join("") + '</div>' +
       '<p class="note">Menus and instructions are in your language. Questions are still in English and Dutch.</p>';
   }
-  html += '<div class="label">Daily goal</div><div class="stats" role="group" aria-label="Daily goal">' + [15, 30, 50].map(function(g){ return '<button class="btn ' + (S.goal === g ? "" : "ghost") + '" data-goal="' + g + '">' + g + ' a day</button>'; }).join("") + '</div>';
+  html += '<div class="label">Daily goal</div><div class="stats" role="group" aria-label="Daily goal">' + [15, 30, 50].map(function(g){ return '<button class="btn ' + (S.goal === g ? "" : "ghost") + '" data-goal="' + g + '">' + g + ' a day</button>'; }).join("") + '</div><p class="note">Counts right answers for the goal you are on. A wrong answer comes back later and counts when you get it right.</p>';
 
   html += '<div class="label">How you learn</div><div class="pair" role="group" aria-label="How you learn">' + [["learn", "Lessons first"], ["test", "Questions only"]].map(function(s){ return '<button class="btn ' + ((teachFirst() ? "learn" : "test") === s[0] ? "" : "ghost") + '" data-style="' + s[0] + '">' + s[1] + '</button>'; }).join("") + '</div>' +
     '<p class="note">' + (teachFirst() ? "Each new topic starts with a short animated lesson, then questions on it. Mock exams are always the real test." : "You get questions straight away and learn from the answers.") + '</p>';
@@ -930,8 +935,8 @@ function progressSummary(){
       ms.push((m ? m.title : id) + ": last " + last.s + "/" + last.n + (last.p ? " pass" : " fail") + ", " + h.filter(function(x){ return x.p; }).length + "/" + h.length + " passed");
     });
     L.push(ms.length ? "Mock exams: " + ms.join("; ") : "Mock exams: none yet");
-    var done = PLAN[t].filter(function(p){ return S.plan[p[0]]; }).map(function(p){ return p[1]; });
-    if (done.length) L.push("Checklist done: " + done.join("; "));
+    var done = journey(t).steps.filter(function(p){ return p.done; }).map(function(p){ return p.name; });
+    if (done.length) L.push("Roadmap done: " + done.join("; "));
   });
   L.push(""); L.push("Streak " + streak() + " days. Goal " + S.goal + "/day. Days practised: " + Object.keys(S.days).length + (S.arrived ? ". Arrived " + S.arrived : "") + ".");
   return L.join("\n");
@@ -974,33 +979,59 @@ function backupLoad(f){
 function journey(t){
   var tr = S.t[t], rec = tr.recent || [], recAcc = rec.length ? rec.reduce(function(a, b){ return a + b; }, 0) / rec.length : 0;
   var full = tr.mocks.full || [], inRow = 0; for (var i = full.length - 1; i >= 0 && full[i].p; i--) inRow++;
-  var steps;
+  var steps, P = S.plan;
+  function real(key, name, msg){ return {name:name, key:key, done:!!P[key], p:0, msg:msg}; }
   if (t === "drive") steps = [
-    {name:"Learn the rules", done:tr.ans >= 100, p:Math.min(1, tr.ans / 100), msg:tr.ans + " of 100 questions answered. " + Math.max(0, 100 - tr.ans) + " more and you know the basics."},
+    {name:"Learn the rules", done:tr.ok >= 100, p:Math.min(1, tr.ok / 100), msg:tr.ok + " of 100 questions answered right. " + Math.max(0, 100 - tr.ok) + " more and you know the basics."},
     {name:"Score 85% in practice", done:tr.level >= 2 || (rec.length >= 20 && recAcc >= 0.85), p:Math.min(1, recAcc / 0.85), msg:rec.length < 10 ? "Answer " + (10 - rec.length) + " more to see your score." : "Your last " + rec.length + " answers: " + Math.round(recAcc * 100) + "% right. Aim for 85%."},
     {name:"Pass the quick mock", done:mockPassed(t, "quick"), p:0, msg:"20 questions in 12 minutes. You need 18 right.", go:true},
-    {name:"Pass the full mock 3 in a row", done:inRow >= 3 || !!S.plan["d-mock3"], p:inRow / 3, msg:"Full mocks passed in a row: " + Math.min(inRow, 3) + " of 3. Three in a row means you're ready.", go:true},
-    {name:"Book the real exam", done:!!S.plan["d-book"], p:0, msg:"You're ready. Book the CBR theory exam in English, then tick it off in your checklist below."}
+    {name:"Pass the full mock 3 in a row", done:inRow >= 3 || !!P["d-mock3"], p:inRow / 3, msg:"Full mocks passed in a row: " + Math.min(inRow, 3) + " of 3. Three in a row means you're ready.", go:true},
+    real("d-book", "Book the CBR theory exam", "You're ready. Book the theory exam on cbr.nl with your DigiD, then tap Done."),
+    real("d-theory", "Pass the theory exam", "Good luck. Tap Done when you have passed."),
+    real("d-lessons", "Take driving lessons", "Find a driving school near you. Tap Done when your instructor says you're ready for the exam."),
+    real("d-practical", "Pass the practical exam", "The last step. Tap Done when you pass.")
   ];
-  else steps = [
-    {name:"Learn the basics", done:tr.ans >= 60, p:Math.min(1, tr.ans / 60), msg:tr.ans + " of 60 questions answered. " + Math.max(0, 60 - tr.ans) + " more and you know the basics."},
-    {name:"Pass the KNM mock", done:mockPassed(t, "knm"), p:0, msg:"Dutch society, scored like the real KNM exam.", go:true},
-    {name:"Pass the reading mock", done:mockPassed(t, "a2-lezen"), p:0, msg:"Short Dutch texts at A2, like the real reading exam.", go:true},
-    {name:"Pass listening and writing", done:mockPassed(t, "a2-luisteren") && mockPassed(t, "a2-schrijven"), p:(mockPassed(t, "a2-luisteren") ? 0.5 : 0) + (mockPassed(t, "a2-schrijven") ? 0.5 : 0), msg:"Two more practice exams and the A2 part is covered.", go:true},
-    {name:"Book your real exams", done:!!S.plan["c-knm"], p:0, msg:"You're ready. Book KNM and A2 in Mijn Inburgering, then tick them off below."}
-  ];
+  else {
+    var a2 = [["c-lezen", "Lezen"], ["c-luisteren", "Luisteren"], ["c-schrijven", "Schrijven"], ["c-spreken", "Spreken"]], a2n = a2.filter(function(x){ return P[x[0]]; }).length;
+    steps = [
+      {name:"Learn the basics", done:tr.ok >= 60, p:Math.min(1, tr.ok / 60), msg:tr.ok + " of 60 questions answered right. " + Math.max(0, 60 - tr.ok) + " more and you know the basics."},
+      {name:"Pass the KNM mock", done:mockPassed(t, "knm"), p:0, msg:"Dutch society, scored like the real KNM exam.", go:true},
+      {name:"Pass the reading mock", done:mockPassed(t, "a2-lezen"), p:0, msg:"Short Dutch texts at A2, like the real reading exam.", go:true},
+      {name:"Pass listening and writing", done:mockPassed(t, "a2-luisteren") && mockPassed(t, "a2-schrijven"), p:(mockPassed(t, "a2-luisteren") ? 0.5 : 0) + (mockPassed(t, "a2-schrijven") ? 0.5 : 0), msg:"Two more practice exams and the A2 part is covered.", go:true},
+      real("c-oefen", "Try the official practice exams", "inburgeren.nl has free practice exams that look like the real ones. Try them, then tap Done."),
+      real("c-book", "Book your exams", "Book KNM and the A2 exams in Mijn Inburgering, then tap Done."),
+      real("c-knm", "Pass KNM", "Tap Done when you have passed."),
+      {name:"Pass the A2 exams", parts:a2, done:a2n === 4, p:a2n / 4, msg:a2n + " of 4 passed. Tap each one when you pass it."},
+      real("c-docs", "Get your documents ready", "For citizenship you usually need a legalised or apostilled birth certificate. Ask your gemeente what they need from you."),
+      real("c-apply", "Apply for citizenship", "Usually after 5 years of legal residence. You apply at your gemeente.")
+    ];
+  }
   var at = 0; while (at < steps.length && steps[at].done) at++;
   return {steps:steps, at:at};
+}
+/* the whole road for this goal: steps the app measures tick themselves, real-world steps get a Done button */
+function roadmapHtml(t){
+  var j = journey(t), html = '<div class="label">Your road to ' + (t === "drive" ? "a licence" : "inburgering and citizenship") + '</div><ol class="road">';
+  j.steps.forEach(function(st, i){
+    var cls = st.done ? "done" : (i === j.at ? "now" : "next");
+    html += '<li class="rd ' + cls + '"><span class="rd-dot" aria-hidden="true">' + (st.done ? "✓" : (i + 1)) + '</span><div class="rd-main"><b>' + esc(st.name) + '</b>';
+    if (i === j.at) html += '<p>' + esc(st.msg) + '</p>';
+    if (st.parts) html += '<div class="rd-parts">' + st.parts.map(function(x){ var on = !!S.plan[x[0]]; return '<button class="rd-part' + (on ? " on" : "") + '" data-plan="' + x[0] + '" aria-pressed="' + on + '" translate="no">' + (on ? "✓ " : "") + esc(x[1]) + '</button>'; }).join("") + '</div>';
+    else if (st.key) html += '<button class="rd-btn' + (st.done ? " on" : "") + '" data-plan="' + st.key + '" aria-pressed="' + st.done + '">' + (st.done ? "Done ✓" : "Done") + '</button>';
+    else if (!st.done) html += '<span class="rd-auto">Ticks itself</span>';
+    html += '</div></li>';
+  });
+  return html + '</ol>';
 }
 var CHEERS = ["Nice work.", "Keep it up.", "That's real progress.", "You're getting there.", "Solid session."];
 function journeyHtml(t, compact){
   var j = journey(t), n = j.steps.length, all = j.at >= n, cur = all ? null : j.steps[j.at];
-  var html = '<div class="journey' + (compact ? " compact" : "") + '"><div class="j-cap">Where you are</div><div class="j-track" aria-hidden="true">';
+  var html = '<div class="journey' + (compact ? " compact" : "") + (n > 7 ? " many" : "") + '"><div class="j-cap">Where you are</div><div class="j-track" aria-hidden="true">';
   j.steps.forEach(function(s, i){
     html += '<span class="j-dot' + (s.done ? " done" : (i === j.at ? " now" : "")) + '">' + (s.done ? "✓" : (i + 1)) + '</span>' + (i < n - 1 ? '<span class="j-line' + (s.done ? " done" : "") + '"></span>' : "");
   });
   html += '</div>';
-  if (all) html += '<div class="j-now">All ' + n + ' steps done</div><p class="j-msg">You did the work. Keep a short streak going until exam day.</p>';
+  if (all) html += '<div class="j-now">You are klaar</div><p class="j-msg">Every step done. Well done.</p>';
   else {
     html += '<div class="j-step">Step ' + (j.at + 1) + ' of ' + n + '</div><div class="j-now">' + esc(cur.name) + '</div>';
     if (cur.p > 0) html += '<div class="j-bar"><i style="width:' + Math.round(cur.p * 100) + '%"></i></div>';
@@ -1010,9 +1041,9 @@ function journeyHtml(t, compact){
 }
 var milestoneDue = false;
 function renderMilestone(){
-  var t = S.track, today = S.days[dayKey()] || 0, j = journey(t), cur = j.steps[j.at];
+  var t = S.track, today = rightToday(), j = journey(t), cur = j.steps[j.at];
   var v = $("#v-feed");
-  var html = feedHead() + '<article class="qcard enter milestone"><div class="m-big tabular">' + today + '</div><div class="m-cap">questions today</div><p class="m-cheer">' +
+  var html = feedHead() + '<article class="qcard enter milestone"><div class="m-big tabular">' + today + '</div><div class="m-cap">right today</div><p class="m-cheer">' +
     esc(CHEERS[Math.floor(today / 10) % CHEERS.length]) + (today >= S.goal ? " Daily goal done." : " " + (S.goal - today) + " to go for your daily goal.") + '</p>' + journeyHtml(t, true) +
     '<div class="fb-actions">' + (cur && cur.go ? '<button class="btn ghost" data-act="m-exam">Try the mock</button>' : "") + '<button class="btn" data-act="m-next">Keep going</button></div></article>';
   v.innerHTML = html;
@@ -1037,15 +1068,15 @@ var TRACK_ICON = {
 var HOME_SUB = {drive: "Driving theory (CBR)", civic: "KNM and Dutch A2"};
 function trackFrac(t){ var j = journey(t), n = j.steps.length; if (j.at >= n) return 1; return (j.at + (j.steps[j.at].p || 0)) / n; }
 function renderHome(){
-  var v = $("#v-home"), today = S.days[dayKey()] || 0, st = streak(), hr = new Date().getHours();
+  var v = $("#v-home"), today = rightToday(), st = streak(), hr = new Date().getHours();
   var hi = hr < 12 ? "Good morning" : (hr < 18 ? "Good afternoon" : "Good evening");
-  var line = today === 0 ? "Nothing yet today. Five minutes keeps your streak alive." : (today < S.goal ? today + " done today, " + (S.goal - today) + " to go." : "Daily goal done. Anything now is bonus.");
+  var line = today === 0 ? "Nothing yet today. Five minutes keeps your streak alive." : (today < S.goal ? today + " right today, " + (S.goal - today) + " to go." : "Daily goal done. Anything now is bonus.");
   var html = '<div class="home-hi"><h2 class="h2">' + hi + '</h2><p class="lead">' + esc(line) + '</p></div>';
 
   /* today: ring + streak + last 7 days */
   var week = "", d = new Date(), names = [0, 1, 2, 3, 4, 5, 6].map(function(i){ return new Date(2023, 0, 1 + i).toLocaleDateString(loc(), {weekday:"narrow"}); });
   for (var i = 6; i >= 0; i--){
-    var day = new Date(d.getFullYear(), d.getMonth(), d.getDate() - i), n = S.days[dayKey(day)] || 0;
+    var day = new Date(d.getFullYear(), d.getMonth(), d.getDate() - i), n = rightOn(S.track, dayKey(day));
     week += '<span class="wk' + (n ? " on" : "") + (i === 0 ? " now" : "") + '"><i style="height:' + Math.max(4, Math.min(100, n / S.goal * 100)) + '%"></i><b>' + names[day.getDay()] + '</b></span>';
   }
   html += '<div class="today"><div class="ring big">' + ringSvg(today, S.goal) + '<b class="tabular">' + today + '<small>/' + S.goal + '</small></b></div>' +
@@ -1118,7 +1149,7 @@ function profileLine(){
   if (goals().indexOf("civic") >= 0 && pr.nl) bits.push(NL[pr.nl]);
   if (goals().indexOf("drive") >= 0 && pr.drive) bits.push(DR[pr.drive]);
   bits.push(teachFirst() ? "lessons first" : "questions only");
-  bits.push(S.goal + " questions a day");
+  bits.push(S.goal + " right answers a day");
   var s = bits.join(", "); return s.charAt(0).toUpperCase() + s.slice(1) + ".";
 }
 function applyProfile(p, fresh){

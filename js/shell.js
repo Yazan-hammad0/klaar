@@ -1,5 +1,5 @@
 /* Screen-tall layout for the home-screen app, update notice, service worker. */
-var KLAAR_VERSION = "4b8e544c7f", KLAAR_NEWS = "Listening: two Dutch speakers now take turns, a man and a woman, like in the real exam.";
+var KLAAR_VERSION = "c55a0f9ae3", KLAAR_NEWS = "Smoother scrolling: the question card no longer holds up your swipes.";
 (function(){
   /* iOS home-screen apps sometimes get a layout viewport shorter than the screen, which leaves a strip under the tab bar.
      Measure it and push the bottom chrome down into that strip. */
@@ -16,8 +16,9 @@ var KLAAR_VERSION = "4b8e544c7f", KLAAR_NEWS = "Listening: two Dutch speakers no
     var full = portrait ? Math.max(screen.width, screen.height) : Math.min(screen.width, screen.height);
     var h = window.innerHeight, d = full - h;
     if (st && d >= 0 && d <= 140) h = full;
-    root.style.setProperty("--app-h", h + "px");
-    root.classList.toggle("shell", st);
+    /* Safari's toolbar resizes the page while you scroll; only touch the layout when the app height really changed */
+    if (st && h !== info.h) root.style.setProperty("--app-h", h + "px");
+    if (root.classList.contains("shell") !== st) root.classList.toggle("shell", st);
     info = {st:st, full:full, inner:window.innerHeight, h:h, top:top, bot:bot};
   }
   window.KLAAR_DIAG = function(){ fit(); return "Screen " + info.full + " · view " + info.inner + " · app " + info.h + " · safe " + info.top + "/" + info.bot + (info.st ? " · home screen" : " · browser") + " · v" + KLAAR_VERSION; };
