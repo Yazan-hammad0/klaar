@@ -27,7 +27,7 @@ window.I18N_DATA = {rows: [
 ["Next lesson:","الدرس التالي:","Sonraki ders:"],
 ["Start the next lesson","ابدأ الدرس التالي","Sonraki derse başla"],
 ["Swipe for the next step","اسحب للخطوة التالية","Sonraki adım için kaydır"],
-["New: look up Klaar in Words to know.", "جديد: ابحث عن Klaar في «كلمات يجب أن تعرفها».", "Yeni: Bilmen gereken kelimeler'de Klaar'a bak."],
+["New: look up Klaar in Words to know.", "جديد: ابحث عن Klaar في «مصطلحات مهمة».", "Yeni: Bilinmesi gereken kelimeler'de Klaar'a bak."],
 ["right today", "إجابة صحيحة اليوم", "doğru bugün"],
 ["Counts right answers for the goal you are on. A wrong answer comes back later and counts when you get it right.", "يُحسب عدد الإجابات الصحيحة للهدف الذي تعمل عليه. السؤال الذي تخطئ فيه يعود لاحقًا ويُحسب عندما تجيب عنه بشكل صحيح.", "Üzerinde olduğun hedefin doğru cevaplarını sayar. Yanlış cevaplanan soru sonra tekrar gelir ve doğru bildiğinde sayılır."],
 ["Fix: each goal has its own daily count and streak, and only right answers count.", "تصحيح: لكل هدف عدّاد يومي وسلسلة أيام خاصة به، والإجابات الصحيحة فقط تُحسب.", "Düzeltme: her hedefin kendi günlük sayacı ve serisi var, yalnızca doğru cevaplar sayılır."],
