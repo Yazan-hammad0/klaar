@@ -31,19 +31,23 @@ VOICES = [(RONNIE, dict(length_scale=1.22, noise_scale=0.4, noise_w_scale=0.5), 
           (RONNIE, dict(length_scale=1.17, noise_scale=0.4, noise_w_scale=0.5), "nl_BE-nathalie-medium.onnx")]
 # a clip where the speaker says their name gets the matching voice; others take turns
 NAMES = {0: ["Mark", "Pieter"], 1: ["Karin", "Linda"]}
-def voice_for(i, text):
+def voice_for(i, text, phrase=False):
+    if phrase: return VOICES[0]  # lesson phrases: one steady teacher voice
     for v, names in NAMES.items():
         if any("met " + n in text for n in names): return VOICES[v]
     return VOICES[i % len(VOICES)]
 extract = r'''
 const fs = require("fs"); const r = new Function(fs.readFileSync(process.argv[1], "utf8") + ";return {CIVIC, EXTRA};")();
 function hashId(s){ let h = 5381; s = String(s); for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
-const t = new Set(), ref = new Set(), add = x => { if (typeof x === "string" && x.length > 25) ref.add(x); };
+const t = new Set(), ph = new Set(), ref = new Set(), add = x => { if (typeof x === "string" && x.length > 25) ref.add(x); };
 r.CIVIC.STAGES.forEach(s => s.qs.forEach(q => { if (q.audio) t.add(q.audio); add(q.audio); add(q.p); }));
 r.EXTRA.civic.forEach(q => { if (q.audio) t.add(q.audio); add(q.audio); add(q.p); });
-console.log(JSON.stringify({clips: [...t].map(x => ({h:hashId(x), t:x})), ref: [...ref]}));
+/* Dutch phrases in the lessons (tap to hear), after the listening clips so those keep their voices */
+global.window = {}; new Function(fs.readFileSync(process.argv[2], "utf8"))();
+Object.values(window.LESSONS.civic || {}).forEach(steps => steps.forEach(st => (st.say || []).forEach(x => { if (!t.has(x[0])) ph.add(x[0]); })));
+console.log(JSON.stringify({clips: [...t].map(x => ({h:hashId(x), t:x})).concat([...ph].map(x => ({h:hashId(x), t:x, phrase:1}))), ref: [...ref]}));
 '''
-data = json.loads(subprocess.run(["node", "-e", extract, os.path.join(root, "js/content.js")], capture_output=True, text=True, check=True).stdout)
+data = json.loads(subprocess.run(["node", "-e", extract, os.path.join(root, "js/content.js"), os.path.join(root, "js/lessons.js")], capture_output=True, text=True, check=True).stdout)
 clips = data["clips"]
 out = os.path.join(root, "audio"); made = 0
 loaded = {}
@@ -76,7 +80,7 @@ def converter(target):
 for i, c in enumerate(clips):
     mp3 = os.path.join(out, c["h"] + ".mp3")
     if os.path.exists(mp3) and not redo: continue
-    model, cfg, target = voice_for(i, c["t"])
+    model, cfg, target = voice_for(i, c["t"], c.get("phrase"))
     wav = mp3[:-4] + ".wav"
     with wave.open(wav, "wb") as wf: piper(model).synthesize_wav(c["t"], wf, syn_config=SynthesisConfig(**cfg))
     if target:
