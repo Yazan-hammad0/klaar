@@ -620,14 +620,20 @@ function wireFeed(v){
 }
 function atEnd(){ var se = scroller(); return se.scrollTop + se.clientHeight >= se.scrollHeight - 4; }
 function rubber(x, dim){ var c = 0.55; return (x * dim * c) / (dim + c * Math.abs(x)); }
+/* Swipe up past the end for the next question. The touchmove listener has to be able to stop scrolling, and such a
+   listener makes the phone wait for JavaScript on every frame, so it is only attached for a touch that can become a swipe
+   (answered and already at the bottom). Every other touch scrolls natively. */
 function wireSwipe(card){
-  var y0 = null, x0 = 0, live = false, end = false, hist = [];
+  var y0 = null, x0 = 0, live = false, end = false, hist = [], on = false;
+  function detach(){ if (on){ card.removeEventListener("touchmove", move, {passive:false}); on = false; } }
   card.addEventListener("touchstart", function(e){
-    if (!cur || !cur.done || e.touches.length > 1 || e.target.closest("input,textarea")) { y0 = null; return; }
-    y0 = e.touches[0].clientY; x0 = e.touches[0].clientX; live = false; end = atEnd(); hist = [{y:y0, t:performance.now()}];
+    detach();
+    if (!cur || !cur.done || e.touches.length > 1 || e.target.closest("input,textarea") || !atEnd()) { y0 = null; return; }
+    y0 = e.touches[0].clientY; x0 = e.touches[0].clientX; live = false; end = true; hist = [{y:y0, t:performance.now()}];
     card.style.transition = "none";
+    card.addEventListener("touchmove", move, {passive:false}); on = true;
   }, {passive:true});
-  card.addEventListener("touchmove", function(e){
+  function move(e){
     if (y0 === null) return;
     var y = e.touches[0].clientY, dy = y - y0, dx = e.touches[0].clientX - x0;
     if (!live){
@@ -640,8 +646,9 @@ function wireSwipe(card){
     var off = dy < 0 ? dy : rubber(dy, 300);
     card.style.transform = "translateY(" + off + "px)";
     card.style.opacity = String(Math.max(0.35, 1 + off / 700));
-  }, {passive:false});
+  }
   function release(){
+    detach();
     if (y0 === null) return;
     var was = live; y0 = null; live = false;
     if (!was) return;
