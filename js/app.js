@@ -828,10 +828,6 @@ function finishExam(timedOut){
 }
 
 /* ---------------- PROGRESS ---------------- */
-var PLAN = {
-  drive: [["d-mock3", "Pass the full mock 3 times in a row"], ["d-course", "Do an English CBR theory course"], ["d-book", "Book the CBR theory exam (in English)"], ["d-theory", "Pass the theory exam"], ["d-lessons", "Start driving lessons"], ["d-practical", "Pass the practical exam"]],
-  civic: [["c-oefen", "Do the free practice exams on inburgeren.nl"], ["c-tma", "Ask your employer or gemeente about Dutch classes"], ["c-knm", "Pass KNM"], ["c-lezen", "Pass A2 Lezen"], ["c-luisteren", "Pass A2 Luisteren"], ["c-schrijven", "Pass A2 Schrijven"], ["c-spreken", "Pass A2 Spreken"], ["c-jordan", "Ask your embassy how giving up your nationality works"], ["c-docs", "Get your birth certificate legalised or apostilled"], ["c-apply", "Apply for citizenship at your gemeente"]]
-};
 function renderProgress(pre){
   var t = S.track, tr = S.t[t], v = $("#v-home"), html = "";
   if (t === "civic"){
@@ -866,17 +862,13 @@ function renderProgress(pre){
     html += '<button class="btn pop" data-act="gen"' + (ai[t] === "busy" ? " disabled" : "") + '>' + (ai[t] === "busy" ? "Writing questions…" : "Write 8 new questions now") + '</button></div>';
   }
 
-  html += '<div class="label">Your ' + (t === "drive" ? "licence" : "citizenship") + ' checklist</div>';
-  PLAN[t].forEach(function(p){
-    var done = !!S.plan[p[0]];
-    html += '<label class="check' + (done ? " done" : "") + '"><input type="checkbox" id="pl-' + p[0] + '" data-plan="' + p[0] + '"' + (done ? " checked" : "") + '><span>' + esc(p[1]) + '</span></label>';
-  });
+  html += roadmapHtml(t);
   v.innerHTML = html;
   var g = $('[data-act="gen"]', v); if (g) g.addEventListener("click", function(){ generate(t, 8); renderHome(); });
   var as = $('[data-act="arr-set"]', v); if (as) as.addEventListener("click", function(){ var val = $("#arr-in", v).value; if (!/^\d{4}-\d{2}-\d{2}$/.test(val)) return toast("Pick a date first."); S.arrived = val; save(); renderHome(); });
   var ae = $('[data-act="arr-edit"]', v); if (ae) ae.addEventListener("click", function(){ S.arrived = null; save(); renderHome(); });
   var jg = $('[data-act="j-go"]', v); if (jg) jg.addEventListener("click", function(){ setView("exams"); });
-  $$("[data-plan]", v).forEach(function(c){ c.addEventListener("change", function(){ S.plan[c.getAttribute("data-plan")] = c.checked; save(); renderHome(); }); });
+  $$("[data-plan]", v).forEach(function(c){ c.addEventListener("click", function(){ var k = c.getAttribute("data-plan"); S.plan[k] = !S.plan[k]; save(); renderHome(); }); });
 }
 
 /* ---------------- PROFILE: your details and every setting in one place ---------------- */
@@ -936,8 +928,8 @@ function progressSummary(){
       ms.push((m ? m.title : id) + ": last " + last.s + "/" + last.n + (last.p ? " pass" : " fail") + ", " + h.filter(function(x){ return x.p; }).length + "/" + h.length + " passed");
     });
     L.push(ms.length ? "Mock exams: " + ms.join("; ") : "Mock exams: none yet");
-    var done = PLAN[t].filter(function(p){ return S.plan[p[0]]; }).map(function(p){ return p[1]; });
-    if (done.length) L.push("Checklist done: " + done.join("; "));
+    var done = journey(t).steps.filter(function(p){ return p.done; }).map(function(p){ return p.name; });
+    if (done.length) L.push("Roadmap done: " + done.join("; "));
   });
   L.push(""); L.push("Streak " + streak() + " days. Goal " + S.goal + "/day. Days practised: " + Object.keys(S.days).length + (S.arrived ? ". Arrived " + S.arrived : "") + ".");
   return L.join("\n");
@@ -980,33 +972,59 @@ function backupLoad(f){
 function journey(t){
   var tr = S.t[t], rec = tr.recent || [], recAcc = rec.length ? rec.reduce(function(a, b){ return a + b; }, 0) / rec.length : 0;
   var full = tr.mocks.full || [], inRow = 0; for (var i = full.length - 1; i >= 0 && full[i].p; i--) inRow++;
-  var steps;
+  var steps, P = S.plan;
+  function real(key, name, msg){ return {name:name, key:key, done:!!P[key], p:0, msg:msg}; }
   if (t === "drive") steps = [
     {name:"Learn the rules", done:tr.ok >= 100, p:Math.min(1, tr.ok / 100), msg:tr.ok + " of 100 questions answered right. " + Math.max(0, 100 - tr.ok) + " more and you know the basics."},
     {name:"Score 85% in practice", done:tr.level >= 2 || (rec.length >= 20 && recAcc >= 0.85), p:Math.min(1, recAcc / 0.85), msg:rec.length < 10 ? "Answer " + (10 - rec.length) + " more to see your score." : "Your last " + rec.length + " answers: " + Math.round(recAcc * 100) + "% right. Aim for 85%."},
     {name:"Pass the quick mock", done:mockPassed(t, "quick"), p:0, msg:"20 questions in 12 minutes. You need 18 right.", go:true},
-    {name:"Pass the full mock 3 in a row", done:inRow >= 3 || !!S.plan["d-mock3"], p:inRow / 3, msg:"Full mocks passed in a row: " + Math.min(inRow, 3) + " of 3. Three in a row means you're ready.", go:true},
-    {name:"Book the real exam", done:!!S.plan["d-book"], p:0, msg:"You're ready. Book the CBR theory exam in English, then tick it off in your checklist below."}
+    {name:"Pass the full mock 3 in a row", done:inRow >= 3 || !!P["d-mock3"], p:inRow / 3, msg:"Full mocks passed in a row: " + Math.min(inRow, 3) + " of 3. Three in a row means you're ready.", go:true},
+    real("d-book", "Book the CBR theory exam", "You're ready. Book the theory exam on cbr.nl with your DigiD, then tap Done."),
+    real("d-theory", "Pass the theory exam", "Good luck. Tap Done when you have passed."),
+    real("d-lessons", "Take driving lessons", "Find a driving school near you. Tap Done when your instructor says you're ready for the exam."),
+    real("d-practical", "Pass the practical exam", "The last step. Tap Done when you pass.")
   ];
-  else steps = [
-    {name:"Learn the basics", done:tr.ok >= 60, p:Math.min(1, tr.ok / 60), msg:tr.ok + " of 60 questions answered right. " + Math.max(0, 60 - tr.ok) + " more and you know the basics."},
-    {name:"Pass the KNM mock", done:mockPassed(t, "knm"), p:0, msg:"Dutch society, scored like the real KNM exam.", go:true},
-    {name:"Pass the reading mock", done:mockPassed(t, "a2-lezen"), p:0, msg:"Short Dutch texts at A2, like the real reading exam.", go:true},
-    {name:"Pass listening and writing", done:mockPassed(t, "a2-luisteren") && mockPassed(t, "a2-schrijven"), p:(mockPassed(t, "a2-luisteren") ? 0.5 : 0) + (mockPassed(t, "a2-schrijven") ? 0.5 : 0), msg:"Two more practice exams and the A2 part is covered.", go:true},
-    {name:"Book your real exams", done:!!S.plan["c-knm"], p:0, msg:"You're ready. Book KNM and A2 in Mijn Inburgering, then tick them off below."}
-  ];
+  else {
+    var a2 = [["c-lezen", "Lezen"], ["c-luisteren", "Luisteren"], ["c-schrijven", "Schrijven"], ["c-spreken", "Spreken"]], a2n = a2.filter(function(x){ return P[x[0]]; }).length;
+    steps = [
+      {name:"Learn the basics", done:tr.ok >= 60, p:Math.min(1, tr.ok / 60), msg:tr.ok + " of 60 questions answered right. " + Math.max(0, 60 - tr.ok) + " more and you know the basics."},
+      {name:"Pass the KNM mock", done:mockPassed(t, "knm"), p:0, msg:"Dutch society, scored like the real KNM exam.", go:true},
+      {name:"Pass the reading mock", done:mockPassed(t, "a2-lezen"), p:0, msg:"Short Dutch texts at A2, like the real reading exam.", go:true},
+      {name:"Pass listening and writing", done:mockPassed(t, "a2-luisteren") && mockPassed(t, "a2-schrijven"), p:(mockPassed(t, "a2-luisteren") ? 0.5 : 0) + (mockPassed(t, "a2-schrijven") ? 0.5 : 0), msg:"Two more practice exams and the A2 part is covered.", go:true},
+      real("c-oefen", "Try the official practice exams", "inburgeren.nl has free practice exams that look like the real ones. Try them, then tap Done."),
+      real("c-book", "Book your exams", "Book KNM and the A2 exams in Mijn Inburgering, then tap Done."),
+      real("c-knm", "Pass KNM", "Tap Done when you have passed."),
+      {name:"Pass the A2 exams", parts:a2, done:a2n === 4, p:a2n / 4, msg:a2n + " of 4 passed. Tap each one when you pass it."},
+      real("c-docs", "Get your documents ready", "For citizenship you usually need a legalised or apostilled birth certificate. Ask your gemeente what they need from you."),
+      real("c-apply", "Apply for citizenship", "Usually after 5 years of legal residence. You apply at your gemeente.")
+    ];
+  }
   var at = 0; while (at < steps.length && steps[at].done) at++;
   return {steps:steps, at:at};
+}
+/* the whole road for this goal: steps the app measures tick themselves, real-world steps get a Done button */
+function roadmapHtml(t){
+  var j = journey(t), html = '<div class="label">Your road to ' + (t === "drive" ? "a licence" : "inburgering and citizenship") + '</div><ol class="road">';
+  j.steps.forEach(function(st, i){
+    var cls = st.done ? "done" : (i === j.at ? "now" : "next");
+    html += '<li class="rd ' + cls + '"><span class="rd-dot" aria-hidden="true">' + (st.done ? "✓" : (i + 1)) + '</span><div class="rd-main"><b>' + esc(st.name) + '</b>';
+    if (i === j.at) html += '<p>' + esc(st.msg) + '</p>';
+    if (st.parts) html += '<div class="rd-parts">' + st.parts.map(function(x){ var on = !!S.plan[x[0]]; return '<button class="rd-part' + (on ? " on" : "") + '" data-plan="' + x[0] + '" aria-pressed="' + on + '" translate="no">' + (on ? "✓ " : "") + esc(x[1]) + '</button>'; }).join("") + '</div>';
+    else if (st.key) html += '<button class="rd-btn' + (st.done ? " on" : "") + '" data-plan="' + st.key + '" aria-pressed="' + st.done + '">' + (st.done ? "Done ✓" : "Done") + '</button>';
+    else if (!st.done) html += '<span class="rd-auto">Ticks itself</span>';
+    html += '</div></li>';
+  });
+  return html + '</ol>';
 }
 var CHEERS = ["Nice work.", "Keep it up.", "That's real progress.", "You're getting there.", "Solid session."];
 function journeyHtml(t, compact){
   var j = journey(t), n = j.steps.length, all = j.at >= n, cur = all ? null : j.steps[j.at];
-  var html = '<div class="journey' + (compact ? " compact" : "") + '"><div class="j-cap">Where you are</div><div class="j-track" aria-hidden="true">';
+  var html = '<div class="journey' + (compact ? " compact" : "") + (n > 7 ? " many" : "") + '"><div class="j-cap">Where you are</div><div class="j-track" aria-hidden="true">';
   j.steps.forEach(function(s, i){
     html += '<span class="j-dot' + (s.done ? " done" : (i === j.at ? " now" : "")) + '">' + (s.done ? "✓" : (i + 1)) + '</span>' + (i < n - 1 ? '<span class="j-line' + (s.done ? " done" : "") + '"></span>' : "");
   });
   html += '</div>';
-  if (all) html += '<div class="j-now">All ' + n + ' steps done</div><p class="j-msg">You did the work. Keep a short streak going until exam day.</p>';
+  if (all) html += '<div class="j-now">You are klaar</div><p class="j-msg">Every step done. Well done.</p>';
   else {
     html += '<div class="j-step">Step ' + (j.at + 1) + ' of ' + n + '</div><div class="j-now">' + esc(cur.name) + '</div>';
     if (cur.p > 0) html += '<div class="j-bar"><i style="width:' + Math.round(cur.p * 100) + '%"></i></div>';
