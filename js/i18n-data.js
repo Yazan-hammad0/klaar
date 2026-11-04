@@ -27,6 +27,7 @@ window.I18N_DATA = {rows: [
 ["Next lesson:","الدرس التالي:","Sonraki ders:"],
 ["Start the next lesson","ابدأ الدرس التالي","Sonraki derse başla"],
 ["Swipe for the next step","اسحب للخطوة التالية","Sonraki adım için kaydır"],
+["Listening: two Dutch speakers now take turns, a man and a woman, like in the real exam.","الاستماع: يتناوب الآن متحدثان هولنديان، رجل وامرأة، كما في الامتحان الحقيقي.","Dinleme: artık gerçek sınavdaki gibi iki Hollandaca konuşmacı sırayla konuşuyor, bir erkek ve bir kadın."],
 ["Health insurance is a must: arrange it within 4 months", "التأمين الصحي إلزامي: رتّبه خلال 4 أشهر", "Sağlık sigortası zorunludur: 4 ay içinde yaptır"],
 ["When you start working here, take out Dutch basic health insurance (zorgverzekering) within 4 months. People who live here need it too.", "عندما تبدأ العمل هنا، اشترك في التأمين الصحي الأساسي الهولندي (zorgverzekering) خلال 4 أشهر. ومن يعيش هنا يحتاجه أيضًا.", "Burada çalışmaya başladığında 4 ay içinde Hollanda temel sağlık sigortası (zorgverzekering) yaptır. Burada yaşayanların da buna ihtiyacı var."],
 ["Care is only paid from the day your insurance starts, so starting late means you pay the bills yourself.", "تُدفع تكاليف الرعاية فقط من يوم بدء تأمينك، لذا إن تأخرت فستدفع الفواتير بنفسك.", "Bakım masrafları yalnızca sigortanın başladığı günden itibaren ödenir; geç başlarsan faturaları kendin ödersin."],
