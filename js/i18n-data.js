@@ -21,6 +21,9 @@ window.I18N_DATA = {rows: [
 ["Date you started living in the Netherlands","تاريخ بدء إقامتك في هولندا","Hollanda'da yaşamaya başladığın tarih"],
 ["Got it","فهمت","Anladım"],
 ["Cancel","إلغاء","İptal"],
+["Profile","الملف الشخصي","Profil"],
+["← Back","→ رجوع","← Geri"],
+["Your name","اسمك","Adın"],
 
 /* ---- topics ---- */
 ["Priority","الأولوية","Geçiş önceliği"],
@@ -378,6 +381,7 @@ window.I18N_DATA = {rows: [
 ["Show me how","أرني كيف","Nasıl yapılır göster"],
 ["New: lessons first. Each topic starts with a short lesson, then you get asked about it. Switch it off on the Progress tab.","جديد: الدرس أولًا. يبدأ كل موضوع بدرس قصير ثم تُسأل عنه. يمكنك إيقافه من تبويب التقدّم.","Yeni: önce ders. Her konu kısa bir dersle başlar, sonra soruları gelir. İlerleme sekmesinden kapatabilirsin."],
 ["New: lessons make you think first. Questions come back later, so you really remember them.","جديد: الدروس تجعلك تفكّر أولًا. تعود الأسئلة لاحقًا حتى تتذكّرها فعلًا.","Yeni: dersler önce düşündürür. Sorular sonra geri gelir, böylece gerçekten hatırlarsın."],
+["New: your profile, top right. Language, goals and settings are all there.","جديد: ملفك الشخصي في الأعلى. اللغة والأهداف والإعدادات كلها هناك.","Yeni: profilin sağ üstte. Dil, hedefler ve ayarların hepsi orada."],
 ["New: Arabic and Turkish. Pick your language on the Progress tab.","جديد: العربية والتركية. اختر لغتك من تبويب التقدّم.","Yeni: Arapça ve Türkçe. Dilini İlerleme sekmesinden seç."]
 ],
 /* patterns for text that contains numbers or names: [regex, Arabic, Turkish]; $1 $2 are the captured parts */

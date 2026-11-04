@@ -831,41 +831,58 @@ function renderProgress(){
   }
   html += '</div>';
 
-  html += '<div class="label">Daily goal</div><div class="stats" role="group" aria-label="Daily goal">' + [15, 30, 50].map(function(g){ return '<button class="btn ' + (S.goal === g ? "" : "ghost") + '" data-goal="' + g + '">' + g + ' a day</button>'; }).join("") + '</div>';
-
-  html += '<div class="label">How you learn</div><div class="pair" role="group" aria-label="How you learn">' + [["learn", "Lessons first"], ["test", "Questions only"]].map(function(s){ return '<button class="btn ' + ((teachFirst() ? "learn" : "test") === s[0] ? "" : "ghost") + '" data-style="' + s[0] + '">' + s[1] + '</button>'; }).join("") + '</div>' +
-    '<p class="note">' + (teachFirst() ? "New facts come as a short lesson first. You're asked about them a little later, and again after that. Mock exams are always the real test." : "You get questions straight away and learn from the answers.") + '</p>';
-
-  if (window.I18N){
-    html += '<div class="label">Language</div><div class="stats" role="group" aria-label="Language">' + Object.keys(I18N.langs).map(function(l){ return '<button class="btn ' + (I18N.get() === l ? "" : "ghost") + '" data-lang="' + l + '" lang="' + l + '" translate="no">' + I18N.langs[l].label + '</button>'; }).join("") + '</div>' +
-      '<p class="note">Menus and instructions are in your language. Questions are still in English and Dutch.</p>';
-  }
-
   html += '<div class="label">Your ' + (t === "drive" ? "licence" : "citizenship") + ' checklist</div>';
   PLAN[t].forEach(function(p){
     var done = !!S.plan[p[0]];
     html += '<label class="check' + (done ? " done" : "") + '"><input type="checkbox" id="pl-' + p[0] + '" data-plan="' + p[0] + '"' + (done ? " checked" : "") + '><span>' + esc(p[1]) + '</span></label>';
   });
+  v.innerHTML = html;
+  var g = $('[data-act="gen"]', v); if (g) g.addEventListener("click", function(){ generate(t, 8); renderProgress(); });
+  var as = $('[data-act="arr-set"]', v); if (as) as.addEventListener("click", function(){ var val = $("#arr-in", v).value; if (!/^\d{4}-\d{2}-\d{2}$/.test(val)) return toast("Pick a date first."); S.arrived = val; save(); renderProgress(); });
+  var ae = $('[data-act="arr-edit"]', v); if (ae) ae.addEventListener("click", function(){ S.arrived = null; save(); renderProgress(); });
+  var jg = $('[data-act="j-go"]', v); if (jg) jg.addEventListener("click", function(){ setView("exams"); });
+  $$("[data-plan]", v).forEach(function(c){ c.addEventListener("change", function(){ S.plan[c.getAttribute("data-plan")] = c.checked; save(); renderProgress(); }); });
+}
+
+/* ---------------- PROFILE: your details and every setting in one place ---------------- */
+var PERSON = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4.5 20.5c1.2-3.8 4-5.5 7.5-5.5s6.3 1.7 7.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+function initials(){ var n = String(prof().name || "").trim(); if (!n) return ""; var w = n.split(/\s+/); return ((w[0][0] || "") + (w.length > 1 ? w[w.length - 1][0] : "")).toUpperCase(); }
+function avatarInner(){ var i = initials(); return i ? '<b translate="no">' + esc(i) + '</b>' : PERSON; }
+function renderAvatar(){ var b = $("#prof-btn"); if (b) b.innerHTML = avatarInner(); }
+var backTo = "home";
+function renderProfile(){
+  var v = $("#v-profile"), html = '';
+  html += '<div class="run-top"><button class="link" data-act="prof-back">&larr; Back</button><b>Profile</b><span></span></div>';
+  html += '<div class="prof-card"><span class="avatar big" aria-hidden="true">' + avatarInner() + '</span>' +
+    '<div class="prof-id"><input class="inp" id="prof-name" maxlength="30" autocomplete="given-name" placeholder="Your name" aria-label="Your name" value="' + esc(prof().name || "") + '"><span class="prof-line">' + esc(profileLine()) + '</span></div></div>';
+  if (window.I18N){
+    html += '<div class="label">Language</div><div class="stats" role="group" aria-label="Language">' + Object.keys(I18N.langs).map(function(l){ return '<button class="btn ' + (I18N.get() === l ? "" : "ghost") + '" data-lang="' + l + '" lang="' + l + '" translate="no">' + I18N.langs[l].label + '</button>'; }).join("") + '</div>' +
+      '<p class="note">Menus and instructions are in your language. Questions are still in English and Dutch.</p>';
+  }
+  html += '<div class="label">Daily goal</div><div class="stats" role="group" aria-label="Daily goal">' + [15, 30, 50].map(function(g){ return '<button class="btn ' + (S.goal === g ? "" : "ghost") + '" data-goal="' + g + '">' + g + ' a day</button>'; }).join("") + '</div>';
+
+  html += '<div class="label">How you learn</div><div class="pair" role="group" aria-label="How you learn">' + [["learn", "Lessons first"], ["test", "Questions only"]].map(function(s){ return '<button class="btn ' + ((teachFirst() ? "learn" : "test") === s[0] ? "" : "ghost") + '" data-style="' + s[0] + '">' + s[1] + '</button>'; }).join("") + '</div>' +
+    '<p class="note">' + (teachFirst() ? "New facts come as a short lesson first. You're asked about them a little later, and again after that. Mock exams are always the real test." : "You get questions straight away and learn from the answers.") + '</p>';
+
+
   html += '<div class="label">Your level and goals</div><div class="ai-box"><p>' + esc(profileLine()) + '</p><button class="btn ghost" data-act="redo-prof" style="width:100%">Change my level and goals</button></div>';
   html += '<div class="label">Share Klaar</div><div class="ai-box"><p>Know someone preparing for these exams? Send them the link. It shows them how to install it.</p><button class="btn ghost" data-act="share-app" style="width:100%">Share the link</button></div>';
   html += '<div class="label">Show Claude your progress</div><div class="ai-box"><p>The app is offline, so nobody can see your progress, including Claude. Tap below, then paste the text into your chat with Claude. Nothing else is sent anywhere.</p><button class="btn" data-act="share-prog" style="width:100%">Copy my progress</button></div>';
   html += '<div class="label">Backup</div><div class="ai-box"><p>Progress lives on this phone only. Save a backup file now and then, so a new phone or a cleared browser doesn\'t wipe it.</p><div class="pair"><button class="btn ghost" data-act="bk-save">Save backup</button><label class="btn ghost" for="bk-file">Restore<input type="file" id="bk-file" accept="application/json,.json" hidden></label></div></div>';
   html += '<p class="note">Works offline. Practice questions are original and in the style of the real exams, not official CBR or DUO material.</p><p class="note diag" id="diag"></p>';
   v.innerHTML = html;
-  var g = $('[data-act="gen"]', v); if (g) g.addEventListener("click", function(){ generate(t, 8); renderProgress(); });
-  var as = $('[data-act="arr-set"]', v); if (as) as.addEventListener("click", function(){ var val = $("#arr-in", v).value; if (!/^\d{4}-\d{2}-\d{2}$/.test(val)) return toast("Pick a date first."); S.arrived = val; save(); renderProgress(); });
-  var ae = $('[data-act="arr-edit"]', v); if (ae) ae.addEventListener("click", function(){ S.arrived = null; save(); renderProgress(); });
-  var jg = $('[data-act="j-go"]', v); if (jg) jg.addEventListener("click", function(){ setView("exams"); });
+  $('[data-act="prof-back"]', v).addEventListener("click", function(){ setView(backTo); });
+  var nm = $("#prof-name", v), nt = null;
+  nm.addEventListener("input", function(){ clearTimeout(nt); nt = setTimeout(function(){ S.prof = S.prof || {}; S.prof.name = nm.value.trim().slice(0, 30); save(); renderAvatar(); var a = $(".prof-card .avatar", v); if (a) a.innerHTML = avatarInner(); }, 300); });
   var rp = $('[data-act="redo-prof"]', v); if (rp) rp.addEventListener("click", function(){ if (window.KLAAR_PROFILE) window.KLAAR_PROFILE(); });
   var sa = $('[data-act="share-app"]', v); if (sa) sa.addEventListener("click", shareApp);
   var sp = $('[data-act="share-prog"]', v); if (sp) sp.addEventListener("click", shareProgress);
   var dg = $("#diag", v); if (dg && window.KLAAR_DIAG) dg.textContent = window.KLAAR_DIAG();
   var bx = $('[data-act="bk-save"]', v); if (bx) bx.addEventListener("click", backupSave);
   var bi = $("#bk-file", v); if (bi) bi.addEventListener("change", function(){ if (bi.files && bi.files[0]) backupLoad(bi.files[0]); });
-  $$("[data-goal]", v).forEach(function(b){ b.addEventListener("click", function(){ S.goal = +b.getAttribute("data-goal"); save(); renderProgress(); }); });
+  $$("[data-goal]", v).forEach(function(b){ b.addEventListener("click", function(){ S.goal = +b.getAttribute("data-goal"); save(); renderProfile(); }); });
   $$("[data-lang]", v).forEach(function(b){ b.addEventListener("click", function(){ I18N.set(b.getAttribute("data-lang")); }); });
-  $$("[data-style]", v).forEach(function(b){ b.addEventListener("click", function(){ S.prof = S.prof || {}; S.prof.style = b.getAttribute("data-style"); lesson = null; save(); renderProgress(); }); });
-  $$("[data-plan]", v).forEach(function(c){ c.addEventListener("change", function(){ S.plan[c.getAttribute("data-plan")] = c.checked; save(); renderProgress(); }); });
+  $$("[data-style]", v).forEach(function(b){ b.addEventListener("click", function(){ S.prof = S.prof || {}; S.prof.style = b.getAttribute("data-style"); lesson = null; save(); renderProfile(); }); });
 }
 
 function progressSummary(){
@@ -1043,6 +1060,8 @@ function applyTrack(){
   document.body.setAttribute("data-track", S.track);
   $("#brand-sub").textContent = SUBS[S.track];
   $$(".switch button").forEach(function(b){ b.setAttribute("aria-selected", String(b.getAttribute("data-track") === S.track)); });
+  $(".switch").hidden = goals().length < 2;
+  renderAvatar();
 }
 function setTrack(t){
   if (t === S.track) return;
@@ -1054,16 +1073,19 @@ function setTrack(t){
 function confirmLeave(){ return true; }
 function setView(v){
   var ORDER = ["home", "feed", "exams", "progress"], changed = v !== view, dir = ORDER.indexOf(v) >= ORDER.indexOf(view) ? 1 : -1;
+  if (v === "profile" && view !== "profile") backTo = view;
   view = v; S.view = v; save();
   document.body.setAttribute("data-view", v);
-  $("#v-home").hidden = v !== "home"; $("#v-feed").hidden = v !== "feed"; $("#v-exams").hidden = v !== "exams"; $("#v-progress").hidden = v !== "progress";
+  $("#v-home").hidden = v !== "home"; $("#v-feed").hidden = v !== "feed"; $("#v-exams").hidden = v !== "exams"; $("#v-progress").hidden = v !== "progress"; $("#v-profile").hidden = v !== "profile";
   $$(".tab").forEach(function(b){ b.setAttribute("aria-selected", String(b.getAttribute("data-view") === v)); });
-  var flip = window.I18N && I18N.rtl() ? -1 : 1, ind = $(".tab-ind"); if (ind) ind.style.transform = "translateX(" + (flip * ORDER.indexOf(v) * 100) + "%)";
+  var flip = window.I18N && I18N.rtl() ? -1 : 1, ind = $(".tab-ind"); if (ind){ ind.style.transform = "translateX(" + (flip * Math.max(0, ORDER.indexOf(v)) * 100) + "%)"; ind.style.opacity = ORDER.indexOf(v) < 0 ? "0" : ""; }
+  var pb = $("#prof-btn"); if (pb) pb.setAttribute("aria-pressed", String(v === "profile"));
   if (changed){ var sec = $("#v-" + v); sec.style.setProperty("--dir", dir * flip); sec.classList.remove("v-in"); void sec.offsetWidth; sec.classList.add("v-in"); }
   if (v === "feed"){ if (!cur || cur.q.track !== S.track) nextQuestion(); else renderFeed(); }
   if (v === "exams" && !run) renderExams();
   if (v === "progress") renderProgress();
   if (v === "home") renderHome();
+  if (v === "profile") renderProfile();
   scrollTop0();
 }
 function renderAll(){
@@ -1071,6 +1093,7 @@ function renderAll(){
   else setView(view);
 }
 $$(".switch button").forEach(function(b){ b.addEventListener("click", function(){ setTrack(b.getAttribute("data-track")); }); });
+$("#prof-btn").addEventListener("click", function(){ setView(view === "profile" ? backTo : "profile"); });
 $$(".tab").forEach(function(b){ b.addEventListener("click", function(){ if (b.getAttribute("data-view") === "exams" && view === "exams" && run) return; setView(b.getAttribute("data-view")); }); });
 
 function profileLine(){
@@ -1089,7 +1112,7 @@ function applyProfile(p, fresh){
   S.prof = p; S.prof.at = Date.now(); S.onboarded = true; lesson = null;
   if (p.goal) S.goal = p.goal;
   if (p.nl === "b1" && S.t.civic.level < 2) S.t.civic.level = 2;
-  var g = goals(); if (g.indexOf(S.track) < 0){ S.track = g[0]; applyTrack(); }
+  var g = goals(); if (g.indexOf(S.track) < 0) S.track = g[0]; applyTrack();
   cur = null; save(); view = "home"; renderAll(); setView("home");
 }
 window.KLAAR = {isProfiled:function(){ return !!(S.prof && S.prof.at); }, hasProgress:function(){ return S.t.drive.ans + S.t.civic.ans; }, profile:function(){ return S.prof || null; }, applyProfile:applyProfile, isOnboarded:function(){ return !!S.onboarded; }, goal:function(){ return S.goal; }, finish:function(t, g){ if (t === 'drive' || t === 'civic') setTrack(t); if (g) S.goal = g; S.onboarded = true; save(); renderAll(); }};
