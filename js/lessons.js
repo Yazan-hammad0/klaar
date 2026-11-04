@@ -10,6 +10,19 @@ var SRC = {
   anwbSigns: "https://www.anwb.nl/verkeer/nederland/verkeersinformatie/verkeersborden-nederland",
   anwbLights: "https://www.anwb.nl/auto/onderhoud-en-reparatie/verlichting/soorten-autoverlichting",
   rvv34: "https://wetten.overheid.nl/jci1.3:c:BWBR0004825&artikel=34",
+  /* civic (KNM): official pages, each checked on 4 Nov 2026 */
+  insurance: "https://www.rijksoverheid.nl/onderwerpen/immigratie-naar-nederland/vraag-en-antwoord/moet-ik-een-zorgverzekering-afsluiten-als-ik-in-nederland-ga-werken",
+  referral: "https://www.rijksoverheid.nl/onderwerpen/eerstelijnszorg/vraag-en-antwoord/wanneer-heb-ik-een-verwijsbrief-van-mijn-huisarts-nodig-en-wanneer-mag-hij-deze-weigeren",
+  eigenRisico: "https://www.rijksoverheid.nl/documenten/vraag-en-antwoord/zorgverzekering/eigen-risico-zorgverzekering",
+  call112: "https://www.rijksoverheid.nl/vraag-en-antwoord/alarmnummer-112/wanneer-112-bellen",
+  probation: "https://www.rijksoverheid.nl/onderwerpen/arbeidsovereenkomst-en-cao/vraag-en-antwoord/hoelang-duurt-een-proeftijd",
+  holidayPay: "https://www.rijksoverheid.nl/onderwerpen/vakantiedagen-en-vakantiegeld/vraag-en-antwoord/hoe-hoog-is-mijn-vakantiegeld",
+  sickPay: "https://www.rijksoverheid.nl/vraag-en-antwoord/ziekteverzuim-van-het-werk/hoeveel-loon-krijg-ik-doorbetaald-als-ik-ziek-ben",
+  ww: "https://www.uwv.nl/nl/ww/ww-aanvragen",
+  bsn: "https://www.rijksoverheid.nl/documenten/vraag-en-antwoord/privacy-en-persoonsgegevens/hoe-kom-ik-aan-een-burgerservicenummer-bsn",
+  birth: "https://www.rijksoverheid.nl/onderwerpen/aangifte-geboorte-en-naamskeuze-kind/vraag-en-antwoord/aangifte-geboorte",
+  toeslagChange: "https://www.belastingdienst.nl/wps/wcm/connect/bldcontentnl/belastingdienst/prive/toeslagen/wijzigingen_doorgeven/wijzigingen_doorgeven",
+  digid: "https://www.digid.nl/en/security/tips-secure-login",
   cbr: "https://www.cbr.nl/nl/rijbewijs-halen/auto/theorie-examen-auto/onderwerpen-in-het-theorie-examen.htm",
   anwbDistance: "https://www.anwb.nl/verkeer/veiligheid/verkeersregels/afstand-houden",
   anwbSpeed: "https://www.anwb.nl/verzekeringen/autoverzekering/veilig-rijden/rijtips-snelheid",
@@ -71,6 +84,10 @@ var TAIL = '<rect class="sc-tail" x="-7" y="11.5" width="4" height="2.5"/><rect 
 /* a sign from the question bank, placed at x,y with size s */
 function roadSign(kind, x, y, s){ return window.DRIVE && DRIVE.signSvg ? DRIVE.signSvg(kind).replace('<svg ', '<svg x="' + (x - s / 2) + '" y="' + (y - s / 2) + '" width="' + s + '" height="' + s + '" ') : ""; }
 function label(x, y, t){ return '<text class="sc-mark" x="' + x + '" y="' + y + '">' + t + '</text>'; }
+/* civic drawings: flat, static pictures on a light card */
+function civ(id, inner){ return '<svg viewBox="0 0 200 200" role="img" aria-hidden="true"><rect class="cv-bg" width="200" height="200"/>' + inner + '</svg>'; }
+function ctext(x, y, t, cls){ return '<text class="' + (cls || "cv-t") + '" x="' + x + '" y="' + y + '">' + t + '</text>'; }
+function calendar(x, y, big, small){ return '<rect class="cv-card" x="' + (x - 34) + '" y="' + (y - 30) + '" width="68" height="66" rx="8"/><rect class="cv-red" x="' + (x - 34) + '" y="' + (y - 30) + '" width="68" height="16" rx="8"/><rect class="cv-red" x="' + (x - 34) + '" y="' + (y - 22) + '" width="68" height="8"/>' + ctext(x, y + 18, big, "cv-big") + ctext(x, y + 32, small, "cv-s"); }
 var NIGHT = '<rect class="sc-night" width="200" height="200"/>';
 /* an actor: shape, badge, label, and keyframes [percent, x, y, rotation, opacity] */
 function actors(id, list){
@@ -280,6 +297,39 @@ var SCENES = {
       '<rect class="sc-adv" x="110" y="46" width="68" height="68" rx="5"/><text class="sc-advt" x="144" y="89">70</text>' + label(58, 140, "Limit") + label(144, 140, "Advice"), []);
   },
 
+  /* civic: healthcare */
+  insCard: function(){ return civ("ic", '<rect class="cv-card" x="18" y="44" width="104" height="68" rx="9"/><rect class="cv-blue" x="18" y="44" width="104" height="20" rx="9"/><rect class="cv-blue" x="18" y="56" width="104" height="8"/>' +
+    ctext(70, 58, "Zorgverzekering", "cv-w") + '<path class="cv-plus" d="M44 82V100M35 91H53"/><path class="cv-line" d="M64 84H110M64 96H98"/>' + calendar(150, 120, "4", "months") + ctext(100, 178, "Within 4 months", "cv-t")); },
+  referralPath: function(){ return civ("rp", '<rect class="cv-card" x="10" y="70" width="48" height="48" rx="6"/><path class="cv-plus" d="M34 82V106M22 94H46"/>' +
+    '<path class="cv-arrow" d="M62 94H76M71 89L77 94L71 99"/><rect class="cv-card" x="80" y="78" width="40" height="30" rx="3"/><path class="cv-line" d="M80 79L100 95L120 79"/>' +
+    '<path class="cv-arrow" d="M124 94H138M133 89L139 94L133 99"/><rect class="cv-blue" x="142" y="58" width="50" height="60" rx="4"/>' + ctext(167, 98, "H", "cv-hbig") +
+    ctext(34, 136, "Huisarts", "cv-s") + ctext(100, 136, "Verwijsbrief", "cv-s") + ctext(167, 136, "Hospital", "cv-s")); },
+  eigenRisico: function(){ return civ("er", '<rect class="cv-card" x="16" y="74" width="168" height="32" rx="8"/><rect class="cv-warm" x="16" y="74" width="64" height="32" rx="8"/><rect class="cv-warm" x="60" y="74" width="20" height="32"/>' +
+    ctext(48, 95, "€385", "cv-w") + ctext(132, 95, "Insurer pays", "cv-t") + ctext(48, 128, "You pay", "cv-s") + ctext(100, 160, "Huisarts: €0", "cv-t") + ctext(100, 178, "Under 18: €0", "cv-t")); },
+  phone112: function(){ return civ("p1", '<rect class="cv-dark" x="62" y="22" width="76" height="140" rx="14"/><rect class="cv-card" x="68" y="36" width="64" height="108" rx="6"/>' +
+    ctext(100, 98, "112", "cv-num") + ctext(100, 180, "Not urgent: 0900-8844", "cv-s")); },
+
+  /* civic: work */
+  probationBars: function(){
+    function bar(y, w, a, b){ return '<rect class="cv-card" x="20" y="' + y + '" width="160" height="26" rx="6"/><rect class="cv-blue" x="20" y="' + y + '" width="' + w + '" height="26" rx="6"/>' + ctext(100, y - 6, a, "cv-s") + ctext(100, y + 18, b, "cv-tb"); }
+    return civ("pb", bar(40, 30, "6 months or less", "No proeftijd") + bar(98, 80, "6 months to 2 years", "1 month at most") + bar(156, 160, "2 years or permanent", "2 months at most"));
+  },
+  holidayPay: function(){ return civ("hp", '<circle class="cv-warm" cx="100" cy="86" r="52"/>' + ctext(100, 102, "8%", "cv-hbig") + ctext(100, 166, "At least, once a year", "cv-t") + ctext(100, 184, "Often in May or June", "cv-s")); },
+  sickPay: function(){ return civ("sp", '<rect class="cv-card" x="16" y="74" width="168" height="40" rx="8"/><rect class="cv-blue" x="16" y="74" width="84" height="40" rx="8"/><rect class="cv-blue" x="80" y="74" width="20" height="40"/><rect class="cv-blue2" x="100" y="74" width="84" height="40" rx="8"/><rect class="cv-blue2" x="100" y="74" width="20" height="40"/>' +
+    ctext(58, 99, "70%", "cv-w") + ctext(142, 99, "70%", "cv-w") + ctext(58, 136, "Year 1", "cv-s") + ctext(142, 136, "Year 2", "cv-s") + ctext(58, 152, "min. wage", "cv-s")); },
+  wwWeek: function(){
+    var d = ""; for (var i = 0; i < 7; i++) d += '<rect class="' + (i === 0 ? "cv-warm" : "cv-card") + '" x="' + (16 + i * 25) + '" y="78" width="20" height="28" rx="4"/>';
+    return civ("ww", d + ctext(26, 70, "Day 1", "cv-s") + '<path class="cv-arrow" d="M18 120H182M176 114L183 120L176 126"/>' + ctext(100, 146, "Apply within 1 week", "cv-t") + ctext(100, 166, "UWV", "cv-s"));
+  },
+
+  /* civic: administration */
+  bsnCard: function(){ return civ("bc", '<rect class="cv-card" x="24" y="52" width="152" height="92" rx="10"/><circle class="cv-blue2" cx="62" cy="92" r="20"/><rect class="cv-blue2" x="44" y="114" width="36" height="16" rx="8"/>' +
+    ctext(132, 84, "BSN", "cv-t") + '<path class="cv-line" d="M98 100H166M98 114H150"/>' + ctext(100, 172, "Gemeente → BRP → BSN", "cv-s")); },
+  birthDays: function(){ return civ("bd", calendar(100, 82, "3", "days") + ctext(100, 160, "Report the birth", "cv-t") + ctext(100, 178, "at the gemeente", "cv-s")); },
+  toeslagWeeks: function(){ return civ("tw", calendar(100, 82, "4", "weeks") + ctext(100, 160, "New job, income or address?", "cv-t") + ctext(100, 178, "Tell the Belastingdienst", "cv-s")); },
+  digidLock: function(){ return civ("dl", '<path class="cv-dark2" d="M74 86V68a26 26 0 0 1 52 0V86" fill="none"/><rect class="cv-blue" x="60" y="84" width="80" height="62" rx="10"/>' + ctext(100, 121, "DigiD", "cv-w") +
+    ctext(100, 172, "Never share it", "cv-t") + ctext(100, 188, "Use DigiD Machtigen", "cv-s")); },
+
   /* motorway */
   mwJoin: function(){ return svg("mj", motorway(), "", [
     {shape:"car", color:"c-red", badge:"1", steady:true, path:[[0, 130, 240], [55, 130, -40], [100, 130, -40]], still:[0, 130, 60]},
@@ -425,9 +475,53 @@ window.LESSONS = {
        why:"Signs and matrix signs adjust the limit to the road, the time of day and the traffic.", src:SRC.speedRules}
     ]
   },
-  civic: {}
+  /* the €385 eigen risico applies to 2026 and 2027: recheck every year */
+  civic: {
+    "Healthcare": [
+      {scene:"insCard", h:"Health insurance is a must: arrange it within 4 months",
+       t:"When you start working here, take out Dutch basic health insurance (zorgverzekering) within 4 months. People who live here need it too.",
+       why:"Care is only paid from the day your insurance starts, so starting late means you pay the bills yourself.", src:SRC.insurance},
+      {scene:"referralPath", h:"Start at the huisarts",
+       t:"Register with a huisarts (GP) near your home soon after you arrive. For a specialist in a hospital you need a referral letter (verwijsbrief) from the huisarts.",
+       why:"Without a valid referral you may have to pay for the specialist yourself.", src:SRC.referral},
+      {scene:"eigenRisico", h:"Eigen risico: the first €385 a year is yours",
+       t:"From age 18 you pay the first €385 a year of most basic-package care yourself (2026 and 2027). Visits to the huisarts and the huisartsenpost don't count, and children under 18 pay nothing.",
+       why:"So you know which bills to expect: a hospital visit can cost you money, a visit to the huisarts does not.", src:SRC.eigenRisico},
+      {scene:"phone112", h:"112 only when every second counts",
+       t:"Call 112 when a life is in danger or you see a crime happening, for example a fire, a serious accident or a strong smell of gas. For police matters that aren't urgent, call 0900-8844.",
+       why:"112 lines must stay free for people who need help right now.", src:SRC.call112}
+    ],
+    "Work life": [
+      {scene:"probationBars", h:"A probation period (proeftijd) depends on the contract",
+       t:"A contract of 6 months or less may have no probation period. Longer than 6 months but under 2 years: at most 1 month. A permanent contract, or one of 2 years or longer: at most 2 months.",
+       why:"The shorter the contract, the less time an employer gets to try you out.", src:SRC.probation},
+      {scene:"holidayPay", h:"Holiday pay (vakantiegeld): at least 8%",
+       t:"You get at least 8% of your gross yearly salary as holiday pay, paid at least once a year. Most people get it in May or June.",
+       why:"It is part of your pay, saved up for you through the year.", src:SRC.holidayPay},
+      {scene:"sickPay", h:"Ill? Your employer keeps paying",
+       t:"If you are ill, your employer pays at least 70% of your wage in the first and the second year. In the first year it is never less than the minimum wage.",
+       why:"During those 2 years your employer is responsible for you, so you are not left without income.", src:SRC.sickPay},
+      {scene:"wwWeek", h:"Lost your job? Apply for WW within 1 week",
+       t:"Apply for unemployment benefit (WW) at UWV no later than 1 week after your first day without work.",
+       why:"The deadline is short, so apply as soon as you know your last working day.", src:SRC.ww}
+    ],
+    "Administration": [
+      {scene:"bsnCard", h:"Your BSN comes when you register at the gemeente",
+       t:"You get your citizen service number (BSN) once you are registered in the Personal Records Database (BRP), which you do at your gemeente. You need it for work, tax and healthcare.",
+       why:"Every government office finds you by this one number.", src:SRC.bsn},
+      {scene:"birthDays", h:"A baby is born: report it within 3 days",
+       t:"Report the birth within 3 days at the gemeente where your baby was born. If the mother lives in the Netherlands, the baby then gets a BSN automatically.",
+       why:"This first registration gives your child the BSN that everything else needs.", src:SRC.birth},
+      {scene:"toeslagWeeks", h:"Toeslagen: report changes within 4 weeks",
+       t:"Do you get a toeslag, such as zorgtoeslag or huurtoeslag? Report changes like a new job, a higher income or a move to the Belastingdienst within 4 weeks.",
+       why:"Your toeslag is based on your situation. If it is based on old information, you may have to pay money back later.", src:SRC.toeslagChange},
+      {scene:"digidLock", h:"Never share your DigiD",
+       t:"Never give your DigiD login, PIN or app to anyone, not even family. If someone helps you with things online, authorise them with DigiD Machtigen.",
+       why:"With your DigiD, someone can act as you at every government office.", src:SRC.digid}
+    ]
+  }
 };
 /* the order lessons come in: basics first, motorway and hazards later */
-window.LESSON_ORDER = {drive:["Priority", "Signs", "Road markings", "Speed limits", "Distances", "Lane use", "Stopping & parking", "Lights & visibility", "Railway crossings", "Motorway", "Hazard perception"], civic:[]};
+window.LESSON_ORDER = {drive:["Priority", "Signs", "Road markings", "Speed limits", "Distances", "Lane use", "Stopping & parking", "Lights & visibility", "Railway crossings", "Motorway", "Hazard perception"], civic:["Administration", "Healthcare", "Work life"]};
 window.LESSON_SCENE = function(id){ return SCENES[id] ? SCENES[id]() : ""; };
 })();
