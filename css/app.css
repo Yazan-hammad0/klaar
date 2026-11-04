@@ -664,6 +664,7 @@ html[dir="rtl"] .su-in-back{animation-name:suIn}
 .gl-ic{flex:none;width:44px;height:44px;border-radius:12px;background:var(--raise);display:flex;align-items:center;justify-content:center;overflow:hidden}
 .gl-ic svg{width:36px;height:36px}
 .gl-aa{font-weight:900;color:var(--accent)}
+.gl-k{font-family:var(--font-display);font-weight:900;font-style:italic;font-size:26px;color:var(--accent)}
 .gl-def{margin:0 0 10px;font-size:15px;line-height:1.5}
 .gl-card .pr-why{margin:0}
 html[dir="rtl"] .gl-def,html[dir="rtl"] .gl-head h3,html[dir="rtl"] .gl-card .pr-why span{direction:ltr;text-align:left}

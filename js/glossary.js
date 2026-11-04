@@ -69,10 +69,12 @@ var MORE = {
   ]
 };
 
+/* the app's own name, pinned to the top of both pages */
+var KLAAR = {label:"Klaar", def:"Dutch for ready, and also for done. 'Ben je klaar?' can mean 'Are you ready?' before something starts, or 'Are you done?' after it ends.", why:"Which is the whole plan: practise a little every day until, one morning, you realise you are klaar. 😉", icon:'<b class="gl-k">K</b>'};
 function terms(t){
   var lib = t === "drive" ? window.DRIVE : window.CIVIC, out = [];
   if (lib && lib.GLOSSARY) Object.keys(lib.GLOSSARY).forEach(function(k){ var g = lib.GLOSSARY[k]; out.push({label:g.label, def:g.def, why:(WHY[t] || {})[k] || "", icon:g.icon}); });
-  return out.concat(MORE[t] || []).sort(function(a, b){ return a.label.localeCompare(b.label); });
+  return [KLAAR].concat(out.concat(MORE[t] || []).sort(function(a, b){ return a.label.localeCompare(b.label); }));
 }
 function render(v, t, back){
   var list = terms(t);
