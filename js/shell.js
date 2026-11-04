@@ -1,5 +1,5 @@
 /* Screen-tall layout for the home-screen app, update notice, service worker. */
-var KLAAR_VERSION = "155c9072e2", KLAAR_NEWS = "New: Dutch lessons on telling the time, numbers, word order, niet and geen, and de and het, with phrases you can tap to hear.";
+var KLAAR_VERSION = "afa3bf676c", KLAAR_NEWS = "The app is now in English and Arabic.";
 (function(){
   /* iOS home-screen apps sometimes get a layout viewport shorter than the screen, which leaves a strip under the tab bar.
      Measure it and push the bottom chrome down into that strip. */

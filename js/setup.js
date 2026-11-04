@@ -162,7 +162,7 @@ function planLines(){
 var SCREENS = {
   lang:function(){
     var ls = window.I18N ? I18N.langs : {en:{label:"English"}}, cur = window.I18N ? I18N.get() : "en";
-    return {html:(existing ? '<p class="su-kicker">New setup</p>' : "") + '<h1 translate="no">Language · اللغة · Dil</h1><p class="sub" translate="no">English · العربية · Türkçe</p><div class="su-opts">' +
+    return {html:(existing ? '<p class="su-kicker">New setup</p>' : "") + '<h1 translate="no">Language · اللغة</h1><p class="sub" translate="no">English · العربية</p><div class="su-opts">' +
         Object.keys(ls).map(function(l){ return '<button class="su-opt" data-l="' + l + '" lang="' + l + '" translate="no" aria-pressed="' + (cur === l) + '"><span><b>' + ls[l].label + '</b></span></button>'; }).join("") + '</div>' + (existing ? '<div class="su-foot"><button class="onb-link" id="su-later">Later</button></div>' : ""),
       wire:function(el){ $$("[data-l]", el).forEach(function(b){ b.addEventListener("click", function(){ if (window.I18N) I18N.set(b.getAttribute("data-l")); setTimeout(function(){ next("lang"); }, reduce ? 0 : 180); }); });
         var lt = $("#su-later", el); if (lt) lt.addEventListener("click", function(){ try{ sessionStorage.setItem("klaarSetupLater", "1"); }catch(e){} close(); }); }};
