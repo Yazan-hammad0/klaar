@@ -7,6 +7,9 @@ var SRC = {
   anwbPriority: "https://www.anwb.nl/verkeer/veiligheid/verkeersregels/voorrang",
   /* the English booklet of the Dutch traffic rules (RVV 1990), linked per page */
   gov: function(page){ return "https://www.government.nl/site/binaries/site-content/collections/documents/2024/02/09/road-traffic-signs-and-regulations-in-the-netherlands/Road+Traffic+Signs+and+Regulations+in+the+Netherlands.pdf#page=" + page; },
+  anwbSigns: "https://www.anwb.nl/verkeer/nederland/verkeersinformatie/verkeersborden-nederland",
+  anwbLights: "https://www.anwb.nl/auto/onderhoud-en-reparatie/verlichting/soorten-autoverlichting",
+  rvv34: "https://wetten.overheid.nl/jci1.3:c:BWBR0004825&artikel=34",
   cbr: "https://www.cbr.nl/nl/rijbewijs-halen/auto/theorie-examen-auto/onderwerpen-in-het-theorie-examen.htm",
   anwbDistance: "https://www.anwb.nl/verkeer/veiligheid/verkeersregels/afstand-houden",
   anwbSpeed: "https://www.anwb.nl/verzekeringen/autoverzekering/veilig-rijden/rijtips-snelheid",
@@ -56,8 +59,19 @@ var SHAPES = {
   tram: function(){ return '<rect x="-8" y="-30" width="16" height="60" rx="5" class="sc-car c-tram"/><rect x="-6" y="-25" width="12" height="6" rx="1.5" class="sc-glass"/>'; },
   train: function(){ return '<rect x="-9" y="-60" width="18" height="120" rx="5" class="sc-car c-train"/><path class="sc-glass" d="M-6 -50H6M-6 -20H6M-6 10H6M-6 40H6" stroke-width="3"/>'; },
   ball: function(){ return '<circle r="5" class="sc-ball"/>'; },
+  person: function(){ return '<circle r="5" class="sc-kid"/>'; },
+  /* cars at night: beam in front (dipped or high), rear lights, rear fog light */
+  lit: function(c){ return '<path class="sc-beam" d="M-6 -14L6 -14L18 -62L-18 -62Z"/>' + SHAPES.car(c) + TAIL; },
+  high: function(c){ return '<path class="sc-beam" d="M-6 -14L6 -14L26 -130L-26 -130Z"/>' + SHAPES.car(c) + TAIL; },
+  fogcar: function(c){ return SHAPES.car(c) + TAIL + '<circle class="sc-foglight" cx="-4" cy="15" r="3.2"/>'; },
+  flash: function(c){ return '<path class="sc-ray" d="M-5 -18L-12 -34M0 -19V-37M5 -18L12 -34"/>' + SHAPES.car(c); },
   badge: function(c, t){ return '<circle class="sc-badge" r="9"/><text class="sc-num" x="0" y="3.5">' + t + '</text>'; }
 };
+var TAIL = '<rect class="sc-tail" x="-7" y="11.5" width="4" height="2.5"/><rect class="sc-tail" x="3" y="11.5" width="4" height="2.5"/>';
+/* a sign from the question bank, placed at x,y with size s */
+function roadSign(kind, x, y, s){ return window.DRIVE && DRIVE.signSvg ? DRIVE.signSvg(kind).replace('<svg ', '<svg x="' + (x - s / 2) + '" y="' + (y - s / 2) + '" width="' + s + '" height="' + s + '" ') : ""; }
+function label(x, y, t){ return '<text class="sc-mark" x="' + x + '" y="' + y + '">' + t + '</text>'; }
+var NIGHT = '<rect class="sc-night" width="200" height="200"/>';
 /* an actor: shape, badge, label, and keyframes [percent, x, y, rotation, opacity] */
 function actors(id, list){
   var css = "", g = "";
@@ -210,6 +224,62 @@ var SCENES = {
     ]);
   },
 
+  /* stopping and parking */
+  dropOff: function(){ return svg("do", road(), '<rect class="sc-drive" x="140" y="0" width="30" height="200"/>' + tree(184, 40), [
+    you([[0, 120, 215], [30, 120, 110], [72, 120, 110], [100, 120, -30]], {still:[0, 120, 110]}),
+    {shape:"person", path:[[0, 128, 110, 0, 0], [33, 128, 110, 0, 0], [36, 128, 110, 0, 1], [56, 156, 104, 0, 1], [100, 156, 104, 0, 1]], still:[0, 156, 104, 0, 1]}
+  ]); },
+  noStop: function(){
+    var z = ""; for (var x = 62; x < 138; x += 13) z += '<rect class="sc-zebra" x="' + x + '" y="62" width="8" height="22"/>';
+    var zone = '<rect class="sc-nozone" x="60" y="84" width="80" height="22"/><rect class="sc-nozone" x="60" y="40" width="80" height="22"/>';
+    return svg("ns", road(), '<rect class="sc-cyclelane" x="128" y="0" width="12" height="200"/>' + zone + z + label(32, 99, "5 m") + label(32, 55, "5 m"), [
+      you([[0, 114, 215], [100, 114, -30]], {steady:true, still:[0, 114, 150]})
+    ]);
+  },
+  junction5m: function(){ return svg("j5", crossroads(), '<rect class="sc-nozone" x="100" y="132" width="30" height="26"/><rect class="sc-nozone" x="70" y="42" width="30" height="26"/>' + label(158, 149, "5 m") + label(42, 59, "5 m"), [
+    you([[0, 115, 225], [45, 115, 176], [100, 115, 176]], {still:[0, 115, 176]})
+  ]); },
+
+  /* lights */
+  dipped: function(){ return svg("dp", road(), NIGHT, [
+    {shape:"lit", color:"c-red", steady:true, path:[[0, 80, -40, 180], [100, 80, 240, 180]], still:[0, 80, 50, 180]},
+    you([[0, 120, 230], [100, 120, -40]], {shape:"lit", steady:true, still:[0, 120, 150]})
+  ]); },
+  highBeam: function(){ return svg("hb2", road(), NIGHT, [
+    {shape:"lit", color:"c-red", path:[[0, 80, -40, 180], [38, 80, -40, 180], [100, 80, 120, 180]], still:[0, 80, 40, 180]},
+    you([[0, 120, 165, 0, 1], [40, 120, 165, 0, 1], [42, 120, 165, 0, 0], [100, 120, 165, 0, 0]], {shape:"high", still:[0, 120, 165, 0, 0]}),
+    you([[0, 120, 165, 0, 0], [40, 120, 165, 0, 0], [42, 120, 165, 0, 1], [100, 120, 165, 0, 1]], {shape:"lit", still:[0, 120, 165, 0, 1]})
+  ]); },
+  rearFog: function(){ return svg("rf2", road(), '<path class="sc-tick" d="M60 150H140M60 96H140"/>' + label(30, 127, "50 m") + '<defs><linearGradient id="rfG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="sc-fog1"/><stop offset="1" class="sc-fog2"/></linearGradient></defs>', [
+    {shape:"fogcar", color:"c-red", steady:true, path:[[0, 120, 125], [100, 120, 30]], still:[0, 120, 110]},
+    you([[0, 120, 178], [100, 120, 178]], {shape:"lit", still:[0, 120, 178]})
+  ]).replace('</svg>', '<rect x="0" y="0" width="200" height="90" fill="url(#rfG)"/></svg>'); },
+  tunnelLights: function(){ return svg("tl", road(), '<rect class="sc-tunnel" x="40" y="0" width="120" height="104"/><path class="sc-mouth" d="M40 104H160"/>', [
+    you([[0, 120, 230], [100, 120, -40]], {shape:"lit", steady:true, still:[0, 120, 80]})
+  ]); },
+  flashWarn: function(){ return svg("fw", road(), '<rect class="sc-drive" x="140" y="0" width="30" height="200"/>' + parked(155, 92), [
+    {shape:"person", path:[[0, 160, 60], [45, 160, 60], [80, 138, 64], [100, 138, 64]], still:[0, 152, 62]},
+    you([[0, 120, 230], [50, 120, 160], [100, 120, 140]], {shape:"flash", still:[0, 120, 150]})
+  ]); },
+
+  /* signs */
+  signShapes: function(){
+    return svg("sh", "", roadSign("warning", 55, 52, 58) + roadSign("no-entry", 145, 52, 58) + roadSign("mandatory-up", 55, 132, 58) + roadSign("parking", 145, 132, 58) +
+      label(55, 94, "Warning") + label(145, 94, "Ban") + label(55, 174, "Must do") + label(145, 174, "Info"), []);
+  },
+  stopSign: function(){ return svg("st", crossroads(), '<path class="sc-solid" d="M100 133H130" style="stroke-width:3"/>' + roadSign("stop", 152, 152, 26), [
+    {shape:"car", color:"c-red", badge:"1", path:[[0, 215, 85, -90], [30, 215, 85, -90], [58, -25, 85, -90], [100, -25, 85, -90]], still:[0, 150, 85, -90]},
+    you([[0, 115, 215], [22, 115, 148], [62, 115, 148], [86, 115, -25], [100, 115, -25]], {badge:"2", still:[0, 115, 148]})
+  ]); },
+  parkStop: function(){
+    return svg("ps", "", roadSign("no-parking", 55, 72, 70) + roadSign("no-stopping", 145, 72, 70) +
+      label(55, 128, "No parking") + label(145, 128, "No stopping") + label(55, 146, "Drop-off OK") + label(145, 146, "Not even briefly"), []);
+  },
+  advisory: function(){
+    return svg("ad", "", '<circle class="sc-sign" cx="58" cy="80" r="34"/><text class="sc-signnum" x="58" y="89">70</text>' +
+      '<rect class="sc-adv" x="110" y="46" width="68" height="68" rx="5"/><text class="sc-advt" x="144" y="89">70</text>' + label(58, 140, "Limit") + label(144, 140, "Advice"), []);
+  },
+
   /* motorway */
   mwJoin: function(){ return svg("mj", motorway(), "", [
     {shape:"car", color:"c-red", badge:"1", steady:true, path:[[0, 130, 240], [55, 130, -40], [100, 130, -40]], still:[0, 130, 60]},
@@ -301,6 +371,48 @@ window.LESSONS = {
        t:"In a woonerf, shown by a blue sign with a house and children playing, you drive at most 15 km/h. People on foot may use the whole width of the street. Older books say walking pace (stapvoets), but the law has said 15 km/h since 2012.",
        why:"The street is shared with people on foot, so you must be able to stop at once.", src:SRC.rvv45}
     ],
+    "Stopping & parking": [
+      {scene:"dropOff", h:"Stopping or parking? It depends on why you stand still",
+       t:"Standing still just to let someone in or out, or to load or unload, is stopping (stilstaan). Leaving your car for anything else is parking, even for two minutes to buy a coffee.",
+       why:"Many places ban parking but still allow a quick drop-off, so you need to know which one you are doing.", src:SRC.gov(18)},
+      {scene:"noStop", h:"Places where you may not even stop",
+       t:"Never stop on a junction or level crossing, on a cycle track or cycle lane, on a zebra crossing or within 5 m of it, in a tunnel, in a bus lane or along a solid yellow line. At a bus stop you may stop only to let passengers in or out.",
+       why:"A car standing there blocks people who have no other way to go, or hides someone about to cross.", src:SRC.gov(29)},
+      {scene:"junction5m", h:"No parking within 5 m of a junction",
+       t:"You may not park within 5 m of a junction, in front of a driveway, or on the carriageway of a priority road outside a built-up area. Double parking is never allowed.",
+       why:"A car right at the corner hides people crossing and leaves no room to turn.", src:SRC.gov(29)}
+    ],
+    "Lights & visibility": [
+      {scene:"dipped", h:"Dipped headlights at night and when you can't see well",
+       t:"Switch on dipped headlights (dimlicht) at night, and in the daytime when visibility is seriously reduced, for example in heavy rain or fog.",
+       why:"Others must see you in time, not only you them.", src:SRC.gov(31)},
+      {scene:"highBeam", h:"High beam only when nobody is close ahead",
+       t:"At night you may use high beam (grootlicht). Switch back to dipped headlights when someone comes towards you or when you drive close behind another vehicle. High beam is never allowed in the daytime.",
+       why:"High beam dazzles other drivers, so for a moment they can't see the road.", src:SRC.gov(32)},
+      {scene:"rearFog", h:"Rear fog light: only below 50 m",
+       t:"Use the rear fog light only when fog or snow cuts your view to less than 50 m. Not in rain, and switch it off when the fog clears.",
+       why:"It is very bright, so in better weather it dazzles the driver behind you and makes your brake lights hard to see.", src:SRC.rvv34},
+      {scene:"tunnelLights", h:"In a tunnel, switch on dipped headlights",
+       t:"Daytime running lights often light only the front of your car. When you enter a tunnel or the weather turns bad, switch on dipped headlights yourself so your rear lights come on too.",
+       why:"Without rear lights, the driver behind sees your car too late in the dark.", src:SRC.anwbLights},
+      {scene:"flashWarn", h:"Horn and headlight flash: only to warn of danger",
+       t:"Use the horn or flash your headlights only to warn someone of danger. Flashing to say 'you go first' is common, but that is not what the signal is for.",
+       why:"A signal that means only one thing is understood at once.", src:SRC.gov(30)}
+    ],
+    "Signs": [
+      {scene:"signShapes", h:"The shape tells you what kind of sign it is",
+       t:"A red triangle warns you. A red circle bans something. A blue circle tells you what you must do. A blue square or rectangle gives information or advice.",
+       why:"Once you know the shape, you know the kind of message before you can read it.", src:SRC.anwbSigns},
+      {scene:"stopSign", h:"STOP means a full stop, even when the road is clear",
+       t:"At a STOP sign (B7) you stop completely at the line, then give way to traffic on the road you join. A triangle pointing down (B6) means give way: you stop only if you need to.",
+       why:"A STOP sign is placed where you can only see the other road properly when you stand still.", src:SRC.gov(7)},
+      {scene:"parkStop", h:"One stripe: no parking. A cross: no stopping",
+       t:"A blue sign with a red border and one red stripe (E1) bans parking, but you may still stop to let someone in or out. With a red cross (E2) you may not stop at all.",
+       why:"One stripe takes away parking. The cross takes away stopping as well.", src:SRC.gov(9)},
+      {scene:"advisory", h:"Red circle is a limit, blue square is advice",
+       t:"A number in a red circle (A1) is the maximum speed. A white number on a blue square (A4) is an advised speed, for example before a sharp bend.",
+       why:"The limit is the law. The advice tells you the speed that suits the road there.", src:SRC.gov(7)}
+    ],
     "Motorway": [
       {scene:"mwJoin", h:"Joining: speed up, then fit in",
        t:"Use the whole acceleration lane (invoegstrook) to reach the speed of the traffic, then move in where there is a gap. Traffic already on the motorway goes first.",
@@ -316,6 +428,6 @@ window.LESSONS = {
   civic: {}
 };
 /* the order lessons come in: basics first, motorway and hazards later */
-window.LESSON_ORDER = {drive:["Priority", "Road markings", "Speed limits", "Distances", "Lane use", "Railway crossings", "Motorway", "Hazard perception"], civic:[]};
+window.LESSON_ORDER = {drive:["Priority", "Signs", "Road markings", "Speed limits", "Distances", "Lane use", "Stopping & parking", "Lights & visibility", "Railway crossings", "Motorway", "Hazard perception"], civic:[]};
 window.LESSON_SCENE = function(id){ return SCENES[id] ? SCENES[id]() : ""; };
 })();

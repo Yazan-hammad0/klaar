@@ -676,6 +676,10 @@ html[dir="rtl"] .gl-def,html[dir="rtl"] .gl-head h3,html[dir="rtl"] .gl-card .pr
 .sc-signnum{fill:#111;font:900 24px var(--font-body);text-anchor:middle}
 .sc-plate{fill:#fff;stroke:#111;stroke-width:1.5}.sc-platet{fill:#111;font:800 11px var(--font-body);text-anchor:middle}
 .sc-matrix{fill:#111}.sc-matrixt{fill:#F8FAFC;font:900 20px var(--font-mono);text-anchor:middle}
+.sc-zebra{fill:#fff}.sc-cyclelane{fill:#B4534A;opacity:.9}.sc-nozone{fill:#DC2626;opacity:.35}
+.sc-night{fill:#0B1220;opacity:.55}.sc-beam{fill:#FDE68A;opacity:.5}.sc-tail{fill:#EF4444}.sc-foglight{fill:#FF3B3B;stroke:#fff;stroke-width:1}
+.sc-tunnel{fill:#1F2937}.sc-mouth{stroke:#9CA3AF;stroke-width:4}.sc-ray{stroke:#FDE68A;stroke-width:2.2;stroke-linecap:round;fill:none}
+.sc-adv{fill:#145DA0;stroke:#fff;stroke-width:3}.sc-advt{fill:#fff;font:900 24px var(--font-body);text-anchor:middle}
 .sc-town{fill:#1D4ED8;stroke:#fff;stroke-width:2}.sc-townt{fill:#fff;font:800 13px var(--font-body);text-anchor:middle}
 .unit-done .m-big small{font-size:28px;opacity:.55}
 .unit-next{margin:10px 0 0;font-size:15px;color:var(--muted)}.unit-next b{color:var(--fg)}
