@@ -32,7 +32,7 @@ function hashId(s){ var h = 5381; s = String(s); for (var i = 0; i < s.length; i
 /* ---------------- question bank ---------------- */
 var STATIC = {drive: [], civic: []};
 DRIVE.QUESTIONS.forEach(function(q, i){
-  STATIC.drive.push({id:"d" + i, track:"drive", topic:q.t, kind:q.hz ? "hazard" : (q.num ? "num" : "mc"), q:q.q, o:q.o, c:q.c, a:q.a, e:q.e, sign:q.sign, lvl:1});
+  STATIC.drive.push({id:"d" + i, track:"drive", topic:q.t, kind:q.hz ? "hazard" : (q.num ? "num" : "mc"), q:q.q, o:q.o, c:q.c, a:q.a, e:q.e, sign:q.sign, src:q.source, lvl:1});
 });
 CIVIC.QUESTIONS.forEach(function(q, i){
   STATIC.civic.push({id:"c" + i, track:"civic", topic:q.t, kind:"mc", q:q.q, o:q.o, c:q.c, e:q.e, icon:q.icon, sec:"basics", lvl:1});
@@ -497,7 +497,7 @@ function renderPrimer(v, entering){
   var h = feedHead() + '<article class="qcard lesson primer' + (entering ? " enter" : "") + '" id="qcard"><div class="eyebrow"><span>' + esc(L.topic) + '</span><span class="tag">Lesson</span><span class="pr-count tabular">' + (P.i + 1) + ' / ' + P.steps.length + '</span></div>' +
     (st.scene && window.LESSON_SCENE ? '<div class="lscene">' + LESSON_SCENE(st.scene) + '</div>' : (st.icon && LIBS[L.track].GLOSSARY[st.icon] ? '<div class="visual">' + LIBS[L.track].GLOSSARY[st.icon].icon + '</div>' : "")) +
     '<h3 class="les-h">' + esc(st.h) + '</h3><p class="pr-t">' + (window.I18N && I18N.get() !== "en" ? esc(st.t) : mark(L.track, st.t)) + '</p>' +
-    '<p class="pr-why"><b>Why</b><span>' + esc(st.why) + '</span></p>' + (st.src ? '<p class="src">Source: ' + esc(srcName(st.src)) + '</p>' : "") +
+    '<p class="pr-why"><b>Why</b><span>' + esc(st.why) + '</span></p>' + (st.src ? srcLink(st.src) : "") +
     '<p class="pr-swipe">Swipe for the next step</p><div class="pr-dots" aria-hidden="true">' + P.steps.map(function(_, k){ return '<i class="' + (k === P.i ? "on" : (k < P.i ? "done" : "")) + '"></i>'; }).join("") + '</div>' +
     '<div class="fb-actions">' + (P.i > 0 ? '<button class="btn ghost" data-act="pr-back">Back</button>' : "") + '<button class="btn' + (last ? " pop" : "") + '" data-act="pr-next">' + (last ? "Now practise" : "Next") + '</button></div></article>';
   v.innerHTML = h;
@@ -557,7 +557,7 @@ function renderFeed(entering){
     if (q.en) html2 += '<p class="en">' + esc(q.en) + '</p>';
     if (q.audio) html2 += '<p class="en">Audio: ' + esc(q.audio) + '</p>';
     html2 += '<p class="ex">' + mark(q.track, q.e) + '</p>';
-    if (q.src) html2 += '<p class="src">Source: ' + esc(srcName(q.src)) + '</p>';
+    if (q.src) html2 += srcLink(q.src);
     if (cur.explain) html2 += '<div class="ai-out" id="ai-out">' + esc(cur.explain) + '</div>';
     html2 += '<div class="fb-actions">' + (aiAvailable() && !cur.explaining && !cur.explain ? '<button class="btn ghost" data-act="explain">Explain it simpler</button>' : "") + '<button class="btn" data-act="next">Next</button></div></div>';
     html2 += '<p class="hint">Swipe up for the next question</p>';
@@ -944,7 +944,9 @@ function shareProgress(){
   } else if (navigator.share){ navigator.share({text:text}).catch(function(){}); }
   else { openSheet('<h2>Your progress</h2><p style="white-space:pre-wrap;user-select:all">' + esc(text) + '</p>'); }
 }
-function srcName(u){ var m = /^https?:\/\/(?:www\.)?([^\/]+)/.exec(String(u)); return m ? m[1] : String(u); }
+function srcName(u){ var m = /^https?:\/\/(?:www\.)?([^\/]+)/.exec(String(u)), p = /#page=(\d+)$/.exec(String(u)); return (m ? m[1] : String(u)) + (p ? ", page " + p[1] : ""); }
+/* a source line that opens the page the fact comes from */
+function srcLink(u){ return /^https:\/\//.test(String(u)) ? '<p class="src"><a href="' + esc(u) + '" target="_blank" rel="noopener">Source: ' + esc(srcName(u)) + '</a></p>' : '<p class="src">Source: ' + esc(srcName(u)) + '</p>'; }
 function backupSave(){
   var data = JSON.stringify({app:"klaar", v:1, at:Date.now(), state:S}, null, 0);
   var name = "klaar-backup-" + dayKey() + ".json";
