@@ -711,3 +711,35 @@ html[dir="rtl"] .gl-def,html[dir="rtl"] .gl-head h3,html[dir="rtl"] .gl-card .pr
 .unit-done .m-big small{font-size:28px;opacity:.55}
 .unit-next{margin:10px 0 0;font-size:15px;color:var(--muted)}.unit-next b{color:var(--fg)}
 .pr-swipe{margin:12px 0 0;text-align:center;font-size:12px;color:var(--muted)}
+
+/* driver's-eye pictures (js/view.js) */
+.visual.dv{display:block;margin:0 0 14px}
+.visual.dv svg.dview{display:block;width:100%;height:auto;border-radius:14px}
+.dv-sky{fill:#BFD7F2}.dv-grass{fill:#9CC48B}.dv-road{fill:#8A9099}.dv-line{fill:#F5F5F0}.dv-zebra{fill:#F5F5F0}.dv-pave{fill:#C9C3B8}.dv-kerb{fill:#E4E0D8}
+.dv-rail{fill:#B8BEC6;stroke:#7D8590;stroke-width:.6}.dv-water{fill:#6E9FC2}.dv-track{fill:#B4534A}
+.dv-hood{fill:#24324A}.dv-hoodline{stroke:#3E5172;stroke-width:1.5;fill:none}
+.dv-car{stroke:rgba(0,0,0,.25);stroke-width:.03}.dv-c1{fill:#C0392B}.dv-c2{fill:#E5E7EB}.dv-c3{fill:#5B7FA6}.dv-c4{fill:#9CA3AF}.dv-c5{fill:#2F3E52}.dv-c6{fill:#D9C9A3}
+.dv-carside.dv-c3{fill:#4A6A8E}.dv-carside.dv-c4{fill:#868C95}.dv-carside.dv-c5{fill:#243142}.dv-carside.dv-c6{fill:#BFAF8A}
+.dv-glass{fill:#1F2A3A;opacity:.85}.dv-tyre{fill:#1A1A1A}.dv-wheel{fill:none;stroke:#1A1A1A;stroke-width:.07}.dv-frame{fill:none;stroke:#2563EB;stroke-width:.06}
+.dv-tail{fill:#8E1B1B}.dv-brake{fill:#FF2A2A}.dv-ind{fill:#FFA51F}.dv-head{fill:#FFF7D6}
+.dv-bus{fill:#E3B505}.dv-busside{fill:#C79E04}.dv-truck{fill:#E5E7EB;stroke:#9CA3AF;stroke-width:.04}.dv-seam{stroke:#9CA3AF;stroke-width:.05}.dv-tractor{fill:#3F8F4E}
+.dv-kid{fill:#E67E22}.dv-coat{fill:#4B5563}.dv-rider{fill:#2563EB}.dv-legs{fill:#334155}.dv-skin{fill:#E8B796}.dv-hair{fill:#3B2A1E}.dv-pram{fill:#7C3AED}
+.dv-ball{fill:#fff;stroke:#111;stroke-width:.025}.dv-shadow{fill:rgba(0,0,0,.28)}
+.dv-pole{fill:#4B5563}.dv-tl{fill:#1F2937}.dv-off{fill:#374151}.dv-on-red{fill:#EF4444}.dv-on-amber{fill:#F59E0B}.dv-on-green{fill:#22C55E}
+.dv-warn{fill:#fff;stroke:#DC2626;stroke-width:.09;stroke-linejoin:round}.dv-sym{fill:none;stroke:#111;stroke-width:.06}
+.dv-trunk{fill:#7A5A3A}.dv-leaf{fill:#4E8F4A}.dv-hedge{fill:#3E7A3B}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .dv-sky{fill:#6F8FB3}:root:not([data-theme="light"]) .dv-grass{fill:#6F9461}:root:not([data-theme="light"]) .dv-road{fill:#6B717A}:root:not([data-theme="light"]) .dv-pave{fill:#A39E94}}
+:root[data-theme="dark"] .dv-sky{fill:#6F8FB3}:root[data-theme="dark"] .dv-grass{fill:#6F9461}:root[data-theme="dark"] .dv-road{fill:#6B717A}:root[data-theme="dark"] .dv-pave{fill:#A39E94}
+
+/* Dutch lessons: phrases you tap to hear, clocks and word blocks */
+.say{display:flex;flex-direction:column;gap:8px;margin:0 0 14px}
+.say-b{display:flex;align-items:center;gap:10px;width:100%;text-align:start;background:var(--raise);border:1px solid var(--line);border-radius:14px;padding:10px 14px;min-height:48px;color:var(--fg);font:inherit;cursor:pointer}
+.say-b.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--raise))}
+.say-ic{flex:none;width:20px;height:20px;color:var(--accent)}
+.say-nl{font-weight:800;font-size:16px;direction:ltr;unicode-bidi:isolate}
+.say-en{margin-inline-start:auto;color:var(--muted);font-size:13.5px;text-align:end}
+.cv-tick{stroke:#94A3B8;stroke-width:2;stroke-linecap:round}.cv-hand-h{stroke:#0F1A2E;stroke-width:5;stroke-linecap:round}.cv-hand-m{stroke:#1C4FA0;stroke-width:3.5;stroke-linecap:round}.cv-pin{fill:#0F1A2E}
+.cv-nl{fill:#0F1A2E;font:800 12.5px var(--font-body);text-anchor:middle}.cv-wnl{fill:#fff;font:800 12.5px var(--font-body);text-anchor:middle}.cv-big2{fill:#1C4FA0;font:900 40px var(--font-body);text-anchor:middle}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .cv-nl{fill:#E5E7EB}:root:not([data-theme="light"]) .cv-hand-h,:root:not([data-theme="light"]) .cv-pin{stroke:#E5E7EB;fill:#E5E7EB}:root:not([data-theme="light"]) .cv-hand-m{stroke:#8FB4F0}:root:not([data-theme="light"]) .cv-big2{fill:#8FB4F0}}
+:root[data-theme="dark"] .cv-nl{fill:#E5E7EB}:root[data-theme="dark"] .cv-hand-h,:root[data-theme="dark"] .cv-pin{stroke:#E5E7EB;fill:#E5E7EB}:root[data-theme="dark"] .cv-hand-m{stroke:#8FB4F0}:root[data-theme="dark"] .cv-big2{fill:#8FB4F0}
+.cv-nl,.cv-wnl{direction:ltr;unicode-bidi:embed}

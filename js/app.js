@@ -32,7 +32,7 @@ function hashId(s){ var h = 5381; s = String(s); for (var i = 0; i < s.length; i
 /* ---------------- question bank ---------------- */
 var STATIC = {drive: [], civic: []};
 DRIVE.QUESTIONS.forEach(function(q, i){
-  STATIC.drive.push({id:"d" + i, track:"drive", topic:q.t, kind:q.hz ? "hazard" : (q.num ? "num" : "mc"), q:q.q, o:q.o, c:q.c, a:q.a, e:q.e, sign:q.sign, src:q.source, lvl:1});
+  STATIC.drive.push({id:"d" + i, track:"drive", topic:q.t, kind:q.hz ? "hazard" : (q.num ? "num" : "mc"), q:q.q, o:q.o, c:q.c, a:q.a, e:q.e, sign:q.sign, view:q.view, src:q.source, lvl:1});
 });
 CIVIC.QUESTIONS.forEach(function(q, i){
   STATIC.civic.push({id:"c" + i, track:"civic", topic:q.t, kind:"mc", q:q.q, o:q.o, c:q.c, e:q.e, icon:q.icon, sec:"basics", lvl:1});
@@ -44,7 +44,7 @@ CIVIC.STAGES.forEach(function(s){
 });
 var XB = (typeof EXTRA !== "undefined" && EXTRA) ? EXTRA : {drive: [], civic: []};
 (XB.drive || []).forEach(function(q){
-  STATIC.drive.push({id:"x-d-" + hashId(q.q), track:"drive", topic:q.t, kind:q.hz ? "hazard" : (q.num ? "num" : "mc"), q:q.q, o:q.o, c:q.c, a:q.a, e:q.e, sign:q.sign, src:q.source, lvl:1});
+  STATIC.drive.push({id:"x-d-" + hashId(q.q), track:"drive", topic:q.t, kind:q.hz ? "hazard" : (q.num ? "num" : "mc"), q:q.q, o:q.o, c:q.c, a:q.a, e:q.e, sign:q.sign, view:q.view, src:q.source, lvl:1});
 });
 (XB.civic || []).forEach(function(q){
   var sec = SEC_LVL[q.sec] ? q.sec : "knm";
@@ -330,6 +330,7 @@ function toast(msg){
 /* Listening: recorded Dutch audio (audio/<hash>.mp3, natural voices made with audio/make_audio.py).
    Text without a recording falls back to the phone's best Dutch voice. */
 var CLIP = null;
+var SPEAKER = '<svg class="say-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 function stopSound(){ try{ if (CLIP){ CLIP.pause(); CLIP = null; } if ("speechSynthesis" in window) speechSynthesis.cancel(); }catch(e){} }
 function speak(text){
   var h = hashId(text);
@@ -354,6 +355,7 @@ var PLAY = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5 L13 8 L4
 
 /* ---------------- shared question renderer ---------------- */
 function visualFor(q){
+  if (q.view && window.KLAAR_VIEW) return '<div class="visual dv">' + KLAAR_VIEW(q.view) + '</div>';
   if (q.sign && DRIVE.signSvg) return '<div class="visual">' + DRIVE.signSvg(q.sign) + '</div>';
   if (q.icon && CIVIC.topicIcon) return '<div class="visual">' + CIVIC.topicIcon(q.icon) + '</div>';
   return "";
@@ -401,8 +403,10 @@ function levelCap(t){ return t === "drive" ? 99 : S.t.civic.level; }
 /* Lessons first: before the first question on a topic, its lesson plays once (js/lessons.js).
    Topics without a lesson go straight to questions. "test" turns lessons off. */
 function teachFirst(){ return prof().style !== "test"; }
-function topicLesson(t, topic){ return window.LESSONS && LESSONS[t] && LESSONS[t][topic]; }
-function needsLesson(q){ var tr = S.t[q.track]; return teachFirst() && !!topicLesson(q.track, q.topic) && !(tr.primers || {})[q.topic]; }
+/* a question's lesson: some topics share one lesson (A2 Luisteren and Listening, for example) */
+function lessonKey(t, topic){ var a = window.LESSON_ALIAS && LESSON_ALIAS[t]; return (a && a[topic]) || topic; }
+function topicLesson(t, topic){ return window.LESSONS && LESSONS[t] && LESSONS[t][lessonKey(t, topic)]; }
+function needsLesson(q){ var tr = S.t[q.track]; return teachFirst() && !!topicLesson(q.track, q.topic) && !(tr.primers || {})[lessonKey(q.track, q.topic)]; }
 var lesson = null, focus = null, UNIT_MAX = 10;
 /* a unit = a topic's lesson, then its questions, then a short "topic done" card */
 function nextLessonTopic(t, p){
@@ -410,13 +414,13 @@ function nextLessonTopic(t, p){
   for (var i = 0; i < order.length; i++){
     var k = order[i];
     if (done[k] || !topicLesson(t, k)) continue;
-    if (p.some(function(x){ return x.topic === k && !tr.seen[x.id]; })) return k;
+    if (p.some(function(x){ return lessonKey(t, x.topic) === k && !tr.seen[x.id]; })) return k;
   }
   return null;
 }
 function startLesson(first){
   var t = S.track;
-  lesson = {track:t, topic:first.topic, primer:{steps:topicLesson(t, first.topic), i:0}};
+  lesson = {track:t, topic:lessonKey(t, first.topic), primer:{steps:topicLesson(t, first.topic), i:0}};
   cur = null; waitingForQuestions = false;
   renderFeed(true);
   scrollTop0();
@@ -425,7 +429,7 @@ function pickNext(t){
   var tr = S.t[t];
   var inUnit = focus && focus.track === t && focus.asked < focus.n;
   for (var i = 0; i < tr.wrong.length; i++){
-    if (tr.wrong[i].due <= tr.ans && !(inUnit && INDEX[tr.wrong[i].id] && INDEX[tr.wrong[i].id].topic !== focus.topic)){   /* other topics' retries wait until the unit is done */
+    if (tr.wrong[i].due <= tr.ans && !(inUnit && INDEX[tr.wrong[i].id] && lessonKey(t, INDEX[tr.wrong[i].id].topic) !== focus.topic)){   /* other topics' retries wait until the unit is done */
       var w = tr.wrong.splice(i, 1)[0];
       if (INDEX[w.id] && w.id !== lastId) return INDEX[w.id];
       i--;
@@ -435,7 +439,7 @@ function pickNext(t){
   var p = pool(t).filter(function(q){ return (q.lvl || 1) <= cap; });
   var fit = p.filter(fitsProfile); if (fit.length >= 12) p = fit;
   if (focus && focus.track === t && focus.asked < focus.n){
-    var fq = p.filter(function(x){ return x.topic === focus.topic && !tr.seen[x.id] && x.id !== lastId; });
+    var fq = p.filter(function(x){ return lessonKey(t, x.topic) === focus.topic && !tr.seen[x.id] && x.id !== lastId; });
     if (fq.length) return fq[Math.floor(Math.random() * fq.length)];
     focus.n = focus.asked;
   }
@@ -503,11 +507,13 @@ function renderPrimer(v, entering){
   var h = feedHead() + '<article class="qcard lesson primer' + (entering ? " enter" : "") + '" id="qcard"><div class="eyebrow"><span>' + esc(L.topic) + '</span><span class="tag">Lesson</span><span class="pr-count tabular">' + (P.i + 1) + ' / ' + P.steps.length + '</span></div>' +
     (st.scene && window.LESSON_SCENE ? '<div class="lscene">' + LESSON_SCENE(st.scene) + '</div>' : (st.icon && LIBS[L.track].GLOSSARY[st.icon] ? '<div class="visual">' + LIBS[L.track].GLOSSARY[st.icon].icon + '</div>' : "")) +
     '<h3 class="les-h">' + esc(st.h) + '</h3><p class="pr-t">' + (window.I18N && I18N.get() !== "en" ? esc(st.t) : mark(L.track, st.t)) + '</p>' +
+    (st.say ? '<div class="say" aria-label="Tap to hear">' + st.say.map(function(x){ return '<button class="say-b" data-say="' + esc(x[0]) + '">' + SPEAKER + '<span class="say-nl" lang="nl" translate="no">' + esc(x[0]) + '</span><span class="say-en">' + esc(x[1]) + '</span></button>'; }).join("") + '</div>' : "") +
     '<p class="pr-why"><b>Why</b><span>' + esc(st.why) + '</span></p>' + (st.src ? srcLink(st.src) : "") +
     '<p class="pr-swipe">Swipe for the next step</p><div class="pr-dots" aria-hidden="true">' + P.steps.map(function(_, k){ return '<i class="' + (k === P.i ? "on" : (k < P.i ? "done" : "")) + '"></i>'; }).join("") + '</div>' +
     '<div class="fb-actions">' + (P.i > 0 ? '<button class="btn ghost" data-act="pr-back">Back</button>' : "") + '<button class="btn' + (last ? " pop" : "") + '" data-act="pr-next">' + (last ? "Now practise" : "Next") + '</button></div></article>';
   v.innerHTML = h;
   var b = $('[data-act="pr-back"]', v); if (b) b.addEventListener("click", function(){ P.i--; renderFeed(); scrollTop0(); });
+  $$("[data-say]", v).forEach(function(x){ x.addEventListener("click", function(){ $$(".say-b.on", v).forEach(function(o){ o.classList.remove("on"); }); x.classList.add("on"); speak(x.getAttribute("data-say")); setTimeout(function(){ x.classList.remove("on"); }, 1600); }); });
   var card = $("#qcard", v), sx = null, sy = 0, rtl = window.I18N && I18N.rtl();
   card.addEventListener("touchstart", function(e){ if (e.touches.length === 1){ sx = e.touches[0].clientX; sy = e.touches[0].clientY; } }, {passive:true});
   card.addEventListener("touchend", function(e){
@@ -519,7 +525,7 @@ function renderPrimer(v, entering){
   $('[data-act="pr-next"]', v).addEventListener("click", function(){
     if (!last){ P.i++; renderFeed(); scrollTop0(); return; }
     var tr = S.t[L.track]; tr.primers = tr.primers || {}; tr.primers[L.topic] = Date.now();
-    var unseen = pool(L.track).filter(function(x){ return x.topic === L.topic && !tr.seen[x.id] && (x.lvl || 1) <= levelCap(L.track); }).length;
+    var unseen = pool(L.track).filter(function(x){ return lessonKey(L.track, x.topic) === L.topic && !tr.seen[x.id] && (x.lvl || 1) <= levelCap(L.track); }).length;
     focus = unseen ? {track:L.track, topic:L.topic, n:Math.min(UNIT_MAX, unseen), asked:0, ok:0} : null; lesson = null; save(); nextQuestion();
   });
 }
@@ -541,7 +547,7 @@ function renderFeed(entering){
   }
   var q = cur.q, html2 = feedHead();
   html2 += '<article class="qcard' + (entering ? " enter" : "") + (q.kind === "hazard" ? " hz" : "") + '" id="qcard">';
-  var inUnit = focus && focus.track === q.track && q.topic === focus.topic;
+  var inUnit = focus && focus.track === q.track && lessonKey(q.track, q.topic) === focus.topic;
   html2 += '<div class="eyebrow"><span>' + esc(q.topic) + '</span>' + (inUnit ? '<span class="pr-count tabular">' + Math.min(focus.n, focus.asked + (cur.done ? 0 : 1)) + ' / ' + focus.n + '</span>' : "") + (q.sec && q.sec !== "basics" && SEC_NAME[q.sec] !== q.topic ? '<span class="tag">' + esc(SEC_NAME[q.sec] || q.sec) + '</span>' : "") + (q.gen ? '<span class="tag ai">New</span>' : "") + '</div>';
   html2 += bodyHtml(q);
   if (q.kind === "num" || q.kind === "type"){
@@ -590,7 +596,7 @@ function answer(a, btnRect){
   var q = cur.q, ok = isRight(q, a);
   cur.done = true; cur.sel = a; cur.ok = ok;
   var leveled = record(q, ok, false);
-  if (focus && focus.track === q.track && q.topic === focus.topic){ focus.asked++; if (ok) focus.ok++; }
+  if (focus && focus.track === q.track && lessonKey(q.track, q.topic) === focus.topic){ focus.asked++; if (ok) focus.ok++; }
   renderFeed();
   var card = $("#qcard");
   if (card){ card.classList.add(ok ? "hit" : "miss"); }

@@ -23,6 +23,14 @@ var SRC = {
   birth: "https://www.rijksoverheid.nl/onderwerpen/aangifte-geboorte-en-naamskeuze-kind/vraag-en-antwoord/aangifte-geboorte",
   toeslagChange: "https://www.belastingdienst.nl/wps/wcm/connect/bldcontentnl/belastingdienst/prive/toeslagen/wijzigingen_doorgeven/wijzigingen_doorgeven",
   digid: "https://www.digid.nl/en/security/tips-secure-login",
+  /* Dutch language: the ANS (the reference grammar of Dutch), Taaladvies, Onze Taal, and the official exam pages */
+  clock: "https://e-ans.ivdnt.org/topics/pid/topic-19079431619093292",
+  numbers: "https://e-ans.ivdnt.org/topics/pid/topic-16981467104435191",
+  wordOrder: "https://onzetaal.nl/taalloket/woordvolgorde-in-bijzinnen-en-hoofdzinnen",
+  inversion: "https://taaladvies.net/termen-inversie/",
+  nietGeen: "https://taaladvies.net/hij-spreekt-niet-of-geen-goed-nederlands/",
+  deHet: "https://taaladvies.net/woordgeslacht-algemeen/",
+  a2exams: "https://www.inburgeren.nl/examen-doen/inhoud-taalexamens-a2-b1-b2.jsp",
   cbr: "https://www.cbr.nl/nl/rijbewijs-halen/auto/theorie-examen-auto/onderwerpen-in-het-theorie-examen.htm",
   anwbDistance: "https://www.anwb.nl/verkeer/veiligheid/verkeersregels/afstand-houden",
   anwbSpeed: "https://www.anwb.nl/verzekeringen/autoverzekering/veilig-rijden/rijtips-snelheid",
@@ -88,6 +96,22 @@ function label(x, y, t){ return '<text class="sc-mark" x="' + x + '" y="' + y + 
 function civ(id, inner){ return '<svg viewBox="0 0 200 200" role="img" aria-hidden="true"><rect class="cv-bg" width="200" height="200"/>' + inner + '</svg>'; }
 function ctext(x, y, t, cls){ return '<text class="' + (cls || "cv-t") + '" x="' + x + '" y="' + y + '">' + t + '</text>'; }
 function calendar(x, y, big, small){ return '<rect class="cv-card" x="' + (x - 34) + '" y="' + (y - 30) + '" width="68" height="66" rx="8"/><rect class="cv-red" x="' + (x - 34) + '" y="' + (y - 30) + '" width="68" height="16" rx="8"/><rect class="cv-red" x="' + (x - 34) + '" y="' + (y - 22) + '" width="68" height="8"/>' + ctext(x, y + 18, big, "cv-big") + ctext(x, y + 32, small, "cv-s"); }
+/* a clock face showing h:m, with a caption under it */
+function clockFace(cx, cy, r, h, m, cap){
+  var ma = m / 60 * 2 * Math.PI, ha = ((h % 12) + m / 60) / 12 * 2 * Math.PI, t = "";
+  for (var i = 0; i < 12; i++){ var a = i / 12 * 2 * Math.PI; t += '<path class="cv-tick" d="M' + (cx + Math.sin(a) * r * 0.82).toFixed(1) + " " + (cy - Math.cos(a) * r * 0.82).toFixed(1) + "L" + (cx + Math.sin(a) * r * 0.94).toFixed(1) + " " + (cy - Math.cos(a) * r * 0.94).toFixed(1) + '"/>'; }
+  return '<circle class="cv-card" cx="' + cx + '" cy="' + cy + '" r="' + r + '"/>' + t +
+    '<path class="cv-hand-h" d="M' + cx + " " + cy + "L" + (cx + Math.sin(ha) * r * 0.5).toFixed(1) + " " + (cy - Math.cos(ha) * r * 0.5).toFixed(1) + '"/>' +
+    '<path class="cv-hand-m" d="M' + cx + " " + cy + "L" + (cx + Math.sin(ma) * r * 0.78).toFixed(1) + " " + (cy - Math.cos(ma) * r * 0.78).toFixed(1) + '"/>' +
+    '<circle class="cv-pin" cx="' + cx + '" cy="' + cy + '" r="3"/>' + (cap ? [].concat(cap).map(function(line, k){ return ctext(cx, cy + r + 16 + k * 15, line, "cv-nl"); }).join("") + ctext(cx, cy + r + 16 + [].concat(cap).length * 15, (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m, "cv-s") : "");
+}
+/* a row of word blocks; hi = index of the block to highlight */
+function blocks(y, words, hi){
+  var w = words.map(function(x){ return Math.max(34, x.length * 7.4 + 14); }), gap = 6, total = w.reduce(function(a, b){ return a + b; }, 0) + gap * (w.length - 1), x = 100 - total / 2, out = "";
+  words.forEach(function(word, i){ out += '<rect class="' + (i === hi ? "cv-blue" : "cv-card") + '" x="' + x.toFixed(1) + '" y="' + y + '" width="' + w[i].toFixed(1) + '" height="28" rx="7"/>' + ctext((x + w[i] / 2).toFixed(1), y + 19, word, i === hi ? "cv-wnl" : "cv-nl"); x += w[i] + gap; });
+  var k = total > 186 ? 186 / total : 1;  /* a long sentence shrinks to fit */
+  return k < 1 ? '<g transform="translate(100 ' + (y + 14) + ') scale(' + k.toFixed(3) + ') translate(-100 -' + (y + 14) + ')">' + out + '</g>' : out;
+}
 var NIGHT = '<rect class="sc-night" width="200" height="200"/>';
 /* an actor: shape, badge, label, and keyframes [percent, x, y, rotation, opacity] */
 function actors(id, list){
@@ -330,6 +354,22 @@ var SCENES = {
   digidLock: function(){ return civ("dl", '<path class="cv-dark2" d="M74 86V68a26 26 0 0 1 52 0V86" fill="none"/><rect class="cv-blue" x="60" y="84" width="80" height="62" rx="10"/>' + ctext(100, 121, "DigiD", "cv-w") +
     ctext(100, 172, "Never share it", "cv-t") + ctext(100, 188, "Use DigiD Machtigen", "cv-s")); },
 
+  /* Dutch: listening */
+  halfTen: function(){ return civ("ht", clockFace(100, 82, 56, 9, 30, "half tien")); },
+  quarters: function(){ return civ("qu", clockFace(54, 70, 40, 7, 15, ["kwart over", "zeven"]) + clockFace(146, 70, 40, 7, 45, ["kwart voor", "acht"])); },
+  tienVoorHalf: function(){ return civ("tv", clockFace(54, 70, 40, 2, 20, ["tien voor", "half drie"]) + clockFace(146, 70, 40, 2, 35, ["vijf over", "half drie"])); },
+  unitsFirst: function(){ return civ("uf", blocks(46, ["vier", "en", "zestig"], 0) + '<path class="cv-arrow" d="M100 86V110M95 104L100 111L105 104"/>' + ctext(100, 156, "64", "cv-big2") + ctext(100, 180, "4 first, then the tens", "cv-s")); },
+  /* Dutch: grammar */
+  verbSecond: function(){ return civ("vs", blocks(44, ["Ik", "werk", "morgen."], 1) + blocks(100, ["Morgen", "werk", "ik."], 1) + ctext(100, 156, "The verb stays in place 2", "cv-t")); },
+  verbFirst: function(){ return civ("vf", blocks(60, ["Werk", "je", "morgen?"], 0) + ctext(100, 120, "Yes/no question:", "cv-t") + ctext(100, 138, "the verb comes first", "cv-s")); },
+  geenNiet: function(){ return civ("gn", blocks(40, ["Ik", "heb", "geen", "auto."], 2) + ctext(100, 84, "geen + noun", "cv-s") + blocks(104, ["Ik", "werk", "vandaag", "niet."], 3) + ctext(100, 148, "niet for the rest", "cv-s")); },
+  deHet: function(){ return civ("dh", '<rect class="cv-card" x="14" y="44" width="80" height="80" rx="10"/><rect class="cv-card" x="106" y="44" width="80" height="80" rx="10"/>' +
+    ctext(54, 80, "de", "cv-big") + ctext(54, 104, "huizen", "cv-nl") + ctext(146, 80, "het", "cv-big") + ctext(146, 104, "huisje", "cv-nl") + ctext(54, 146, "every plural", "cv-s") + ctext(146, 146, "every -je word", "cv-s")); },
+  /* Dutch: reading */
+  questionFirst: function(){ return civ("qf", '<rect class="cv-card" x="30" y="30" width="140" height="110" rx="8"/><path class="cv-line" d="M44 52H156M44 66H140M44 80H150M44 94H120M44 108H146M44 122H100"/><rect class="cv-warm" x="96" y="88" width="54" height="12" rx="3" opacity=".55"/>' +
+    '<rect class="cv-blue" x="40" y="150" width="120" height="30" rx="8"/>' + ctext(100, 170, "Question first", "cv-w")); },
+  smallWords: function(){ return civ("sw", blocks(30, ["niet", "geen", "wel"], -1) + blocks(76, ["verplaatst", "gaat niet door"], -1) + blocks(122, ["vanaf", "tot"], -1) + ctext(100, 178, "They change the meaning", "cv-s")); },
+
   /* motorway */
   mwJoin: function(){ return svg("mj", motorway(), "", [
     {shape:"car", color:"c-red", badge:"1", steady:true, path:[[0, 130, 240], [55, 130, -40], [100, 130, -40]], still:[0, 130, 60]},
@@ -477,6 +517,51 @@ window.LESSONS = {
   },
   /* the €385 eigen risico applies to 2026 and 2027: recheck every year */
   civic: {
+    "Listening": [
+      {scene:"halfTen", h:"Half tien is 9:30, not 10:30",
+       t:"Dutch counts the half hour towards the next hour. Half tien is half an hour before ten, so 9:30. Half drie is 2:30.",
+       say:[["half tien", "9:30"], ["half drie", "2:30"], ["om half acht", "at 7:30"]],
+       why:"English counts from the hour you are in. Dutch looks ahead to the next one.", src:SRC.clock},
+      {scene:"quarters", h:"Kwart over and kwart voor",
+       t:"Kwart is a quarter of an hour. Kwart over zeven is 7:15. Kwart voor acht is 7:45.",
+       say:[["kwart over zeven", "7:15"], ["kwart voor acht", "7:45"]],
+       why:"Over means past, voor means to: the same idea as in English.", src:SRC.clock},
+      {scene:"tienVoorHalf", h:"From 20 past, count from the half hour",
+       t:"Between 20 past and 20 to, Dutch counts from the half hour. Tien voor half drie is 2:20. Vijf over half drie is 2:35.",
+       say:[["tien voor half drie", "2:20"], ["vijf over half drie", "2:35"]],
+       why:"Dutch uses whichever point is closest: the full hour or the half hour.", src:SRC.clock},
+      {scene:"unitsFirst", h:"Numbers: the units come first",
+       t:"From 21 to 99 you hear the units first, then en, then the tens. Vierenzestig is 64: four and sixty. When you write a number down, wait for the tens.",
+       say:[["eenentwintig", "21"], ["vierenzestig", "64"], ["achtennegentig", "98"]],
+       why:"Hearing vier first makes you want to write 4 at the front. The tens come last.", src:SRC.numbers}
+    ],
+    "Grammar": [
+      {scene:"verbSecond", h:"The verb is always in second place",
+       t:"In a normal sentence the verb comes second: Ik werk morgen. If you start with another word, the verb stays second and the subject moves behind it: Morgen werk ik.",
+       say:[["Ik werk morgen.", "I work tomorrow."], ["Morgen werk ik.", "Tomorrow I work."]],
+       why:"Keep the verb in place 2 and the other words can move around it.", src:SRC.wordOrder},
+      {scene:"verbFirst", h:"Yes/no questions start with the verb",
+       t:"To ask a yes or no question, put the verb first: Werk je morgen? Heb je tijd?",
+       say:[["Werk je morgen?", "Do you work tomorrow?"], ["Heb je tijd?", "Do you have time?"]],
+       why:"Dutch has no do or does for questions. Moving the verb to the front does that job.", src:SRC.inversion},
+      {scene:"geenNiet", h:"Geen before a noun, niet for the rest",
+       t:"Use geen for not a or no before a noun: Ik heb geen auto. Use niet for everything else: Ik werk vandaag niet.",
+       say:[["Ik heb geen auto.", "I don't have a car."], ["Ik werk vandaag niet.", "I'm not working today."]],
+       why:"Geen is the no-form of een, so it goes where een or a plural noun would go.", src:SRC.nietGeen},
+      {scene:"deHet", h:"De or het: two rules that always work",
+       t:"Every plural takes de: de huizen. Every small word ending in -je takes het: het huisje, het meisje. For other words, learn the article together with the word.",
+       say:[["het huis, de huizen", "the house, the houses"], ["het meisje", "the girl"]],
+       why:"Most words have no rule, so these two save you from guessing.", src:SRC.deHet}
+    ],
+    "Reading": [
+      {scene:"questionFirst", h:"Read the question first, then find the answer",
+       t:"In the A2 reading exam you read short texts on a computer and answer questions about them, in 65 minutes. Read the question first, then look in the text only for what it asks. You don't need to know every word.",
+       why:"Looking for one thing is much faster than trying to understand everything.", src:SRC.a2exams},
+      {scene:"smallWords", h:"Small words that change everything",
+       t:"Notices often turn on one small word. Niet and geen mean not. Wel means it does. Verplaatst means moved, gaat niet door means is cancelled. Vanaf means from, tot means until.",
+       say:[["De les gaat niet door.", "The class is cancelled."], ["De afspraak is verplaatst.", "The appointment has been moved."], ["Open vanaf negen uur tot vijf uur.", "Open from nine until five."]],
+       why:"Exam questions often test exactly these words, because they flip the meaning.", src:SRC.a2exams}
+    ],
     "Healthcare": [
       {scene:"insCard", h:"Health insurance is a must: arrange it within 4 months",
        t:"When you start working here, take out Dutch basic health insurance (zorgverzekering) within 4 months. People who live here need it too.",
@@ -522,6 +607,8 @@ window.LESSONS = {
   }
 };
 /* the order lessons come in: basics first, motorway and hazards later */
-window.LESSON_ORDER = {drive:["Priority", "Signs", "Road markings", "Speed limits", "Distances", "Lane use", "Stopping & parking", "Lights & visibility", "Railway crossings", "Motorway", "Hazard perception"], civic:["Administration", "Healthcare", "Work life"]};
+window.LESSON_ORDER = {drive:["Priority", "Signs", "Road markings", "Speed limits", "Distances", "Lane use", "Stopping & parking", "Lights & visibility", "Railway crossings", "Motorway", "Hazard perception"], civic:["Listening", "Reading", "Grammar", "Administration", "Healthcare", "Work life"]};
+/* exam-section topics that share a lesson with a skill */
+window.LESSON_ALIAS = {civic:{"A2 Luisteren":"Listening", "A2 Lezen":"Reading", "A2 Schrijven":"Grammar", "Writing":"Grammar"}};
 window.LESSON_SCENE = function(id){ return SCENES[id] ? SCENES[id]() : ""; };
 })();
