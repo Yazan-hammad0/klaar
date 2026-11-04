@@ -1,5 +1,5 @@
 /* Screen-tall layout for the home-screen app, update notice, service worker. */
-var KLAAR_VERSION = "d4fdf2f38d", KLAAR_NEWS = "Fix: in a woonerf (erf) the limit is 15 km/h, not walking pace. The law changed in 2012.";
+var KLAAR_VERSION = "dd63903288", KLAAR_NEWS = "New: a Speed limits lesson, with the limits in town, outside town, on the autoweg and in a woonerf.";
 (function(){
   /* iOS home-screen apps sometimes get a layout viewport shorter than the screen, which leaves a strip under the tab bar.
      Measure it and push the bottom chrome down into that strip. */

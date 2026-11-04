@@ -10,6 +10,9 @@ var SRC = {
   anwbSpeed: "https://www.anwb.nl/verzekeringen/autoverzekering/veilig-rijden/rijtips-snelheid",
   rvv23: "https://wetten.overheid.nl/jci1.3:c:BWBR0004825&artikel=23",
   rvv54: "https://wetten.overheid.nl/jci1.3:c:BWBR0004825&artikel=54",
+  rvv20: "https://wetten.overheid.nl/jci1.3:c:BWBR0004825&artikel=20",
+  rvv21: "https://wetten.overheid.nl/jci1.3:c:BWBR0004825&artikel=21",
+  rvv45: "https://wetten.overheid.nl/jci1.3:c:BWBR0004825&artikel=45",
   speedRules: "https://www.rijksoverheid.nl/vraag-en-antwoord/verkeersveiligheid/wat-is-de-maximumsnelheid-voor-auto-s-op-de-snelweg"
 };
 
@@ -187,6 +190,24 @@ var SCENES = {
     return svg("ss", "", sign(58, "100") + sign(142, "130") + '<rect class="sc-plate" x="22" y="126" width="72" height="24" rx="4"/><text class="sc-platet" x="58" y="143">06–19 h</text><rect class="sc-matrix" x="104" y="126" width="76" height="40" rx="4"/><text class="sc-matrixt" x="142" y="153">80</text>', []);
   },
 
+  /* speed limits */
+  townSign: function(){
+    var sign = '<path class="sc-post" d="M38 122V150"/><rect class="sc-town" x="8" y="96" width="60" height="28" rx="3"/><text class="sc-townt" x="38" y="115">Dorp</text>';
+    return svg("tn", road(), sign + '<path class="sc-tick" d="M60 110H140"/>' + tree(170, 40) + tree(170, 170), [
+      you([[0, 120, 215], [30, 120, 150], [55, 120, 112], [100, 120, -30]], {badge:"50", still:[0, 120, 80]})
+    ]);
+  },
+  roadTypes: function(){
+    function sign(x, n, l){ return '<circle class="sc-sign" cx="' + x + '" cy="80" r="27" style="stroke-width:7"/><text class="sc-signnum" x="' + x + '" y="87" style="font-size:19px">' + n + '</text><text class="sc-mark" x="' + x + '" y="132">' + l + '</text>'; }
+    return svg("rt", "", sign(36, "80", "Road") + sign(100, "100", "Autoweg") + sign(164, "130", "Motorway"), []);
+  },
+  erf: function(){
+    var sides = '<rect class="sc-drive" x="20" y="0" width="40" height="200"/><rect class="sc-drive" x="140" y="0" width="40" height="200"/>';
+    return svg("ef", road("none"), sides + '<circle class="sc-kid" cx="88" cy="58" r="5"/><circle class="sc-ball" cx="76" cy="66" r="4"/><circle class="sc-kid" cx="158" cy="120" r="5"/>' + parked(40, 150), [
+      you([[0, 120, 215], [100, 120, 90]], {steady:true, badge:"15", still:[0, 120, 150]})
+    ]);
+  },
+
   /* motorway */
   mwJoin: function(){ return svg("mj", motorway(), "", [
     {shape:"car", color:"c-red", badge:"1", steady:true, path:[[0, 130, 240], [55, 130, -40], [100, 130, -40]], still:[0, 130, 60]},
@@ -266,6 +287,18 @@ window.LESSONS = {
        t:"In a disc zone (blauwe zone) you may park only in spaces with a blue line or marked bays, with a parking disc showing your arrival time. You may round the time up to the next half hour.",
        why:"It gives everyone free short-term parking without a meter.", src:SRC.gov}
     ],
+    /* the 100 km/h motorway day limit named here is policy and can change: recheck yearly */
+    "Speed limits": [
+      {scene:"townSign", h:"Built-up area: 50 km/h",
+       t:"From the blue place-name sign you are in a built-up area (bebouwde kom). The limit is 50 km/h unless a sign says otherwise. Many town streets are signed 30.",
+       why:"In town people walk, cycle and cross everywhere, so you must be able to stop quickly.", src:SRC.rvv20},
+      {scene:"roadTypes", h:"Outside town: 80, autoweg 100, motorway 130",
+       t:"With no speed sign, the limit is 80 km/h on a normal road, 100 km/h on an autoweg (expressway) and 130 km/h on a motorway (autosnelweg). Signs often set less, like 60 on country roads or 100 on the motorway by day.",
+       why:"The better a road keeps traffic apart, the faster you can safely drive on it.", src:SRC.rvv21},
+      {scene:"erf", h:"Woonerf (erf): 15 km/h",
+       t:"In a woonerf, shown by a blue sign with a house and children playing, you drive at most 15 km/h. People on foot may use the whole width of the street. Older books say walking pace (stapvoets), but the law has said 15 km/h since 2012.",
+       why:"The street is shared with people on foot, so you must be able to stop at once.", src:SRC.rvv45}
+    ],
     "Motorway": [
       {scene:"mwJoin", h:"Joining: speed up, then fit in",
        t:"Use the whole acceleration lane (invoegstrook) to reach the speed of the traffic, then move in where there is a gap. Traffic already on the motorway goes first.",
@@ -281,6 +314,6 @@ window.LESSONS = {
   civic: {}
 };
 /* the order lessons come in: basics first, motorway and hazards later */
-window.LESSON_ORDER = {drive:["Priority", "Road markings", "Distances", "Lane use", "Railway crossings", "Motorway", "Hazard perception"], civic:[]};
+window.LESSON_ORDER = {drive:["Priority", "Road markings", "Speed limits", "Distances", "Lane use", "Railway crossings", "Motorway", "Hazard perception"], civic:[]};
 window.LESSON_SCENE = function(id){ return SCENES[id] ? SCENES[id]() : ""; };
 })();
