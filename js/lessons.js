@@ -5,7 +5,9 @@
 "use strict";
 var SRC = {
   anwbPriority: "https://www.anwb.nl/verkeer/veiligheid/verkeersregels/voorrang",
-  gov: "https://www.government.nl/binaries/government/documenten/reports/2024/02/09/road-traffic-signs-and-regulations-in-the-netherlands/Road+Traffic+Signs+and+Regulations+in+the+Netherlands.pdf",
+  /* the English booklet of the Dutch traffic rules (RVV 1990), linked per page */
+  gov: function(page){ return "https://www.government.nl/site/binaries/site-content/collections/documents/2024/02/09/road-traffic-signs-and-regulations-in-the-netherlands/Road+Traffic+Signs+and+Regulations+in+the+Netherlands.pdf#page=" + page; },
+  cbr: "https://www.cbr.nl/nl/rijbewijs-halen/auto/theorie-examen-auto/onderwerpen-in-het-theorie-examen.htm",
   anwbDistance: "https://www.anwb.nl/verkeer/veiligheid/verkeersregels/afstand-houden",
   anwbSpeed: "https://www.anwb.nl/verzekeringen/autoverzekering/veilig-rijden/rijtips-snelheid",
   rvv23: "https://wetten.overheid.nl/jci1.3:c:BWBR0004825&artikel=23",
@@ -227,10 +229,10 @@ window.LESSONS = {
        why:"On a bike you are a driver (bestuurder) under Dutch traffic law, so the same rule applies.", src:SRC.anwbPriority},
       {scene:"tramFirst", h:"Trams go first, even from the left",
        t:"At an equal junction a tram has priority over all other traffic, from any side. Trams must still obey signs and lights.",
-       why:"A tram runs on rails, can't steer around you and needs a long distance to stop.", src:SRC.gov},
+       why:"A tram runs on rails, can't steer around you and needs a long distance to stop.", src:SRC.gov(25)},
       {scene:"signsWin", h:"Signs and markings beat the rule",
        t:"A yellow diamond means you are on a priority road. Shark teeth (haaientanden) or a give-way sign mean you give way, even to traffic from your left. Traffic lights and police beat signs.",
-       why:"Signs are put where the simple rule isn't safe enough, so they always win.", src:SRC.gov},
+       why:"Signs are put where the simple rule isn't safe enough, so they always win.", src:SRC.gov(43)},
       {scene:"driveway", h:"Special manoeuvres: you give way to everyone",
        t:"Coming out of a driveway or parking place, reversing, a U-turn or changing lanes is a special manoeuvre (bijzondere manoeuvre). You let all other traffic go first, from every direction.",
        why:"You are joining or crossing traffic that is already moving, so it goes first.", src:SRC.anwbPriority}
@@ -238,16 +240,16 @@ window.LESSONS = {
     "Hazard perception": [
       {scene:"hzBrake", h:"Brake: the danger is close",
        t:"Someone is on your path, or about to be, and close by. A ball rolling out between parked cars means a child may follow. Only braking gives you enough room.",
-       why:"Releasing the accelerator slows you too little when the danger is a few seconds away.", src:SRC.gov},
+       why:"Releasing the accelerator slows you too little when the danger is a few seconds away.", src:SRC.cbr},
       {scene:"hzRelease", h:"Release the accelerator: something might happen",
        t:"Nothing is in your way yet, but it could be soon: children playing beside the road, a car that might pull out, brake lights far ahead. Take your foot off the accelerator and get ready to brake.",
-       why:"Losing a little speed early gives you time and room if it turns into real danger.", src:SRC.gov},
+       why:"Losing a little speed early gives you time and room if it turns into real danger.", src:SRC.cbr},
       {scene:"hzNothing", h:"Do nothing: the road stays clear",
        t:"Your speed fits the situation and nobody is heading into your path. Keep going as you are.",
-       why:"Braking without a reason surprises the driver behind you.", src:SRC.gov},
+       why:"Braking without a reason surprises the driver behind you.", src:SRC.cbr},
       {scene:"secondsAway", h:"Distance and speed decide",
        t:"The same situation can need a different answer. Close or fast: brake. Far away or slow: release. Ask yourself how many seconds it takes to get there.",
-       why:"At 50 km/h you cover about 14 m every second (50 ÷ 3.6).", src:SRC.gov}
+       why:"At 50 km/h you cover about 14 m every second (50 ÷ 3.6).", src:SRC.cbr}
     ],
     "Distances": [
       {scene:"twoSec", h:"Stay at least 2 seconds behind",
@@ -261,12 +263,12 @@ window.LESSONS = {
        why:"At double the speed the brakes have to remove four times as much energy.", src:SRC.anwbSpeed},
       {scene:"fog", h:"Always stop within what you can see",
        t:"In fog, heavy rain or a bend, your speed must let you stop within the clear road you can see. The speed sign is only a maximum.",
-       why:"Something just out of sight still needs you to be able to stop for it.", src:SRC.gov}
+       why:"Something just out of sight still needs you to be able to stop for it.", src:SRC.gov(26)}
     ],
     "Lane use": [
       {scene:"keepRight", h:"Keep right, overtake on the left",
        t:"Drive in the right-hand lane when it is free. Overtake on the left, then move back to the right.",
-       why:"The left lane stays free for overtaking, so nobody needs to pass on the wrong side.", src:SRC.gov},
+       why:"The left lane stays free for overtaking, so nobody needs to pass on the wrong side.", src:SRC.gov(24)},
       {scene:"zip", h:"Lane ends? Zip merge (ritsen)",
        t:"Use both lanes up to the point where one ends, then take turns, one by one. This is the advised way, not a legal duty: the driver who changes lanes must give way.",
        why:"Using both lanes to the end keeps the queue shorter and moving.", src:SRC.rvv54}
@@ -274,7 +276,7 @@ window.LESSONS = {
     "Railway crossings": [
       {scene:"railStop", h:"Flashing red lights: stop, even if you see no train",
        t:"Stop before the crossing as soon as the red lights flash or the bell rings, even before the barriers come down. Wait until the lights are off.",
-       why:"A train can't stop or steer, and it can come faster than you expect.", src:SRC.gov},
+       why:"A train can't stop or steer, and it can come faster than you expect.", src:SRC.gov(45)},
       {scene:"railRoom", h:"Never stop on the tracks",
        t:"Only drive onto the crossing when there is room to get off it completely on the other side. If traffic is queuing, wait before the crossing.",
        why:"If the barriers close while you are stuck on the tracks, you can't get out of the way.", src:SRC.rvv23}
@@ -282,10 +284,10 @@ window.LESSONS = {
     "Road markings": [
       {scene:"overtake", h:"Solid line: don't cross it. Broken line: you may, when safe",
        t:"A solid line in the middle of the road may not be crossed, so finish overtaking before it starts. Where the line is broken you may cross it if it is safe.",
-       why:"Solid lines are painted where you can't see far enough ahead to overtake safely.", src:SRC.gov},
+       why:"Solid lines are painted where you can't see far enough ahead to overtake safely.", src:SRC.gov(46)},
       {scene:"blueZone", h:"Blue line: park with a parking disc",
        t:"In a disc zone (blauwe zone) you may park only in spaces with a blue line or marked bays, with a parking disc showing your arrival time. You may round the time up to the next half hour.",
-       why:"It gives everyone free short-term parking without a meter.", src:SRC.gov}
+       why:"It gives everyone free short-term parking without a meter.", src:SRC.gov(30)}
     ],
     /* the 100 km/h motorway day limit named here is policy and can change: recheck yearly */
     "Speed limits": [
@@ -305,7 +307,7 @@ window.LESSONS = {
        why:"Joining at a low speed forces others to brake hard.", src:SRC.rvv54},
       {scene:"missedExit", h:"No reversing, U-turns or stopping",
        t:"Missed your exit? Drive on to the next one. Stop on the hard shoulder only in an emergency.",
-       why:"On a road this fast, anything standing still or going backwards is very dangerous.", src:SRC.gov},
+       why:"On a road this fast, anything standing still or going backwards is very dangerous.", src:SRC.gov(34)},
       {scene:"speedSigns", h:"130 by law, often 100 by day",
        t:"The maximum is 130 km/h, but on many motorways signs set 100 km/h from 06:00 to 19:00. A speed on a matrix sign above your lane always wins.",
        why:"Signs and matrix signs adjust the limit to the road, the time of day and the traffic.", src:SRC.speedRules}
