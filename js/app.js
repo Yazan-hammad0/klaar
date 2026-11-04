@@ -321,12 +321,26 @@ function toast(msg){
 }
 
 /* ---------------- speech ---------------- */
+/* Listening: recorded Dutch audio (audio/<hash>.mp3, natural voices made with audio/make_audio.py).
+   Text without a recording falls back to the phone's best Dutch voice. */
+var CLIP = null;
+function stopSound(){ try{ if (CLIP){ CLIP.pause(); CLIP = null; } if ("speechSynthesis" in window) speechSynthesis.cancel(); }catch(e){} }
 function speak(text){
+  var h = hashId(text);
+  stopSound();
+  if (window.KLAAR_AUDIO && KLAAR_AUDIO.indexOf(h) >= 0){
+    try{ CLIP = new Audio("audio/" + h + ".mp3"); var pr = CLIP.play(); if (pr && pr.catch) pr.catch(function(){ ttsSpeak(text); }); return true; }catch(e){}
+  }
+  return ttsSpeak(text);
+}
+function ttsSpeak(text){
   if (!("speechSynthesis" in window)) return false;
   try{
-    speechSynthesis.cancel();
-    var u = new SpeechSynthesisUtterance(text); u.lang = "nl-NL"; u.rate = 0.9;
-    var v = speechSynthesis.getVoices().filter(function(x){ return /^nl/i.test(x.lang); })[0]; if (v) u.voice = v;
+    var u = new SpeechSynthesisUtterance(text); u.lang = "nl-NL"; u.rate = 0.88;
+    var vs = speechSynthesis.getVoices().filter(function(x){ return /^nl/i.test(x.lang); });
+    var score = function(x){ return (/premium|enhanced|natural|neural|siri|google/i.test(x.name) ? 4 : 0) + (/nl[-_]NL/i.test(x.lang) ? 2 : 0) + (x.localService ? 0 : 1); };
+    vs.sort(function(a, b){ return score(b) - score(a); });
+    if (vs[0]) u.voice = vs[0];
     speechSynthesis.speak(u); return true;
   }catch(e){ return false; }
 }
@@ -1055,7 +1069,7 @@ function applyTrack(){
 function setTrack(t){
   if (t === S.track) return;
   if (run && !confirmLeave()) return;
-  if ("speechSynthesis" in window) try{ speechSynthesis.cancel(); }catch(e){}
+  stopSound();
   S.track = t; save(); applyTrack(); cur = null; lesson = null; focus = null; lastId = null; stopTimer(); run = null;
   renderAll(true);
 }

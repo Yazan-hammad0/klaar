@@ -90,6 +90,7 @@ window.I18N_DATA = {rows: [
 ["Start from scratch","ابدأ من الصفر","Sıfırdan başla"],
 ["Tap again to clear everything","اضغط مرة أخرى لمسح كل شيء","Her şeyi silmek için tekrar dokun"],
 ["Fresh start. Your progress is back to zero.","بداية جديدة. عاد تقدّمك إلى الصفر.","Yeni başlangıç. İlerlemen sıfırlandı."],
+["New: listening questions now use natural recorded Dutch voices.","جديد: أسئلة الاستماع تستخدم الآن أصواتًا هولندية طبيعية مسجّلة.","Yeni: dinleme soruları artık doğal, kayıtlı Felemenkçe sesler kullanıyor."],
 ["New: a new setup with a quick placement check, and every lesson on Home.","جديد: إعداد جديد مع فحص سريع لتحديد المستوى، وكل الدروس في الرئيسية.","Yeni: kısa bir seviye kontrolüyle yeni kurulum ve tüm dersler Ana sayfada."],
 ["Brake: the danger is close","افرمل: الخطر قريب","Fren: tehlike yakın"],
 ["Someone is on your path, or about to be, and close by. A ball rolling out between parked cars means a child may follow. Only braking gives you enough room.","هناك من هو في طريقك أو على وشك أن يكون، وهو قريب. كرة تتدحرج من بين السيارات المركونة تعني أن طفلًا قد يتبعها. وحده الفرملة يمنحك مسافة كافية.","Yolunda biri var ya da girmek üzere ve yakın. Park etmiş arabaların arasından yuvarlanan bir top, peşinden bir çocuğun gelebileceği demek. Sana yeterli mesafeyi yalnızca fren verir."],
