@@ -843,5 +843,6 @@ parts: [
 ["Turn on anonymous stats","تشغيل الإحصاءات المجهولة"],
 ["Your progress stays on this phone, so Claude can't see it. Tap below, then paste the text into your chat with Claude.","يبقى تقدّمك على هذا الهاتف، لذلك لا يستطيع Claude رؤيته. اضغط بالأسفل، ثم الصق النص في محادثتك مع Claude."],
 ["Fixes and clearer pictures. You can now share anonymous stats to help improve Klaar.","إصلاحات وصور أوضح. يمكنك الآن مشاركة إحصاءات مجهولة الهوية للمساعدة في تحسين Klaar."],
+["Anonymous stats are on, to help fix the hard questions. You can turn them off in your profile.","الإحصاءات المجهولة مفعّلة للمساعدة في إصلاح الأسئلة الصعبة. يمكنك إيقافها من ملفك الشخصي."],
 ["questions only","الأسئلة فقط"]
 ]};

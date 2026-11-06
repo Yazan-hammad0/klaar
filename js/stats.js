@@ -4,7 +4,7 @@
    What is counted: app opens, screens, answers (question id + right/wrong), finished lessons, mock results. */
 (function(){
 "use strict";
-var SITE = "";  /* the GoatCounter code, e.g. "klaar" for https://klaar.goatcounter.com */
+var SITE = "klaar";  /* the GoatCounter code, e.g. "klaar" for https://klaar.goatcounter.com */
 var LIVE = "yazan-hammad0.github.io";
 function off(){ try{ return localStorage.getItem("klaarStats") === "off"; }catch(e){ return false; } }
 function slug(s){ return String(s || "").toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
