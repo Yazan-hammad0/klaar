@@ -765,3 +765,8 @@ html[dir="rtl"] .gl-def,html[dir="rtl"] .gl-head h3,html[dir="rtl"] .gl-card .pr
 .mp-note{fill:#0F1A2E;opacity:.85}.mp-notet{fill:#fff;font:700 9.5px var(--font-body)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .mp-island{fill:#2C5A35}:root:not([data-theme="light"]) .mp-unpaved{fill:#7E6644}:root:not([data-theme="light"]) .mp-brick{fill:#7E5248}:root:not([data-theme="light"]) .mp-pave{fill:#5B6475}}
 :root[data-theme="dark"] .mp-island{fill:#2C5A35}:root[data-theme="dark"] .mp-unpaved{fill:#7E6644}:root[data-theme="dark"] .mp-brick{fill:#7E5248}:root[data-theme="dark"] .mp-pave{fill:#5B6475}
+.mp-kerb-yellow{stroke:#F2B705;stroke-width:3.5}.mp-kerb-yellowdash{stroke:#F2B705;stroke-width:3.5;stroke-dasharray:9 7}.mp-kerb-blue{stroke:#2563EB;stroke-width:3.5}
+.mp-ballast{fill:#8B8478}.mp-barrier{fill:#fff;stroke:#C0392B;stroke-width:1.5;stroke-dasharray:4 4}
+.mp-blink2{animation:scBlink 1s steps(1) infinite .5s}
+@media (prefers-reduced-motion: reduce){.mp-blink2{animation:none}}
+.mp-mx{fill:#111827;stroke:#fff;stroke-width:1}.mp-mx-x{stroke:#EF4444;stroke-width:3;stroke-linecap:round}.mp-mx-a,.mp-mx-g{stroke:#F8FAFC;stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}.mp-mx-g{stroke:#22C55E}

@@ -43,6 +43,7 @@ function item(it){
   if (it.go && GO[it.go]) out += g("translate(" + n(p[0]) + " " + n(p[1]) + ") rotate(" + p[2] + ")", arrow(GO[it.go], cls));
   if (it.path) out += arrow(it.path, cls);
   var body = SHAPE[kind] ? SHAPE[kind](you ? "c-you" : (it.c || "c-red")) : "";
+  if (it.tow) body = '<rect x="-9" y="20" width="18" height="30" rx="3" class="sc-car c-parked"/><path class="sc-post" d="M0 14V20"/>' + body;
   if (it.blink) body += '<rect class="sc-ind mp-blink" x="' + (it.blink === "left" ? -9 : 5) + '" y="' + (kind === "bus" ? -26 : -16) + '" width="4" height="4" rx="1"/>';
   out += g("translate(" + n(p[0]) + " " + n(p[1]) + ") rotate(" + p[2] + ")", body);
   var lbl = you ? "You" : it.lbl;
@@ -101,7 +102,23 @@ var GROUND = {
     var s = '<rect class="sc-road" x="60" y="0" width="80" height="200"/>';
     if (o.park) s += '<rect class="sc-drive" x="140" y="0" width="24" height="200"/>' + (o.park === "both" ? '<rect class="sc-drive" x="36" y="0" width="24" height="200"/>' : "");
     if (o.stop) s += '<path class="sc-road" d="M140 50L156 62V120L140 132Z"/><text class="sc-mark" x="174" y="150" style="text-anchor:middle">Bus stop</text>';
-    if (o.rails) s += '<path class="sc-rail" d="M96 0V200M104 0V200"/>'; else s += '<path class="sc-dash" d="M100 0V200"/>';
+    if (o.rails) s += '<path class="sc-rail" d="M96 0V200M104 0V200"/>'; else s += o.centre === "solid" ? '<path class="sc-solid" d="M100 0V200"/>' : '<path class="sc-dash" d="M100 0V200"/>';
+    if (o.kerb) s += '<rect class="sc-drive" x="140" y="0" width="16" height="200"/><path class="mp-kerb-' + o.kerb + '" d="M137 0V200"/>';
+    return s;
+  },
+  /* three lanes in your direction (x=80, 120, 160) */
+  lanes3: function(){ return '<rect class="sc-road" x="40" y="0" width="140" height="200"/><path class="sc-dash" d="M86 0V200M134 0V200"/><path class="sc-solid" d="M42 0V200"/>'; },
+  /* motorway with a peak-hour lane on the right, behind a solid line */
+  peak: function(){ return '<rect class="sc-road" x="50" y="0" width="134" height="200"/><path class="sc-dash" d="M96 0V200"/><path class="sc-solid" d="M52 0V200M140 0V200"/>'; },
+  /* a level crossing: road going up, tracks across */
+  rail: function(o){
+    var s = '<rect class="sc-road" x="60" y="0" width="80" height="200"/><path class="sc-dash" d="M100 0V78M100 122V200"/><rect class="mp-ballast" x="0" y="86" width="200" height="28"/>';
+    for (var x = 4; x < 200; x += 12) s += '<rect class="sc-sleeper" x="' + x + '" y="88" width="5" height="24"/>';
+    s += '<path class="sc-rail" d="M0 94H200M0 106H200"/>';
+    /* barriers standing up beside the road, lights flashing */
+    s += '<rect class="mp-barrier" x="146" y="118" width="4" height="34" rx="2"/><rect class="mp-barrier" x="50" y="48" width="4" height="34" rx="2"/>';
+    s += '<rect class="mp-lbox" x="152" y="126" width="16" height="9" rx="2"/><circle class="mp-l-red mp-blink" cx="156" cy="130.5" r="3"/><circle class="mp-l-red mp-blink2" cx="164" cy="130.5" r="3"/>';
+    s += '<rect class="mp-lbox" x="32" y="66" width="16" height="9" rx="2"/><circle class="mp-l-red mp-blink" cx="36" cy="70.5" r="3"/><circle class="mp-l-red mp-blink2" cx="44" cy="70.5" r="3"/>';
     return s;
   },
   /* two lanes in your direction */
@@ -116,7 +133,7 @@ var GROUND = {
   /* motorway going up (lanes x=90 and x=130) with an on-ramp joining from the right */
   motor: function(){ return '<rect class="sc-road" x="70" y="0" width="80" height="200"/><path class="sc-road" d="M150 200V95L150 50L178 95V200Z"/><path class="sc-dash" d="M110 0V200M150 100V200"/><path class="sc-solid" d="M70 0V200"/>'; },
   /* motorway with an exit lane leaving to the right */
-  exit: function(){ return '<rect class="sc-road" x="70" y="0" width="80" height="200"/><path class="sc-road" d="M150 165L178 120V0H150Z"/><path class="sc-dash" d="M110 0V200M150 0V140"/><path class="sc-solid" d="M70 0V200"/>'; },
+  exit: function(){ return '<rect class="sc-road" x="70" y="0" width="80" height="200"/><path class="sc-road" d="M150 165L178 120V78Q178 48 200 34V2Q160 22 150 70Z"/><path class="sc-dash" d="M110 0V200M150 72V140"/><path class="sc-solid" d="M70 0V200"/>'; },
   /* your lane (left) ends; merge into the right lane */
   zip: function(){ return '<rect class="sc-road" x="100" y="0" width="40" height="200"/><path class="sc-road" d="M60 200V95L100 55V200Z"/><path class="sc-dash" d="M100 98V200"/>'; }
 };
@@ -131,6 +148,10 @@ window.KLAAR_MAP = function(m){
   (m.lights || []).forEach(function(x){ extra += typeof x[0] === "number" ? light([x[0], x[1]], x[2]) : light(lightAt(x[0], x[2]), x[1]); });
   (m.plights || []).forEach(function(x){ extra += pedLight(x[0], x[1], x[2]); });
   (m.tline || []).forEach(function(x){ extra += teethLine.apply(null, x); });
+  (m.matrix || []).forEach(function(b){ var x = b[0];
+    extra += '<rect class="mp-mx" x="' + (x - 13) + '" y="6" width="26" height="22" rx="3"/>' +
+      (b[1] === "x" ? '<path class="mp-mx-x" d="M' + (x - 6) + ' 11L' + (x + 6) + ' 23M' + (x + 6) + ' 11L' + (x - 6) + ' 23"/>' :
+       '<path class="' + (b[1] === "green" ? "mp-mx-g" : "mp-mx-a") + '" d="M' + x + ' 24V11M' + (x - 5) + ' 16L' + x + ' 11L' + (x + 5) + ' 16"/>'); });
   if (m.note) extra += '<rect class="mp-note" x="6" y="6" width="' + (m.note.length * 5.6 + 12) + '" height="18" rx="9"/><text class="mp-notet" x="12" y="18.5">' + m.note + "</text>";
   var items = (m.items || []).map(item).join("");
   return '<svg class="mp" viewBox="0 0 200 200" role="img" aria-hidden="true"><rect class="sc-bg" width="200" height="200"/>' + s + extra + items + "</svg>";

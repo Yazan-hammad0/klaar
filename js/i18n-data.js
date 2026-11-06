@@ -836,5 +836,7 @@ parts: [
 ["30 km/h zone","منطقة 30 كم/س"],
 ["Exit over the pavement","مخرج فوق الرصيف"],
 ["Priority questions now show the junction from above, with arrows for who goes where.","أسئلة الأولوية تعرض الآن التقاطع من الأعلى، مع أسهم توضح اتجاه كل مستخدم للطريق."],
+["Parking disc zone","منطقة قرص الوقوف"],
+["Signs, road markings, lanes and level crossings now come with pictures.","الإشارات وعلامات الطريق والمسارات ومعابر السكك الحديدية أصبحت مع صور."],
 ["questions only","الأسئلة فقط"]
 ]};
