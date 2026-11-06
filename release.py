@@ -7,7 +7,7 @@ Then commit and push. Run it for every change, however small.
 import hashlib, re, sys, pathlib
 root = pathlib.Path(__file__).parent
 news = (sys.argv[1] if len(sys.argv) > 1 else "Small fixes and improvements.").replace('"', "'")
-files = ["index.html", "css/app.css", "js/i18n-data.js", "js/i18n.js", "js/content.js", "js/audio.js", "js/lessons.js", "js/view.js", "js/glossary.js", "js/app.js", "js/setup.js", "js/onboard.js", "manifest.webmanifest"]
+files = ["index.html", "css/app.css", "js/i18n-data.js", "js/i18n.js", "js/content.js", "js/audio.js", "js/lessons.js", "js/view.js", "js/map.js", "js/glossary.js", "js/app.js", "js/setup.js", "js/onboard.js", "manifest.webmanifest"]
 shell = (root / "js/shell.js").read_text()
 shell_body = re.sub(r'var KLAAR_VERSION = "[^"]*", KLAAR_NEWS = "[^"]*";', "", shell)
 h = hashlib.sha1()

@@ -32,7 +32,7 @@ function hashId(s){ var h = 5381; s = String(s); for (var i = 0; i < s.length; i
 /* ---------------- question bank ---------------- */
 var STATIC = {drive: [], civic: []};
 DRIVE.QUESTIONS.forEach(function(q, i){
-  STATIC.drive.push({id:"d" + i, track:"drive", topic:q.t, kind:q.hz ? "hazard" : (q.num ? "num" : "mc"), q:q.q, o:q.o, c:q.c, a:q.a, e:q.e, sign:q.sign, view:q.view, src:q.source, lvl:1});
+  STATIC.drive.push({id:"d" + i, track:"drive", topic:q.t, kind:q.hz ? "hazard" : (q.num ? "num" : "mc"), q:q.q, o:q.o, c:q.c, a:q.a, e:q.e, sign:q.sign, view:q.view, map:q.map, src:q.source, lvl:1});
 });
 CIVIC.QUESTIONS.forEach(function(q, i){
   STATIC.civic.push({id:"c" + i, track:"civic", topic:q.t, kind:"mc", q:q.q, o:q.o, c:q.c, e:q.e, icon:q.icon, sec:"basics", lvl:1});
@@ -44,7 +44,7 @@ CIVIC.STAGES.forEach(function(s){
 });
 var XB = (typeof EXTRA !== "undefined" && EXTRA) ? EXTRA : {drive: [], civic: []};
 (XB.drive || []).forEach(function(q){
-  STATIC.drive.push({id:"x-d-" + hashId(q.q), track:"drive", topic:q.t, kind:q.hz ? "hazard" : (q.num ? "num" : "mc"), q:q.q, o:q.o, c:q.c, a:q.a, e:q.e, sign:q.sign, view:q.view, src:q.source, lvl:1});
+  STATIC.drive.push({id:"x-d-" + hashId(q.q), track:"drive", topic:q.t, kind:q.hz ? "hazard" : (q.num ? "num" : "mc"), q:q.q, o:q.o, c:q.c, a:q.a, e:q.e, sign:q.sign, view:q.view, map:q.map, src:q.source, lvl:1});
 });
 (XB.civic || []).forEach(function(q){
   var sec = SEC_LVL[q.sec] ? q.sec : "knm";
@@ -355,6 +355,7 @@ var PLAY = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5 L13 8 L4
 
 /* ---------------- shared question renderer ---------------- */
 function visualFor(q){
+  if (q.map && window.KLAAR_MAP) return '<div class="visual mpv">' + KLAAR_MAP(q.map) + '</div>';
   if (q.view && window.KLAAR_VIEW) return '<div class="visual dv">' + KLAAR_VIEW(q.view) + '</div>';
   if (q.sign && DRIVE.signSvg) return '<div class="visual">' + DRIVE.signSvg(q.sign) + '</div>';
   if (q.icon && CIVIC.topicIcon) return '<div class="visual">' + CIVIC.topicIcon(q.icon) + '</div>';

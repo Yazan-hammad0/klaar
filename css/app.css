@@ -742,3 +742,26 @@ html[dir="rtl"] .gl-def,html[dir="rtl"] .gl-head h3,html[dir="rtl"] .gl-card .pr
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .cv-nl{fill:#E5E7EB}:root:not([data-theme="light"]) .cv-hand-h,:root:not([data-theme="light"]) .cv-pin{stroke:#E5E7EB;fill:#E5E7EB}:root:not([data-theme="light"]) .cv-hand-m{stroke:#8FB4F0}:root:not([data-theme="light"]) .cv-big2{fill:#8FB4F0}}
 :root[data-theme="dark"] .cv-nl{fill:#E5E7EB}:root[data-theme="dark"] .cv-hand-h,:root[data-theme="dark"] .cv-pin{stroke:#E5E7EB;fill:#E5E7EB}:root[data-theme="dark"] .cv-hand-m{stroke:#8FB4F0}:root[data-theme="dark"] .cv-big2{fill:#8FB4F0}
 .cv-nl,.cv-wnl{direction:ltr;unicode-bidi:embed}
+
+/* top-down pictures on driving questions (js/map.js) */
+.visual.mpv{display:block;margin:0 0 16px}
+.visual.mpv svg.mp{direction:ltr;display:block;width:100%;max-width:215px;height:auto;aspect-ratio:1;margin:0 auto;border-radius:16px}
+.mp-halo{fill:none;stroke:#fff;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;opacity:.75}
+.mp-you,.mp-go{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:6 4}
+.mp-you{stroke:#1C4FA0}.mp-you-h{fill:#1C4FA0}
+.mp-go{stroke:#0F1A2E}.mp-go-h{fill:#0F1A2E}
+.c-police{fill:#fff;stroke:#1C4FA0 !important}.sc-bluelight{fill:#2563EB}
+.c-bus{fill:#0E7490}.c-dark{fill:#1F2937}.c-army{fill:#4D5D2E}
+.sc-cane{stroke:#fff;stroke-width:2;stroke-linecap:round}
+.sc-officer{fill:#1E3A8A;stroke:#fff;stroke-width:1.5}.sc-arm{stroke:#1E3A8A;stroke-width:3;stroke-linecap:round}
+.sc-ind{fill:#F59E0B}
+.mp-blink{animation:scBlink 1s steps(1) infinite}
+@media (prefers-reduced-motion: reduce){.mp-blink{animation:none}}
+.mp-unpaved{fill:#B9976A}.mp-brick{fill:#B97A6A}.mp-pave{fill:#CBD2DC}.mp-kerbline{stroke:#fff;stroke-width:2}
+.mp-cross{stroke:#fff;stroke-width:1.5;stroke-dasharray:3 3}
+.mp-cring{fill:none;stroke:#B4534A;stroke-width:11;opacity:.9}
+.mp-island{fill:#9BCB94}
+.mp-lbox{fill:#111827;stroke:#fff;stroke-width:1}.mp-l-off{fill:#4B5563}.mp-l-red{fill:#EF4444}.mp-l-amber{fill:#F59E0B}.mp-l-green{fill:#22C55E}
+.mp-note{fill:#0F1A2E;opacity:.85}.mp-notet{fill:#fff;font:700 9.5px var(--font-body)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .mp-island{fill:#2C5A35}:root:not([data-theme="light"]) .mp-unpaved{fill:#7E6644}:root:not([data-theme="light"]) .mp-brick{fill:#7E5248}:root:not([data-theme="light"]) .mp-pave{fill:#5B6475}}
+:root[data-theme="dark"] .mp-island{fill:#2C5A35}:root[data-theme="dark"] .mp-unpaved{fill:#7E6644}:root[data-theme="dark"] .mp-brick{fill:#7E5248}:root[data-theme="dark"] .mp-pave{fill:#5B6475}
