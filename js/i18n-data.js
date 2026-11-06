@@ -821,5 +821,6 @@ parts: [
 ["Driving: licensed abroad","القيادة: رخصة من الخارج"],
 ["Driving: lessons here","القيادة: دروس هنا"],
 ["lessons first","الدرس أولًا"],
+["Questions are easier to read: calmer text, clearer answers.","أصبحت الأسئلة أسهل في القراءة: نص أهدأ وإجابات أوضح."],
 ["questions only","الأسئلة فقط"]
 ]};

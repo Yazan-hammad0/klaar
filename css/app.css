@@ -98,10 +98,10 @@ main{max-width:620px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-lef
 .visual svg{width:96px;height:96px}
 .passage{background:var(--raise);border:1px solid var(--line);border-radius:14px;padding:13px 14px;font-size:15px;line-height:1.6;white-space:pre-line;margin-bottom:14px}
 .scenario{border-left:5px solid var(--pop)}
-.qtext{font-family:var(--font-display);font-weight:800;font-size:21px;line-height:1.28;letter-spacing:-.01em;margin:0 0 16px;text-wrap:balance}
+.qtext{font-family:var(--font-body);font-weight:600;font-size:18px;line-height:1.42;margin:0 0 16px;text-wrap:pretty}
 .opts{display:flex;flex-direction:column;gap:9px}
 .opt{position:relative;display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:14px 14px;min-height:54px;border:2px solid var(--line);border-radius:14px;
-  background:var(--raise);cursor:pointer;font-size:16px;font-weight:600;line-height:1.35;transition:transform .12s,border-color .2s,background .2s}
+  background:var(--raise);cursor:pointer;font-size:16px;font-weight:500;line-height:1.35;transition:transform .12s,border-color .2s,background .2s}
 .opt:active{transform:scale(.985)}
 .opt .k{flex:none;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:var(--surface);border:1px solid var(--line);font:700 13px var(--font-mono);color:var(--muted)}
 .opt.sel{border-color:var(--accent);background:var(--accent-soft)}
@@ -265,9 +265,8 @@ body{padding-bottom:calc(var(--tabbar) + env(safe-area-inset-bottom,0px) + 18px)
 .chip{font-size:12.5px;padding:6px 11px;border:0;background:color-mix(in srgb, var(--fg) 7%, transparent)}
 .xpbar{height:4px;margin:-2px 0 12px}
 #v-feed .qcard{display:flex;flex-direction:column;border-radius:24px;padding:22px 18px 18px;will-change:transform}
-.qtext{font-size:22px;line-height:1.24;letter-spacing:-.022em;font-weight:800}
 .eyebrow{font-size:11px;letter-spacing:.07em}
-.opt{border-width:1.5px;border-radius:15px;font-weight:600;letter-spacing:-.01em}
+.opt{border-width:1.5px;border-radius:15px}
 .fb .verdict{font-size:24px;letter-spacing:-.02em}
 .h2{letter-spacing:-.025em;font-size:26px}
 .hero .big,.score b,.stat b{font-family:var(--font-body);font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
@@ -513,7 +512,7 @@ html.shell .toast{bottom:auto;top:calc(var(--app-h) - var(--tabbar) - env(safe-a
 .en-pre{margin:-8px 0 14px;font-size:14.5px;color:var(--muted);font-style:italic;line-height:1.45}
 
 /* lesson card: facts with their answers, shown before the questions */
-.lesson .les-h{font-family:var(--font-display);font-weight:900;font-size:24px;letter-spacing:-.02em;line-height:1.15;margin:0 0 4px}
+.lesson .les-h{font-family:var(--font-body);font-weight:700;font-size:20px;line-height:1.25;margin:0 0 6px}
 
 /* language row (install guide) */
 .langrow{display:flex;gap:4px;margin:0 0 20px;padding:3px;border-radius:13px;background:var(--raise);border:1px solid var(--line)}
