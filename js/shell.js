@@ -1,5 +1,5 @@
 /* Screen-tall layout for the home-screen app, update notice, service worker. */
-var KLAAR_VERSION = "a331d57fed", KLAAR_NEWS = "Signs, road markings, lanes and level crossings now come with pictures.";
+var KLAAR_VERSION = "35999d4f1e", KLAAR_NEWS = "Fixes and clearer pictures. You can now share anonymous stats to help improve Klaar.";
 (function(){
   /* iOS home-screen apps sometimes get a layout viewport shorter than the screen, which leaves a strip under the tab bar.
      Measure it and push the bottom chrome down into that strip. */
