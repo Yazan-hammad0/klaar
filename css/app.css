@@ -98,10 +98,10 @@ main{max-width:620px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-lef
 .visual svg{width:96px;height:96px}
 .passage{background:var(--raise);border:1px solid var(--line);border-radius:14px;padding:13px 14px;font-size:15px;line-height:1.6;white-space:pre-line;margin-bottom:14px}
 .scenario{border-left:5px solid var(--pop)}
-.qtext{font-family:var(--font-display);font-weight:800;font-size:21px;line-height:1.28;letter-spacing:-.01em;margin:0 0 16px;text-wrap:balance}
+.qtext{font-family:var(--font-body);font-weight:600;font-size:18px;line-height:1.42;margin:0 0 16px;text-wrap:pretty}
 .opts{display:flex;flex-direction:column;gap:9px}
 .opt{position:relative;display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:14px 14px;min-height:54px;border:2px solid var(--line);border-radius:14px;
-  background:var(--raise);cursor:pointer;font-size:16px;font-weight:600;line-height:1.35;transition:transform .12s,border-color .2s,background .2s}
+  background:var(--raise);cursor:pointer;font-size:16px;font-weight:500;line-height:1.35;transition:transform .12s,border-color .2s,background .2s}
 .opt:active{transform:scale(.985)}
 .opt .k{flex:none;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:var(--surface);border:1px solid var(--line);font:700 13px var(--font-mono);color:var(--muted)}
 .opt.sel{border-color:var(--accent);background:var(--accent-soft)}
@@ -265,9 +265,8 @@ body{padding-bottom:calc(var(--tabbar) + env(safe-area-inset-bottom,0px) + 18px)
 .chip{font-size:12.5px;padding:6px 11px;border:0;background:color-mix(in srgb, var(--fg) 7%, transparent)}
 .xpbar{height:4px;margin:-2px 0 12px}
 #v-feed .qcard{display:flex;flex-direction:column;border-radius:24px;padding:22px 18px 18px;will-change:transform}
-.qtext{font-size:22px;line-height:1.24;letter-spacing:-.022em;font-weight:800}
 .eyebrow{font-size:11px;letter-spacing:.07em}
-.opt{border-width:1.5px;border-radius:15px;font-weight:600;letter-spacing:-.01em}
+.opt{border-width:1.5px;border-radius:15px}
 .fb .verdict{font-size:24px;letter-spacing:-.02em}
 .h2{letter-spacing:-.025em;font-size:26px}
 .hero .big,.score b,.stat b{font-family:var(--font-body);font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
@@ -513,7 +512,7 @@ html.shell .toast{bottom:auto;top:calc(var(--app-h) - var(--tabbar) - env(safe-a
 .en-pre{margin:-8px 0 14px;font-size:14.5px;color:var(--muted);font-style:italic;line-height:1.45}
 
 /* lesson card: facts with their answers, shown before the questions */
-.lesson .les-h{font-family:var(--font-display);font-weight:900;font-size:24px;letter-spacing:-.02em;line-height:1.15;margin:0 0 4px}
+.lesson .les-h{font-family:var(--font-body);font-weight:700;font-size:20px;line-height:1.25;margin:0 0 6px}
 
 /* language row (install guide) */
 .langrow{display:flex;gap:4px;margin:0 0 20px;padding:3px;border-radius:13px;background:var(--raise);border:1px solid var(--line)}
@@ -743,3 +742,31 @@ html[dir="rtl"] .gl-def,html[dir="rtl"] .gl-head h3,html[dir="rtl"] .gl-card .pr
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .cv-nl{fill:#E5E7EB}:root:not([data-theme="light"]) .cv-hand-h,:root:not([data-theme="light"]) .cv-pin{stroke:#E5E7EB;fill:#E5E7EB}:root:not([data-theme="light"]) .cv-hand-m{stroke:#8FB4F0}:root:not([data-theme="light"]) .cv-big2{fill:#8FB4F0}}
 :root[data-theme="dark"] .cv-nl{fill:#E5E7EB}:root[data-theme="dark"] .cv-hand-h,:root[data-theme="dark"] .cv-pin{stroke:#E5E7EB;fill:#E5E7EB}:root[data-theme="dark"] .cv-hand-m{stroke:#8FB4F0}:root[data-theme="dark"] .cv-big2{fill:#8FB4F0}
 .cv-nl,.cv-wnl{direction:ltr;unicode-bidi:embed}
+
+/* top-down pictures on driving questions (js/map.js) */
+.visual.mpv{display:block;margin:0 0 16px}
+.visual.mpv svg.mp{direction:ltr;display:block;width:100%;max-width:215px;height:auto;aspect-ratio:1;margin:0 auto;border-radius:16px}
+.mp-halo{fill:none;stroke:#fff;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;opacity:.75}
+.mp-you,.mp-go{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:6 4}
+.mp-you{stroke:#1C4FA0}.mp-you-h{fill:#1C4FA0}
+.mp-go{stroke:#0F1A2E}.mp-go-h{fill:#0F1A2E}
+.c-police{fill:#fff;stroke:#1C4FA0 !important}.sc-bluelight{fill:#2563EB}
+.c-bus{fill:#0E7490}.c-dark{fill:#1F2937}.c-army{fill:#4D5D2E}
+.sc-cane{stroke:#fff;stroke-width:2;stroke-linecap:round}
+.sc-officer{fill:#1E3A8A;stroke:#fff;stroke-width:1.5}.sc-arm{stroke:#1E3A8A;stroke-width:3;stroke-linecap:round}
+.sc-ind{fill:#F59E0B}
+.mp-blink{animation:scBlink 1s steps(1) infinite}
+@media (prefers-reduced-motion: reduce){.mp-blink{animation:none}}
+.mp-unpaved{fill:#B9976A}.mp-brick{fill:#B97A6A}.mp-pave{fill:#CBD2DC}.mp-kerbline{stroke:#fff;stroke-width:2}
+.mp-cross{stroke:#fff;stroke-width:1.5;stroke-dasharray:3 3}
+.mp-cring{fill:none;stroke:#B4534A;stroke-width:11;opacity:.9}
+.mp-island{fill:#9BCB94}
+.mp-lbox{fill:#111827;stroke:#fff;stroke-width:1}.mp-l-off{fill:#4B5563}.mp-l-red{fill:#EF4444}.mp-l-amber{fill:#F59E0B}.mp-l-green{fill:#22C55E}
+.mp-note{fill:#0F1A2E;opacity:.85}.mp-notet{fill:#fff;font:700 9.5px var(--font-body)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .mp-island{fill:#2C5A35}:root:not([data-theme="light"]) .mp-unpaved{fill:#7E6644}:root:not([data-theme="light"]) .mp-brick{fill:#7E5248}:root:not([data-theme="light"]) .mp-pave{fill:#5B6475}}
+:root[data-theme="dark"] .mp-island{fill:#2C5A35}:root[data-theme="dark"] .mp-unpaved{fill:#7E6644}:root[data-theme="dark"] .mp-brick{fill:#7E5248}:root[data-theme="dark"] .mp-pave{fill:#5B6475}
+.mp-kerb-yellow{stroke:#F2B705;stroke-width:3.5}.mp-kerb-yellowdash{stroke:#F2B705;stroke-width:3.5;stroke-dasharray:9 7}.mp-kerb-blue{stroke:#2563EB;stroke-width:3.5}
+.mp-ballast{fill:#8B8478}.mp-barrier{fill:#fff;stroke:#C0392B;stroke-width:1.5;stroke-dasharray:4 4}
+.mp-blink2{animation:scBlink 1s steps(1) infinite .5s}
+@media (prefers-reduced-motion: reduce){.mp-blink2{animation:none}}
+.mp-mx{fill:#111827;stroke:#fff;stroke-width:1}.mp-mx-x{stroke:#EF4444;stroke-width:3;stroke-linecap:round}.mp-mx-a,.mp-mx-g{stroke:#F8FAFC;stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}.mp-mx-g{stroke:#22C55E}

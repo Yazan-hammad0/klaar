@@ -32,7 +32,7 @@ function hashId(s){ var h = 5381; s = String(s); for (var i = 0; i < s.length; i
 /* ---------------- question bank ---------------- */
 var STATIC = {drive: [], civic: []};
 DRIVE.QUESTIONS.forEach(function(q, i){
-  STATIC.drive.push({id:"d" + i, track:"drive", topic:q.t, kind:q.hz ? "hazard" : (q.num ? "num" : "mc"), q:q.q, o:q.o, c:q.c, a:q.a, e:q.e, sign:q.sign, view:q.view, src:q.source, lvl:1});
+  STATIC.drive.push({id:"d" + i, track:"drive", topic:q.t, kind:q.hz ? "hazard" : (q.num ? "num" : "mc"), q:q.q, o:q.o, c:q.c, a:q.a, e:q.e, sign:q.sign, view:q.view, map:q.map, src:q.source, lvl:1});
 });
 CIVIC.QUESTIONS.forEach(function(q, i){
   STATIC.civic.push({id:"c" + i, track:"civic", topic:q.t, kind:"mc", q:q.q, o:q.o, c:q.c, e:q.e, icon:q.icon, sec:"basics", lvl:1});
@@ -44,7 +44,7 @@ CIVIC.STAGES.forEach(function(s){
 });
 var XB = (typeof EXTRA !== "undefined" && EXTRA) ? EXTRA : {drive: [], civic: []};
 (XB.drive || []).forEach(function(q){
-  STATIC.drive.push({id:"x-d-" + hashId(q.q), track:"drive", topic:q.t, kind:q.hz ? "hazard" : (q.num ? "num" : "mc"), q:q.q, o:q.o, c:q.c, a:q.a, e:q.e, sign:q.sign, view:q.view, src:q.source, lvl:1});
+  STATIC.drive.push({id:"x-d-" + hashId(q.q), track:"drive", topic:q.t, kind:q.hz ? "hazard" : (q.num ? "num" : "mc"), q:q.q, o:q.o, c:q.c, a:q.a, e:q.e, sign:q.sign, view:q.view, map:q.map, src:q.source, lvl:1});
 });
 (XB.civic || []).forEach(function(q){
   var sec = SEC_LVL[q.sec] ? q.sec : "knm";
@@ -355,6 +355,7 @@ var PLAY = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5 L13 8 L4
 
 /* ---------------- shared question renderer ---------------- */
 function visualFor(q){
+  if (q.map && window.KLAAR_MAP) return '<div class="visual mpv">' + KLAAR_MAP(q.map) + '</div>';
   if (q.view && window.KLAAR_VIEW) return '<div class="visual dv">' + KLAAR_VIEW(q.view) + '</div>';
   if (q.sign && DRIVE.signSvg) return '<div class="visual">' + DRIVE.signSvg(q.sign) + '</div>';
   if (q.icon && CIVIC.topicIcon) return '<div class="visual">' + CIVIC.topicIcon(q.icon) + '</div>';
@@ -525,6 +526,7 @@ function renderPrimer(v, entering){
   $('[data-act="pr-next"]', v).addEventListener("click", function(){
     if (!last){ P.i++; renderFeed(); scrollTop0(); return; }
     var tr = S.t[L.track]; tr.primers = tr.primers || {}; tr.primers[L.topic] = Date.now();
+    if (window.KLAAR_STATS) KLAAR_STATS.lesson(L.track, L.topic);
     var unseen = pool(L.track).filter(function(x){ return lessonKey(L.track, x.topic) === L.topic && !tr.seen[x.id] && (x.lvl || 1) <= levelCap(L.track); }).length;
     focus = unseen ? {track:L.track, topic:L.topic, n:Math.min(UNIT_MAX, unseen), asked:0, ok:0} : null; lesson = null; save(); nextQuestion();
   });
@@ -595,6 +597,7 @@ function answer(a, btnRect){
   if (cur.done) return;
   var q = cur.q, ok = isRight(q, a);
   cur.done = true; cur.sel = a; cur.ok = ok;
+  if (window.KLAAR_STATS) KLAAR_STATS.answer(q, ok);
   var leveled = record(q, ok, false);
   if (focus && focus.track === q.track && lessonKey(q.track, q.topic) === focus.topic){ focus.asked++; if (ok) focus.ok++; }
   renderFeed();
@@ -808,6 +811,7 @@ function finishExam(timedOut){
   var r = run, t = r.t, n = r.qs.length, s = 0, wrongBy = {};
   r.qs.forEach(function(q, k){ var ok = isRight(q, r.ans[k]); if (ok) s++; else wrongBy[q.topic] = (wrongBy[q.topic] || 0) + 1; record(q, ok, true); });
   var need = passMark(r.m, n), ok = s >= need;
+  if (window.KLAAR_STATS) KLAAR_STATS.mock(t, r.m.id, s, n, ok);
   var list = S.t[t].mocks[r.m.id] || (S.t[t].mocks[r.m.id] = []);
   list.push({s:s, n:n, p:ok, at:Date.now()}); if (list.length > 20) S.t[t].mocks[r.m.id] = list.slice(-20);
   if (t === "drive" && r.m.id === "full"){ var l3 = S.t.drive.mocks.full.slice(-3); if (l3.length === 3 && l3.every(function(x){ return x.p; })) S.plan["d-mock3"] = true; }
@@ -907,12 +911,14 @@ function renderProfile(){
 
   html += '<div class="label">Your level and goals</div><div class="ai-box"><p>' + esc(profileLine()) + '</p><button class="btn ghost" data-act="redo-prof" style="width:100%">Change my level and goals</button></div>';
   html += '<div class="label">Share Klaar</div><div class="ai-box"><p>Know someone preparing for these exams? Send them the link. It shows them how to install it.</p><button class="btn ghost" data-act="share-app" style="width:100%">Share the link</button></div>';
-  html += '<div class="label">Show Claude your progress</div><div class="ai-box"><p>The app is offline, so nobody can see your progress, including Claude. Tap below, then paste the text into your chat with Claude. Nothing else is sent anywhere.</p><button class="btn" data-act="share-prog" style="width:100%">Copy my progress</button></div>';
+  html += '<div class="label">Show Claude your progress</div><div class="ai-box"><p>Your progress stays on this phone, so Claude can\'t see it. Tap below, then paste the text into your chat with Claude.</p><button class="btn" data-act="share-prog" style="width:100%">Copy my progress</button></div>';
   html += '<div class="label">Start again</div><div class="ai-box"><p>Clears your answers, mocks and streak on this phone. Your name, language and goals stay.</p><button class="btn ghost danger" data-act="reset" style="width:100%">Start from scratch</button></div>';
   html += '<div class="label">Backup</div><div class="ai-box"><p>Progress lives on this phone only. Save a backup file now and then, so a new phone or a cleared browser doesn\'t wipe it.</p><div class="pair"><button class="btn ghost" data-act="bk-save">Save backup</button><label class="btn ghost" for="bk-file">Restore<input type="file" id="bk-file" accept="application/json,.json" hidden></label></div></div>';
+  if (window.KLAAR_STATS && KLAAR_STATS.ready()) html += '<div class="label">Anonymous stats</div><div class="ai-box"><p>Klaar counts which screens are used and which questions people get wrong, so the hard parts can be fixed. No name, no account, no cookies. Your progress itself stays on this phone.</p><button class="btn ghost" data-act="stats" style="width:100%">' + (KLAAR_STATS.on() ? "Turn off anonymous stats" : "Turn on anonymous stats") + '</button></div>';
   html += '<p class="note">Works offline. Practice questions are original and in the style of the real exams, not official CBR or DUO material.</p><p class="note diag" id="diag"></p>';
   v.innerHTML = html;
   $('[data-act="prof-back"]', v).addEventListener("click", function(){ setView(backTo); });
+  var stb = $('[data-act="stats"]', v); if (stb) stb.addEventListener("click", function(){ KLAAR_STATS.set(!KLAAR_STATS.on()); stb.textContent = KLAAR_STATS.on() ? "Turn off anonymous stats" : "Turn on anonymous stats"; });
   var nm = $("#prof-name", v), nt = null;
   nm.addEventListener("input", function(){ clearTimeout(nt); nt = setTimeout(function(){ S.prof = S.prof || {}; S.prof.name = nm.value.trim().slice(0, 30); save(); renderAvatar(); var a = $(".prof-card .avatar", v); if (a) a.innerHTML = avatarInner(); }, 300); });
   var rp = $('[data-act="redo-prof"]', v); if (rp) rp.addEventListener("click", function(){ if (window.KLAAR_PROFILE) window.KLAAR_PROFILE(); });
@@ -1125,6 +1131,7 @@ function setView(v){
   if (v === "progress") v = "home";
   var ORDER = ["home", "feed", "exams"], changed = v !== view, dir = ORDER.indexOf(v) >= ORDER.indexOf(view) ? 1 : -1;
   if ((v === "profile" || v === "glossary") && view !== v) backTo = view === "profile" || view === "glossary" ? "home" : view;
+  if (changed && window.KLAAR_STATS) KLAAR_STATS.view(v);
   view = v; S.view = v; save();
   document.body.setAttribute("data-view", v);
   $("#v-home").hidden = v !== "home"; $("#v-feed").hidden = v !== "feed"; $("#v-exams").hidden = v !== "exams"; $("#v-glossary").hidden = v !== "glossary"; $("#v-profile").hidden = v !== "profile";
