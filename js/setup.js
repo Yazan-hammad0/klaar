@@ -20,7 +20,7 @@ function close(){ var o = document.getElementById("setup"); if (o) o.remove(); d
 
 /* ---- the steps, worked out from the answers so far ---- */
 function steps(){
-  var s = ["lang", "name", "goals"];
+  var s = (window.I18N && Object.keys(I18N.langs).length > 1 ? ["lang"] : []).concat(["name", "goals"]);
   if (has("drive")) s.push("drive", "examDrive", "placeDrive");
   if (has("civic")) s.push("examCivic", "placeCivic");
   if (has("civic") && a.civicSkipped) s.splice(s.indexOf("placeCivic") + 1, 0, "nl");
@@ -179,8 +179,8 @@ var SCREENS = {
         $("#su-skip", el).addEventListener("click", function(){ next("name"); });
       }};
   },
-  goals:function(){ return choice((a.name ? "Nice to meet you, " + esc(a.name) + "." : "Let's set things up.") + " What are you working towards?", "", [
-    ["Driving licence", "CBR theory exam", ["drive"], "🚗"], ["Inburgering and Dutch", "KNM and A2, then beyond", ["civic"], "🇳🇱"], ["Both", "", ["drive", "civic"], "✨"]], "goals", "goals"); },
+  goals:function(){ return choice((a.name ? "Nice to meet you, " + esc(a.name) + "." : "Let's set things up.") + " What are you working on first?", "One goal at a time. You can switch in your profile and your progress is kept.", [
+    ["Driving licence", "The CBR theory exam, in English", ["drive"], "🚗"], ["Inburgering and Dutch", "KNM and A2, then beyond", ["civic"], "🇳🇱"]], "goals", "goals"); },
   drive:function(){ return choice("Have you driven before?", "This decides where we put the extra focus.", [
     ["Never", "Rules and signs first", "new", "🌱"], ["Yes, but not in the Netherlands", "Extra focus on what's different here", "abroad", "🌍"], ["I've had lessons here", "The full mix, like the CBR exam", "lessons", "🛞"]], "drive", "drive"); },
   examDrive:function(){ return examScreen("drive", "examDrive"); },
@@ -216,9 +216,9 @@ function open(fromProfile){
   K = window.KLAAR; hist = [];
   var old = K.profile() || {};
   existing = !fromProfile && K.hasProgress() > 0;
-  a = {name:old.name || "", goals:old.goals || null, drive:old.drive, nl:old.nl, goal:old.goal || K.goal() || 30, style:old.style || "learn", when:old.when,
+  a = {name:old.name || "", goals:old.goals && old.goals.length === 1 ? old.goals : null, drive:old.drive, nl:old.nl, goal:old.goal || K.goal() || 30, style:old.style || "learn", when:old.when,
        examDrive:(old.exam || {}).drive || null, examCivic:(old.exam || {}).civic || null};
-  go("lang");
+  go(steps()[0]);
 }
 window.KLAAR_SETUP = {
   open:open,

@@ -15,7 +15,7 @@ function clone(o){ return JSON.parse(JSON.stringify(o)); }
 
 var LIBS = {drive: DRIVE, civic: CIVIC};
 var NAMES = {drive: "Rijbewijs", civic: "Inburgering"};
-var SUBS = {drive: "Rijbewijs B", civic: "KNM + Dutch"};
+var SUBS = {drive: "Driving theory", civic: "Inburgering"};
 var MAXLV = {drive: 5, civic: 4};
 var CIVIC_LV = {1: "KNM + A2", 2: "B1", 3: "B2", 4: "C1"};
 var SEC_LVL = {"basics":1,"knm":1,"a2-lezen":1,"a2-luisteren":1,"a2-schrijven":1,"b1":2,"b2":3,"c1":4};
@@ -386,7 +386,8 @@ function wireAudio(root, q){
 var cur = null, waitingForQuestions = false, lastId = null;
 /* ---------------- personal profile (set in the level chat) ---------------- */
 function prof(){ return S.prof || {}; }
-function goals(){ var g = prof().goals; return g && g.length ? g : ["drive", "civic"]; }
+/* one goal at a time: the app only talks about the goal you are on. You switch in your profile; progress on the other one is kept. */
+function goals(){ return [S.track]; }
 function helpEN(q){ var nl = prof().nl; return q.track === "civic" && !!q.en && (nl === "none" || nl === "a1"); }
 var DUTCH_SPECIFIC = {"Priority":1, "Signs":1, "Road markings":1, "Lane use":1, "Railway crossings":1};
 function fitsProfile(q){
@@ -432,7 +433,7 @@ function pickNext(t){
   for (var i = 0; i < tr.wrong.length; i++){
     if (tr.wrong[i].due <= tr.ans && !(inUnit && INDEX[tr.wrong[i].id] && lessonKey(t, INDEX[tr.wrong[i].id].topic) !== focus.topic)){   /* other topics' retries wait until the unit is done */
       var w = tr.wrong.splice(i, 1)[0];
-      if (INDEX[w.id] && w.id !== lastId) return INDEX[w.id];
+      if (INDEX[w.id] && w.id !== lastId){ if (inUnit && focus.ids) focus.ids[w.id] = 1; return INDEX[w.id]; }
       i--;
     }
   }
@@ -440,8 +441,15 @@ function pickNext(t){
   var p = pool(t).filter(function(q){ return (q.lvl || 1) <= cap; });
   var fit = p.filter(fitsProfile); if (fit.length >= 12) p = fit;
   if (focus && focus.track === t && focus.asked < focus.n){
-    var fq = p.filter(function(x){ return lessonKey(t, x.topic) === focus.topic && !tr.seen[x.id] && x.id !== lastId; });
-    if (fq.length) return fq[Math.floor(Math.random() * fq.length)];
+    var inT = p.filter(function(x){ return lessonKey(t, x.topic) === focus.topic && x.id !== lastId; });
+    var fq = inT.filter(function(x){ return !tr.seen[x.id]; });
+    if (focus.drill){   /* a drill: questions you missed and new ones first, then the ones you saw longest ago */
+      var missed = {}; tr.wrong.forEach(function(w){ missed[w.id] = 1; });
+      var rest = inT.filter(function(x){ return !focus.ids[x.id]; });
+      fq = rest.filter(function(x){ return missed[x.id] || !tr.seen[x.id]; });
+      if (!fq.length) fq = rest.sort(function(a, b){ return (tr.seen[a.id] || 0) - (tr.seen[b.id] || 0); }).slice(0, 4);
+    }
+    if (fq.length){ var pk = fq[Math.floor(Math.random() * fq.length)]; if (focus.ids) focus.ids[pk.id] = 1; return pk; }
     focus.n = focus.asked;
   }
   if (teachFirst() && !focus){
@@ -476,14 +484,20 @@ function nextQuestion(){
   scrollTop0();
 }
 function renderUnitDone(){
-  var F = focus, t = F.track, tr = S.t[t], p = pool(t).filter(function(q){ return (q.lvl || 1) <= levelCap(t); }), nt = null;
-  focus = null; nt = teachFirst() ? nextLessonTopic(t, p) : null; focus = F;
+  var F = focus, t = F.track, tr = S.t[t];
+  if (!F.n){ focus = null; nextQuestion(); return; }
+  tr.drill = tr.drill || {}; tr.drill[F.topic] = dayKey(); save();   /* done for today: the plan moves on and comes back to it tomorrow if it is still weak */
+  var P = plan(t), pct = F.ok / F.n * 100, miss = F.n - F.ok, pass = PASS_PCT[t], today = rightToday(t);
+  var cheer = pct >= pass ? (t === "drive" ? "Above the CBR pass mark of 88%. You know this topic." : "Strong. You know this topic.") :
+    (pct >= 70 ? "Close. " + (t === "drive" ? "The CBR pass mark is 88%. " : "") + "The " + miss + " you missed come back soon." : "This topic needs more work. The " + miss + " you missed come back soon, and it stays on your plan.");
+  var pace = P.exam ? "Exam in " + P.exam.n + (P.exam.n === 1 ? " day. " : " days. ") : "";
+  pace += today >= S.goal ? "Daily goal done." : (S.goal - today) + " more right answers finish today's goal.";
   var v = $("#v-feed");
-  v.innerHTML = feedHead() + '<article class="qcard enter milestone unit-done"><div class="eyebrow"><span>' + esc(F.topic) + '</span></div><div class="m-big tabular">' + F.ok + '<small>/' + F.n + '</small></div><div class="m-cap">Topic done</div>' +
-    '<p class="m-cheer">' + (F.ok >= F.n * 0.8 ? "Strong. You know this topic." : "Mistakes come back later, so you get another go.") + '</p>' +
-    (nt ? '<p class="unit-next">Next lesson: <b>' + esc(nt) + '</b></p>' : "") +
-    '<div class="fb-actions"><button class="btn pop" data-act="u-next">' + (nt ? "Start the next lesson" : "Keep going") + '</button></div></article>';
-  $('[data-act="u-next"]', v).addEventListener("click", function(){ focus = null; nextQuestion(); });
+  v.innerHTML = feedHead() + '<article class="qcard enter milestone unit-done"><div class="eyebrow"><span>' + esc(F.topic) + '</span></div><div class="m-big tabular">' + F.ok + '<small>/' + F.n + '</small></div><div class="m-cap">' + (F.drill ? "Drill done" : "Topic done") + '</div>' +
+    '<p class="m-cheer">' + esc(cheer) + '</p><p class="unit-next">' + esc(pace) + '</p>' +
+    '<div class="unit-plan"><div class="plan-cap">Next on your plan</div><b>' + esc(P.next.title) + '</b><span>' + esc(P.next.why) + '</span></div>' +
+    '<div class="fb-actions"><button class="btn pop" data-act="u-next">' + (P.next.kind === "mock" ? "Go to exams" : "Start") + '</button></div></article>';
+  $('[data-act="u-next"]', v).addEventListener("click", function(){ focus = null; startNext(t, P.next); });
   scrollTop0();
 }
 function ringSvg(done, goal){
@@ -497,7 +511,7 @@ function feedHead(){
   var lvlPct = Math.round(Math.min(1, (tr.recent.reduce(function(a, b){ return a + b; }, 0)) / 17) * 100);
   return '<div class="feed-head"><div class="ring">' + ringSvg(today, S.goal) + '<b class="tabular">' + today + '<small>/' + S.goal + '</small></b></div>' +
     '<div class="chips"><span class="chip' + (st >= 3 ? " hot" : "") + '">' + FLAME + st + '-day streak</span>' +
-    '<span class="chip">' + esc(levelName(S.track)) + '</span>' +
+    (examDays(S.track) ? '<span class="chip tabular">Exam in ' + examDays(S.track).n + ' d</span>' : '<span class="chip">' + esc(levelName(S.track)) + '</span>') +
     (tr.combo >= 3 ? '<span class="chip hot">Combo x' + tr.combo + '</span>' : '<span class="chip tabular">' + tr.xp + ' XP</span>') +
     '</div></div>' +
     '<div class="xpbar" title="Progress to next level"><i style="width:' + (tr.level >= MAXLV[S.track] ? 100 : lvlPct) + '%"></i></div>';
@@ -856,22 +870,8 @@ function renderProgress(pre){
     } else {
       html += '<div class="hero"><div class="cap">Citizenship countdown</div><p class="hero-q">When did you start living in the Netherlands legally?</p><div class="hero-row"><input type="date" class="inp" id="arr-in" aria-label="Date you started living in the Netherlands"><button class="btn pop" data-act="arr-set">Start</button></div><p class="hero-note">Most people can apply after 5 years of legal residence. Some can apply sooner. Check ind.nl for your situation.</p></div>';
     }
-  } else {
-    var full = tr.mocks.full || [], last3 = full.slice(-3), inRow = 0;
-    for (var i = full.length - 1; i >= 0 && full[i].p; i--) inRow++;
-    html += '<div class="hero"><div class="cap">Full mocks passed in a row</div><div class="big tabular">' + Math.min(inRow, 3) + '<span style="font-size:24px;opacity:.7">/3</span></div><div class="bar"><i style="width:' + (Math.min(inRow, 3) / 3 * 100) + '%"></i></div><div class="meta"><span>' + full.length + ' full mocks taken</span><span>' + (inRow >= 3 ? "Ready to book" : "3 in a row = book it") + '</span></div></div>';
   }
-  var ex = ((prof().exam || {})[t]) || null;
-  if (ex && ex.date){ var dp = ex.date.split("-"), dl = Math.ceil((new Date(+dp[0], +dp[1] - 1, +dp[2]) - new Date()) / 86400000); if (dl >= 0) html += '<p class="exam-date">' + (dl === 0 ? "Your exam is today. Good luck!" : "Your exam: in " + dl + " days") + '</p>'; }
-  var acc = tr.ans ? Math.round(tr.ok / tr.ans * 100) + "%" : "–";
   html = (pre || "") + html;
-  html += '<div class="stats"><div class="stat"><b class="tabular">' + tr.ans + '</b><span>Answered</span></div><div class="stat"><b class="tabular">' + acc + '</b><span>Accuracy</span></div><div class="stat"><b class="tabular">' + streak(t) + '</b><span>Day streak</span></div></div>';
-
-  var tp = tr.topics, keys = Object.keys(tp).filter(function(k){ return tp[k].a >= 2; }).sort(function(a, b){ return tp[a].ok / tp[a].a - tp[b].ok / tp[b].a; }).slice(0, 5);
-  html += '<div class="label">Weakest topics</div>';
-  if (keys.length){
-    html += '<div class="weak">' + keys.map(function(k){ var p = Math.round(tp[k].ok / tp[k].a * 100); return '<div><span style="width:140px;flex:none">' + esc(k) + '</span><span class="meter"><i style="width:' + (100 - p) + '%"></i></span><span class="pct">' + p + '%</span></div>'; }).join("") + '</div><p class="note">Bar = how often you miss it. These topics come up more in your feed and in new questions.</p>';
-  } else html += '<p class="note">Answer a few more questions and your weak spots show up here.</p>';
 
   if (!aiOff && SAMPLE){
     html += '<div class="label">Fresh questions</div><div class="ai-box">';
@@ -899,10 +899,11 @@ function renderProfile(){
   html += '<div class="run-top"><button class="link" data-act="prof-back">&larr; Back</button><b>Profile</b><span></span></div>';
   html += '<div class="prof-card"><span class="avatar big" aria-hidden="true">' + avatarInner() + '</span>' +
     '<div class="prof-id"><input class="inp" id="prof-name" maxlength="30" autocomplete="given-name" placeholder="Your name" aria-label="Your name" value="' + esc(prof().name || "") + '"><span class="prof-line">' + esc(profileLine()) + '</span></div></div>';
-  if (window.I18N){
+  if (window.I18N && Object.keys(I18N.langs).length > 1){
     html += '<div class="label">Language</div><div class="stats" role="group" aria-label="Language">' + Object.keys(I18N.langs).map(function(l){ return '<button class="btn ' + (I18N.get() === l ? "" : "ghost") + '" data-lang="' + l + '" lang="' + l + '" translate="no">' + I18N.langs[l].label + '</button>'; }).join("") + '</div>' +
       '<p class="note">Menus and instructions are in your language. Questions are still in English and Dutch.</p>';
   }
+  html += '<div class="label">Your goal</div><div class="pair" role="group" aria-label="Your goal">' + [["drive", "Driving theory"], ["civic", "Inburgering"]].map(function(g){ return '<button class="btn ' + (S.track === g[0] ? "" : "ghost") + '" data-goal-t="' + g[0] + '">' + g[1] + '</button>'; }).join("") + '</div><p class="note">Klaar shows one goal at a time. Your progress on the other one is kept.</p>';
   html += '<div class="label">Daily goal</div><div class="stats" role="group" aria-label="Daily goal">' + [15, 30, 50].map(function(g){ return '<button class="btn ' + (S.goal === g ? "" : "ghost") + '" data-goal="' + g + '">' + g + ' a day</button>'; }).join("") + '</div><p class="note">Counts right answers for the goal you are on. A wrong answer comes back later and counts when you get it right.</p>';
 
   html += '<div class="label">How you learn</div><div class="pair" role="group" aria-label="How you learn">' + [["learn", "Lessons first"], ["test", "Questions only"]].map(function(s){ return '<button class="btn ' + ((teachFirst() ? "learn" : "test") === s[0] ? "" : "ghost") + '" data-style="' + s[0] + '">' + s[1] + '</button>'; }).join("") + '</div>' +
@@ -928,6 +929,7 @@ function renderProfile(){
   var bx = $('[data-act="bk-save"]', v); if (bx) bx.addEventListener("click", backupSave);
   var rs = $('[data-act="reset"]', v); if (rs) rs.addEventListener("click", function(){ if (rs.getAttribute("data-sure")){ resetProgress(); toast("Fresh start. Your progress is back to zero."); return; } rs.setAttribute("data-sure", "1"); rs.textContent = "Tap again to clear everything"; });
   var bi = $("#bk-file", v); if (bi) bi.addEventListener("change", function(){ if (bi.files && bi.files[0]) backupLoad(bi.files[0]); });
+  $$("[data-goal-t]", v).forEach(function(b){ b.addEventListener("click", function(){ var t = b.getAttribute("data-goal-t"); if (t === S.track) return; S.prof = S.prof || {}; S.prof.goals = [t]; setTrack(t); toast(t === "drive" ? "Now on driving theory." : "Now on inburgering."); }); });
   $$("[data-goal]", v).forEach(function(b){ b.addEventListener("click", function(){ S.goal = +b.getAttribute("data-goal"); save(); renderProfile(); }); });
   $$("[data-lang]", v).forEach(function(b){ b.addEventListener("click", function(){ I18N.set(b.getAttribute("data-lang")); }); });
   $$("[data-style]", v).forEach(function(b){ b.addEventListener("click", function(){ S.prof = S.prof || {}; S.prof.style = b.getAttribute("data-style"); lesson = null; save(); renderProfile(); }); });
@@ -985,6 +987,108 @@ function backupLoad(f){
     }catch(e){ toast("That file isn't a Klaar backup."); }
   };
   r.readAsText(f);
+}
+
+/* ---------------- your plan: exam date, readiness, pace, and what to do next ---------------- */
+var PASS_PCT = {drive: 88, civic: 75};
+/* days until the exam: exact when you gave a date, a rough count when you picked "within 4 weeks" or "1 to 3 months" */
+function examDays(t){
+  var ex = (prof().exam || {})[t]; if (!ex) return null;
+  if (ex.date){ var p = ex.date.split("-"), d = Math.ceil((new Date(+p[0], +p[1] - 1, +p[2]) - new Date()) / 86400000); return d >= 0 ? {n:d, exact:true} : null; }
+  var span = {"4w":28, "3m":60}[ex.when]; if (!span) return null;
+  var left = span - Math.floor((Date.now() - (prof().at || Date.now())) / 86400000);
+  return left > 0 ? {n:left, exact:false} : null;
+}
+/* per topic: how much of it you have seen and how often you get it right */
+function topicStats(t){
+  var tr = S.t[t], by = {}, order = [], cap = levelCap(t);
+  pool(t).forEach(function(q){
+    if ((q.lvl || 1) > cap) return;
+    var x = by[q.topic]; if (!x){ x = by[q.topic] = {name:q.topic, total:0, seen:0}; order.push(q.topic); }
+    x.total++; if (tr.seen[q.id]) x.seen++;
+  });
+  return order.map(function(k){
+    var x = by[k], a = tr.topics[k] || {a:0, ok:0};
+    x.a = a.a; x.acc = a.a ? a.ok / a.a : null;
+    x.state = !x.seen ? "new" : (a.a >= 3 && x.acc < 0.7 ? "weak" : (x.seen >= x.total && x.acc >= PASS_PCT[t] / 100 ? "strong" : "going"));
+    x.score = (x.seen / x.total) * (x.acc == null ? 0 : x.acc);
+    return x;
+  });
+}
+function plan(t){
+  var tr = S.t[t], ts = topicStats(t), total = 0, seen = 0, score = 0;
+  ts.forEach(function(x){ total += x.total; seen += x.seen; score += x.score * x.total; });
+  var left = total - seen, ex = examDays(t), mockDays = ex ? (ex.n > 14 ? 5 : (ex.n > 5 ? 2 : 0)) : 0;
+  var pace = ex && left ? Math.ceil(left / Math.max(1, ex.n - mockDays)) : 0;
+  var today = dayKey(), drilled = tr.drill || {};
+  var weak = ts.filter(function(x){ return x.state === "weak" && drilled[lessonKey(t, x.name)] !== today; }).sort(function(a, b){ return a.acc - b.acc; });
+  var p = pool(t).filter(function(q){ return (q.lvl || 1) <= levelCap(t); });
+  var nl = teachFirst() ? nextLessonTopic(t, p) : null, next;
+  function fix(x){ return {kind:"drill", topic:x.name, title:"Fix " + x.name, why:"You get " + Math.round(x.acc * 100) + "% right here. " + (t === "drive" ? "The CBR pass mark is 88%." : "Aim for 75% or more.")}; }
+  if (weak[0] && weak[0].acc < 0.6) next = fix(weak[0]);
+  else if (nl) next = {kind:"lesson", topic:nl, title:"Learn " + nl, why:"A new topic: a short lesson, then questions on it."};
+  else if (weak[0]) next = fix(weak[0]);
+  else if (left) next = {kind:"mix", title:"Practise new questions", why:left + " questions you have not seen yet."};
+  else next = {kind:"mock", title:"Take a mock exam", why:"You have seen every question. A mock exam shows if you are ready."};
+  var status, raise = 0;
+  if (!left) status = ex ? "Every question seen. Use the days left for mock exams and your weak topics." : "Every question seen. Mock exams are the real check now.";
+  else if (!ex) status = "At " + S.goal + " a day you see every question in " + Math.ceil(left / S.goal) + " days. Add your exam date and the plan works back from it.";
+  else if (pace <= S.goal) status = "On pace. " + pace + " new questions a day covers everything" + (mockDays ? " and leaves " + mockDays + " days for mock exams." : " before the exam.");
+  else { raise = Math.min(80, Math.ceil(pace / 5) * 5); status = "Behind. You need about " + pace + " questions a day to see everything before the exam. Your daily goal is " + S.goal + "."; }
+  return {topics:ts, total:total, seen:seen, left:left, ready:total ? Math.round(score / total * 100) : 0, exam:ex, pace:pace, status:status, raise:raise > S.goal ? raise : 0, next:next};
+}
+/* practise one topic: its lesson first if you have not had it, else a drill of up to 10 (missed and new ones first) */
+function practiseTopic(t, topic, lessonOnly){
+  var key = lessonKey(t, topic), tr = S.t[t], steps = topicLesson(t, topic);
+  cur = null; lastId = null; lesson = null; focus = null;
+  if (steps && (lessonOnly || (teachFirst() && !(tr.primers || {})[key]))) lesson = {track:t, topic:key, primer:{steps:steps, i:0}};
+  else {
+    var n = pool(t).filter(function(q){ return lessonKey(t, q.topic) === key && (q.lvl || 1) <= levelCap(t); }).length;
+    if (!n){ toast("No questions on this topic yet."); return; }
+    focus = {track:t, topic:key, n:Math.min(UNIT_MAX, n), asked:0, ok:0, drill:true, ids:{}};
+  }
+  setView("feed");
+}
+function startNext(t, n){
+  if (n.kind === "mock"){ setView("exams"); return; }
+  if (n.kind === "drill" || n.kind === "lesson"){ practiseTopic(t, n.topic); return; }
+  cur = null; focus = null; setView("feed");
+}
+function planHtml(t){
+  var P = plan(t), ex = P.exam, exRaw = ((prof().exam || {})[t]) || {};
+  var html = '<div class="plan"><div class="plan-figs">' +
+    '<div class="plan-fig"><b class="tabular">' + (ex ? ex.n : "&ndash;") + '</b><span>' + (ex ? (ex.n === 1 ? "day" : "days") + " to your exam" + (ex.exact ? "" : ", roughly") : "No exam date yet") + '</span></div>' +
+    '<div class="plan-fig"><b class="tabular">' + P.ready + '<small>%</small></b><span>ready</span></div></div>' +
+    '<div class="plan-bar" role="img" aria-label="' + P.ready + '% ready"><i style="width:' + P.ready + '%"></i><u style="inset-inline-start:' + PASS_PCT[t] + '%"></u></div>' +
+    '<p class="plan-status">' + esc(P.status) + '</p>' +
+    (P.raise ? '<button class="btn ghost plan-raise" data-act="plan-raise" data-n="' + P.raise + '">Make my goal ' + P.raise + ' a day</button>' : "") +
+    '<div class="plan-next"><div class="plan-cap">Do this next</div><div class="plan-title">' + esc(P.next.title) + '</div><p>' + esc(P.next.why) + '</p>' +
+    '<button class="btn pop" data-act="plan-go">' + (P.next.kind === "mock" ? "Go to exams" : "Start") + '</button></div>' +
+    '<div class="plan-date"' + (ex && ex.exact ? " hidden" : "") + ' id="plan-date"><label for="plan-date-in">Exam date</label><div class="hero-row"><input type="date" class="inp" id="plan-date-in" value="' + esc(exRaw.date || "") + '"><button class="btn" data-act="plan-date-ok">Save</button></div></div>' +
+    (ex && ex.exact ? '<button class="link plan-edit" data-act="plan-date-edit">Change exam date</button>' : "") +
+    '<p class="note">Ready = how much of the question bank you have seen, times how often you get it right. The line marks the pass mark. A mock exam is the real check.</p></div>';
+  return html;
+}
+function wirePlan(v, t){
+  var go = $('[data-act="plan-go"]', v); if (go) go.addEventListener("click", function(){ startNext(t, plan(t).next); });
+  var rs = $('[data-act="plan-raise"]', v); if (rs) rs.addEventListener("click", function(){ S.goal = +rs.getAttribute("data-n"); save(); renderHome(); toast("Daily goal: " + S.goal + " a day."); });
+  var ed = $('[data-act="plan-date-edit"]', v); if (ed) ed.addEventListener("click", function(){ $("#plan-date", v).hidden = false; ed.hidden = true; });
+  var ok = $('[data-act="plan-date-ok"]', v); if (ok) ok.addEventListener("click", function(){
+    var val = $("#plan-date-in", v).value; if (!/^\d{4}-\d{2}-\d{2}$/.test(val)) return toast("Pick a date first.");
+    S.prof = S.prof || {}; S.prof.exam = S.prof.exam || {}; S.prof.exam[t] = {when:"date", date:val}; save(); renderHome();
+  });
+}
+var STATE_NAME = {weak:"Weak", going:"Going", "new":"New", strong:"Strong"};
+function topicsHtml(t){
+  var rank = {weak:0, going:1, "new":2, strong:3};
+  var ts = topicStats(t).map(function(x, i){ x.i = i; return x; }).sort(function(a, b){ return rank[a.state] - rank[b.state] || (a.state === "new" ? a.i - b.i : (a.acc || 0) - (b.acc || 0)); });
+  return '<div class="label">Your topics</div><div class="topics">' + ts.map(function(x){
+    var sub = x.state === "new" ? "Not started, " + x.total + " questions" : Math.round((x.acc || 0) * 100) + "% right, " + x.seen + " of " + x.total + " seen";
+    return '<div class="tp tp-' + x.state + '"><button class="tp-main" data-topic="' + esc(x.name) + '"><span class="tp-name">' + esc(x.name) + '</span><span class="tp-sub">' + sub + '</span>' +
+      '<span class="tp-bar"><i style="width:' + Math.round(x.seen / x.total * 100) + '%"></i></span></button>' +
+      '<span class="tp-state">' + STATE_NAME[x.state] + '</span>' +
+      (topicLesson(t, x.name) ? '<button class="tp-les" data-topic-les="' + esc(x.name) + '" aria-label="Lesson: ' + esc(x.name) + '">Lesson</button>' : "") + '</div>';
+  }).join("") + '</div><p class="note">Weakest first. Tap a topic to practise it. The bar shows how much of it you have seen.</p>';
 }
 
 /* ---------------- where you are (journey), milestone cards, share ---------------- */
@@ -1082,8 +1186,11 @@ function trackFrac(t){ var j = journey(t), n = j.steps.length; if (j.at >= n) re
 function renderHome(){
   var v = $("#v-home"), today = rightToday(), st = streak(), hr = new Date().getHours();
   var hi = hr < 12 ? "Good morning" : (hr < 18 ? "Good afternoon" : "Good evening");
-  var line = today === 0 ? "Nothing yet today. Five minutes keeps your streak alive." : (today < S.goal ? today + " right today, " + (S.goal - today) + " to go." : "Daily goal done. Anything now is bonus.");
-  var html = '<div class="home-hi"><h2 class="h2">' + hi + '</h2><p class="lead">' + esc(line) + '</p></div>';
+  var nm = String(prof().name || "").trim();
+  var line = today === 0 ? "Nothing yet today." : (today < S.goal ? today + " right today, " + (S.goal - today) + " to go." : "Daily goal done. Anything now is bonus.");
+  var html = '<div class="home-hi"><h2 class="h2">' + hi + (nm ? ', <span translate="no">' + esc(nm) + '</span>' : "") + '</h2><p class="lead">' + esc(line) + '</p></div>';
+  var t = S.track;
+  html += planHtml(t);
 
   /* today: ring + streak + last 7 days */
   var week = "", d = new Date(), names = [0, 1, 2, 3, 4, 5, 6].map(function(i){ return new Date(2023, 0, 1 + i).toLocaleDateString(loc(), {weekday:"narrow"}); });
@@ -1094,20 +1201,13 @@ function renderHome(){
   html += '<div class="today"><div class="ring big">' + ringSvg(today, S.goal) + '<b class="tabular">' + today + '<small>/' + S.goal + '</small></b></div>' +
     '<div class="today-mid"><div class="today-streak">' + FLAME + ' ' + st + '-day streak</div><div class="week" aria-label="Last 7 days">' + week + '</div></div></div>';
 
-  /* where you are on this goal, with one button to the next thing to do */
-  var t = S.track, jy = journey(t), nx = jy.steps[jy.at];
-  html += journeyHtml(t, false);
-  if (nx) html += '<button class="btn pop home-go" data-go-t="' + t + '" data-go-v="' + (nx.go ? "exams" : "feed") + '">' + (nx.go ? "Go to exams" : (t === "drive" ? "Practise driving" : "Practise inburgering")) + '</button>';
-
-  /* lessons and words for this goal */
-  var L = window.LESSONS && LESSONS[t], ks = L ? Object.keys(L) : [], done = S.t[t].primers || {};
-  if (ks.length) html += '<div class="label">Lessons</div><div class="les-list">' + ks.map(function(k){ return '<button class="les-chip' + (done[k] > 0 ? " done" : "") + '" data-les-t="' + t + '" data-les="' + esc(k) + '">' + (done[k] > 0 ? '<i aria-hidden="true">&#10003;</i>' : '<i aria-hidden="true">&#9654;</i>') + '<span>' + esc(k) + '</span></button>'; }).join("") + '</div>';
+  html += topicsHtml(t);
   if (window.KLAAR_GLOSSARY) html += '<button class="row gl-open" data-act="glossary"><span class="badge">Aa</span><span class="row-main"><span class="row-title">Words to know</span><span class="row-sub">' + KLAAR_GLOSSARY.count(t) + ' terms, with the logic behind them</span></span><span class="nu-go">›</span></button>';
-  html += '<div class="label">Your progress</div>';
   renderProgress(html);
+  wirePlan(v, t);
+  $$("[data-topic]", v).forEach(function(b){ b.addEventListener("click", function(){ practiseTopic(t, b.getAttribute("data-topic")); }); });
+  $$("[data-topic-les]", v).forEach(function(b){ b.addEventListener("click", function(){ practiseTopic(t, b.getAttribute("data-topic-les"), true); }); });
   var gl = $('[data-act="glossary"]', v); if (gl) gl.addEventListener("click", function(){ setView("glossary"); });
-  $$("[data-les]", v).forEach(function(b){ b.addEventListener("click", function(){ var t = b.getAttribute("data-les-t"), k = b.getAttribute("data-les"); if (t !== S.track) setTrack(t); lesson = {track:t, topic:k, primer:{steps:LESSONS[t][k], i:0}}; cur = null; setView("feed"); }); });
-  $$("[data-go-t]", v).forEach(function(b){ b.addEventListener("click", function(){ var t = b.getAttribute("data-go-t"), to = b.getAttribute("data-go-v"); if (t !== S.track) setTrack(t); setView(to); }); });
 }
 
 /* ---------------- shell ---------------- */
@@ -1115,8 +1215,6 @@ var view = S.view = "home";
 function applyTrack(){
   document.body.setAttribute("data-track", S.track);
   $("#brand-sub").textContent = SUBS[S.track];
-  $$(".switch button").forEach(function(b){ b.setAttribute("aria-selected", String(b.getAttribute("data-track") === S.track)); });
-  $(".switch").hidden = goals().length < 2;
   renderAvatar();
 }
 function setTrack(t){
@@ -1150,7 +1248,6 @@ function renderAll(){
   if (view === "feed"){ if (!cur || cur.q.track !== S.track) nextQuestion(); else renderFeed(); }
   else setView(view);
 }
-$$(".switch button").forEach(function(b){ b.addEventListener("click", function(){ setTrack(b.getAttribute("data-track")); }); });
 $("#prof-btn").addEventListener("click", function(){ setView(view === "profile" ? backTo : "profile"); });
 $$(".tab").forEach(function(b){ b.addEventListener("click", function(){ if (b.getAttribute("data-view") === "exams" && view === "exams" && run) return; setView(b.getAttribute("data-view")); }); });
 
@@ -1171,7 +1268,8 @@ function applyProfile(p, fresh){
   if (p.goal) S.goal = p.goal;
   if (p.civicLevel && S.t.civic.level < p.civicLevel) S.t.civic.level = p.civicLevel;
   else if (p.nl === "b1" && S.t.civic.level < 2) S.t.civic.level = 2;
-  var g = goals(); if (g.indexOf(S.track) < 0) S.track = g[0]; applyTrack();
+  if (p.goals && p.goals.length && p.goals.indexOf(S.track) < 0) S.track = p.goals[0];
+  applyTrack();
   cur = null; save(); view = "home"; renderAll(); setView("home");
 }
 /* placement: a few questions per goal; drive = one per key topic, civic = a ladder of Dutch levels */
