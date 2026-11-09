@@ -761,7 +761,7 @@ html[dir="rtl"] .gl-def,html[dir="rtl"] .gl-head h3,html[dir="rtl"] .gl-card .pr
 .mp-cross{stroke:#fff;stroke-width:1.5;stroke-dasharray:3 3}
 .mp-cring{fill:none;stroke:#B4534A;stroke-width:11;opacity:.9}
 .mp-island{fill:#9BCB94}
-.mp-lbox{fill:#111827;stroke:#fff;stroke-width:1}.mp-l-off{fill:#4B5563}.mp-l-red{fill:#EF4444}.mp-l-amber{fill:#F59E0B}.mp-l-green{fill:#22C55E}
+.mp-lbox{fill:#111827;stroke:#fff;stroke-width:1}.mp-l-off{fill:#4B5563}.mp-l-red{fill:#EF4444}.mp-l-amber{fill:#F59E0B}.mp-l-green{fill:#22C55E}.mp-l-white{fill:#F8FAFC}.mp-hatch{stroke:#fff;stroke-width:1.6;stroke-linecap:round}
 .mp-note{fill:#0F1A2E;opacity:.85}.mp-notet{fill:#fff;font:700 9.5px var(--font-body)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .mp-island{fill:#2C5A35}:root:not([data-theme="light"]) .mp-unpaved{fill:#7E6644}:root:not([data-theme="light"]) .mp-brick{fill:#7E5248}:root:not([data-theme="light"]) .mp-pave{fill:#5B6475}}
 :root[data-theme="dark"] .mp-island{fill:#2C5A35}:root[data-theme="dark"] .mp-unpaved{fill:#7E6644}:root[data-theme="dark"] .mp-brick{fill:#7E5248}:root[data-theme="dark"] .mp-pave{fill:#5B6475}

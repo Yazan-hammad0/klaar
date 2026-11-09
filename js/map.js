@@ -102,7 +102,7 @@ var GROUND = {
     var s = '<rect class="sc-road" x="60" y="0" width="80" height="200"/>';
     if (o.park) s += '<rect class="sc-drive" x="140" y="0" width="24" height="200"/>' + (o.park === "both" ? '<rect class="sc-drive" x="36" y="0" width="24" height="200"/>' : "");
     if (o.stop) s += '<path class="sc-road" d="M140 50L156 62V120L140 132Z"/><text class="sc-mark" x="174" y="150" style="text-anchor:middle">Bus stop</text>';
-    if (o.rails) s += '<path class="sc-rail" d="M96 0V200M104 0V200"/>'; else s += o.centre === "solid" ? '<path class="sc-solid" d="M100 0V200"/>' : '<path class="sc-dash" d="M100 0V200"/>';
+    if (o.rails) s += '<path class="sc-rail" d="M96 0V200M104 0V200"/>'; else s += o.centre === "mixed" ? '<path class="sc-solid" d="M98 0V200"/><path class="sc-dash" d="M102.5 0V200"/>' : o.centre === "solid" ? '<path class="sc-solid" d="M100 0V200"/>' : '<path class="sc-dash" d="M100 0V200"/>';
     if (o.kerb) s += '<rect class="sc-drive" x="140" y="0" width="16" height="200"/><path class="mp-kerb-' + o.kerb + '" d="M137 0V200"/>';
     return s;
   },
@@ -115,6 +115,8 @@ var GROUND = {
     var s = '<rect class="sc-road" x="60" y="0" width="80" height="200"/><path class="sc-dash" d="M100 0V78M100 122V200"/><rect class="mp-ballast" x="0" y="86" width="200" height="28"/>';
     for (var x = 4; x < 200; x += 12) s += '<rect class="sc-sleeper" x="' + x + '" y="88" width="5" height="24"/>';
     s += '<path class="sc-rail" d="M0 94H200M0 106H200"/>';
+    if (o.sig === "none") return s;
+    if (o.sig === "white") return s + '<rect class="mp-lbox" x="150" y="124" width="12" height="12" rx="2"/><circle class="mp-l-white mp-blink" cx="156" cy="130" r="3.4"/><rect class="mp-lbox" x="38" y="64" width="12" height="12" rx="2"/><circle class="mp-l-white mp-blink" cx="44" cy="70" r="3.4"/>';
     /* barriers standing up beside the road, lights flashing */
     s += '<rect class="mp-barrier" x="146" y="118" width="4" height="34" rx="2"/><rect class="mp-barrier" x="50" y="48" width="4" height="34" rx="2"/>';
     s += '<rect class="mp-lbox" x="152" y="126" width="16" height="9" rx="2"/><circle class="mp-l-red mp-blink" cx="156" cy="130.5" r="3"/><circle class="mp-l-red mp-blink2" cx="164" cy="130.5" r="3"/>';
@@ -133,7 +135,7 @@ var GROUND = {
   /* motorway going up (lanes x=90 and x=130) with an on-ramp joining from the right */
   motor: function(){ return '<rect class="sc-road" x="70" y="0" width="80" height="200"/><path class="sc-road" d="M150 200V95L150 50L178 95V200Z"/><path class="sc-dash" d="M110 0V200M150 100V200"/><path class="sc-solid" d="M70 0V200"/>'; },
   /* motorway with an exit lane leaving to the right */
-  exit: function(){ return '<rect class="sc-road" x="70" y="0" width="80" height="200"/><path class="sc-road" d="M150 165L178 120V78Q178 48 200 34V2Q160 22 150 70Z"/><path class="sc-dash" d="M110 0V200M150 72V140"/><path class="sc-solid" d="M70 0V200"/>'; },
+  exit: function(){ return '<rect class="sc-road" x="70" y="0" width="80" height="200"/><path class="sc-road" d="M150 165L178 120V78Q178 48 200 34V2Q160 22 150 70Z"/><path class="sc-dash" d="M110 0V200M150 72V140"/><path class="sc-solid" d="M70 0V200"/><path class="mp-hatch" d="M151 66L158 54M151 54L156 45M151 42L154 36"/>'; },
   /* your lane (left) ends; merge into the right lane */
   zip: function(){ return '<rect class="sc-road" x="100" y="0" width="40" height="200"/><path class="sc-road" d="M60 200V95L100 55V200Z"/><path class="sc-dash" d="M100 98V200"/>'; }
 };
@@ -150,7 +152,7 @@ window.KLAAR_MAP = function(m){
   (m.tline || []).forEach(function(x){ extra += teethLine.apply(null, x); });
   (m.matrix || []).forEach(function(b){ var x = b[0];
     extra += '<rect class="mp-mx" x="' + (x - 13) + '" y="6" width="26" height="22" rx="3"/>' +
-      (b[1] === "x" ? '<path class="mp-mx-x" d="M' + (x - 6) + ' 11L' + (x + 6) + ' 23M' + (x + 6) + ' 11L' + (x - 6) + ' 23"/>' :
+      (b[1] === "warn" ? '<path class="mp-mx-a" d="M' + (x - 5) + ' 12L' + (x + 5) + ' 22M' + (x - 1) + ' 22H' + (x + 5) + 'V16"/>' : b[1] === "x" ? '<path class="mp-mx-x" d="M' + (x - 6) + ' 11L' + (x + 6) + ' 23M' + (x + 6) + ' 11L' + (x - 6) + ' 23"/>' :
        '<path class="' + (b[1] === "green" ? "mp-mx-g" : "mp-mx-a") + '" d="M' + x + ' 24V11M' + (x - 5) + ' 16L' + x + ' 11L' + (x + 5) + ' 16"/>'); });
   if (m.note) extra += '<rect class="mp-note" x="6" y="6" width="' + (m.note.length * 5.6 + 12) + '" height="18" rx="9"/><text class="mp-notet" x="12" y="18.5">' + m.note + "</text>";
   var items = (m.items || []).map(item).join("");
