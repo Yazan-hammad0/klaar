@@ -20,7 +20,7 @@ function close(){ var o = document.getElementById("setup"); if (o) o.remove(); d
 
 /* ---- the steps, worked out from the answers so far ---- */
 function steps(){
-  var s = (window.I18N && Object.keys(I18N.langs).length > 1 ? ["lang"] : []).concat(["name", "goals"]);
+  var s = (window.I18N && Object.keys(I18N.langs).length > 1 ? ["lang"] : []).concat(["name"]);
   if (has("drive")) s.push("drive", "examDrive", "placeDrive");
   if (has("civic")) s.push("examCivic", "placeCivic");
   if (has("civic") && a.civicSkipped) s.splice(s.indexOf("placeCivic") + 1, 0, "nl");
@@ -44,7 +44,7 @@ function next(cur){ var list = steps(), i = list.indexOf(cur); go(list[i + 1]); 
 function choice(title, sub, opts, key, cur, multi){
   return {html:'<h1>' + title + '</h1>' + (sub ? '<p class="sub">' + sub + '</p>' : "") + '<div class="su-opts">' + opts.map(function(o, i){
       var on = JSON.stringify(a[key]) === JSON.stringify(o[2]);
-      return '<button class="su-opt" data-i="' + i + '" aria-pressed="' + on + '">' + (o[3] ? '<span class="su-emoji" aria-hidden="true">' + o[3] + '</span>' : "") + '<span><b>' + o[0] + '</b>' + (o[1] ? '<small>' + o[1] + '</small>' : "") + '</span></button>'; }).join("") + '</div>',
+      return '<button class="su-opt" data-i="' + i + '" aria-pressed="' + on + '">' + '<span><b>' + o[0] + '</b>' + (o[1] ? '<small>' + o[1] + '</small>' : "") + '</span></button>'; }).join("") + '</div>',
     wire:function(el){ $$(".su-opt", el).forEach(function(b){ b.addEventListener("click", function(){
       var o = opts[+b.getAttribute("data-i")]; a[key] = o[2];
       $$(".su-opt", el).forEach(function(x){ x.setAttribute("aria-pressed", String(x === b)); });
@@ -216,7 +216,7 @@ function open(fromProfile){
   K = window.KLAAR; hist = [];
   var old = K.profile() || {};
   existing = !fromProfile && K.hasProgress() > 0;
-  a = {name:old.name || "", goals:old.goals && old.goals.length === 1 ? old.goals : null, drive:old.drive, nl:old.nl, goal:old.goal || K.goal() || 30, style:old.style || "learn", when:old.when,
+  a = {name:old.name || "", goals:[K.track()], drive:old.drive, nl:old.nl, goal:old.goal || K.goal() || 30, style:old.style || "learn", when:old.when,
        examDrive:(old.exam || {}).drive || null, examCivic:(old.exam || {}).civic || null};
   go(steps()[0]);
 }

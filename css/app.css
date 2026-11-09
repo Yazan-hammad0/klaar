@@ -809,3 +809,24 @@ html[dir="rtl"] .gl-def,html[dir="rtl"] .gl-head h3,html[dir="rtl"] .gl-card .pr
 .tp-weak .tp-state{background:var(--bad-soft);color:var(--bad)}.tp-weak .tp-bar i{background:var(--bad)}
 .tp-strong .tp-state{background:var(--ok-soft);color:var(--ok)}.tp-strong .tp-bar i{background:var(--ok)}
 .tp-les{flex:none;min-height:44px;padding:0 4px;background:none;border:0;color:var(--accent);font-weight:800;font-size:13px;cursor:pointer}
+
+/* the plan card: one surface, the next step below a rule (no card inside a card) */
+.plan-next{margin-top:16px;padding:16px 0 0;border-radius:0;background:none;border:0;border-top:1px solid var(--line)}
+.plan-title{margin:0;font-size:22px;letter-spacing:-.02em;text-wrap:balance}
+.plan-mock{margin:8px 0 0;font-size:14px;color:var(--muted)}.plan-mock b{color:var(--fg)}
+.plan-bar i{animation:planFill .9s cubic-bezier(.16,1,.3,1) both}
+@keyframes planFill{from{width:0}}
+.unit-plan b{margin-top:0}
+.tp-main:active{transform:scale(.985)}.tp-main{transition:transform .1s ease-out}
+.tp-les:active{opacity:.6}
+/* the other goal, offered once at the bottom of Home */
+.also{margin-top:28px;padding-top:20px;border-top:1px solid var(--line)}
+.also h3{margin:0 0 6px;font-family:var(--font-display);font-weight:900;font-size:20px;letter-spacing:-.02em;text-wrap:balance}
+.also p{margin:0 0 12px;font-size:14.5px;line-height:1.55;color:var(--muted);max-width:60ch}
+.also .btn{width:100%}
+/* the parts of the page the browser draws */
+::selection{background:var(--accent);color:var(--on)}
+input,textarea{caret-color:var(--accent)}
+.h2,.les-h,.gl-head h3,.m-cheer{text-wrap:balance}
+.pr-t,.fb .ex,.plan-status,.lead{text-wrap:pretty}
+.plan-fig b,.tp-sub,.m-big{font-variant-numeric:tabular-nums}

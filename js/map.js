@@ -24,7 +24,7 @@ var SHAPE = {
   tram: function(){ return '<rect x="-8" y="-34" width="16" height="68" rx="5" class="sc-car c-tram"/><rect x="-6" y="-29" width="12" height="6" rx="1.5" class="sc-glass"/>'; },
   bike: function(){ return '<g transform="scale(1.6)"><rect x="-1.4" y="-13" width="2.8" height="9" rx="1.4" class="sc-bike"/><rect x="-1.4" y="4" width="2.8" height="9" rx="1.4" class="sc-bike"/><rect x="-5" y="-8.5" width="10" height="1.8" rx=".9" class="sc-bike"/><ellipse cx="0" cy="1" rx="5.6" ry="3.4" class="sc-rider"/><circle cx="0" cy="0" r="2.6" class="sc-head"/></g>'; },
   ped: function(c){ return '<g transform="scale(1.1)"><ellipse class="sc-kid ' + (c || "") + '" rx="8.5" ry="4.8"/><circle class="sc-head" r="3.8"/></g>'; },
-  blind: function(){ return SHAPES.ped() + '<path class="sc-cane" d="M6 4L15 15"/>'; },
+  blind: function(){ return SHAPE.ped() + '<path class="sc-cane" d="M6 4L15 15"/>'; },
   officer: function(){ return '<circle r="6" class="sc-officer"/><path class="sc-arm" d="M-12 0H12"/>'; }
 };
 /* the arrow head, drawn at the end of a path */
