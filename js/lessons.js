@@ -76,11 +76,11 @@ function parked(x, y){ return '<g transform="translate(' + x + ' ' + y + ')"><re
 var SHAPES = {
   car: function(c){ return '<rect x="-8" y="-14" width="16" height="28" rx="4" class="sc-car ' + c + '"/><rect x="-6" y="-9" width="12" height="6" rx="1.5" class="sc-glass"/>'; },
   truck: function(c){ return '<rect x="-9" y="-22" width="18" height="44" rx="3" class="sc-car ' + (c || "c-truck") + '"/><rect x="-7" y="-19" width="14" height="7" rx="1.5" class="sc-glass"/>'; },
-  bike: function(){ return '<rect x="-1.5" y="-10" width="3" height="20" rx="1.5" class="sc-bike"/><circle cx="0" cy="1" r="4.5" class="sc-rider"/>'; },
+  bike: function(){ return '<g transform="scale(1.45)"><rect x="-1.4" y="-13" width="2.8" height="9" rx="1.4" class="sc-bike"/><rect x="-1.4" y="4" width="2.8" height="9" rx="1.4" class="sc-bike"/><rect x="-5" y="-8.5" width="10" height="1.8" rx=".9" class="sc-bike"/><ellipse cx="0" cy="1" rx="5.6" ry="3.4" class="sc-rider"/><circle cx="0" cy="0" r="2.6" class="sc-head"/></g>'; },
   tram: function(){ return '<rect x="-8" y="-30" width="16" height="60" rx="5" class="sc-car c-tram"/><rect x="-6" y="-25" width="12" height="6" rx="1.5" class="sc-glass"/>'; },
   train: function(){ return '<rect x="-9" y="-60" width="18" height="120" rx="5" class="sc-car c-train"/><path class="sc-glass" d="M-6 -50H6M-6 -20H6M-6 10H6M-6 40H6" stroke-width="3"/>'; },
-  ball: function(){ return '<circle r="5" class="sc-ball"/>'; },
-  person: function(){ return '<circle r="5" class="sc-kid"/>'; },
+  ball: function(){ return '<circle r="4.5" class="sc-ball"/><path class="sc-seam" d="M-4.5 0Q0 -3 4.5 0"/>'; },
+  person: function(){ return PERSON; },
   /* cars at night: beam in front (dipped or high), rear lights, rear fog light */
   lit: function(c){ return '<path class="sc-beam" d="M-6 -14L6 -14L18 -62L-18 -62Z"/>' + SHAPES.car(c) + TAIL; },
   high: function(c){ return '<path class="sc-beam" d="M-6 -14L6 -14L26 -130L-26 -130Z"/>' + SHAPES.car(c) + TAIL; },
@@ -89,6 +89,9 @@ var SHAPES = {
   flash: function(c){ return '<path class="sc-ray" d="M-5 -18L-12 -34M0 -19V-37M5 -18L12 -34"/>' + SHAPES.car(c); },
   badge: function(c, t){ return '<circle class="sc-badge" r="9"/><text class="sc-num" x="0" y="3.5">' + t + '</text>'; }
 };
+var PERSON = '<ellipse class="sc-kid" rx="8.5" ry="4.8"/><circle class="sc-head" r="3.8"/>';
+function kid(x, y){ return '<g transform="translate(' + x + ' ' + y + ')">' + PERSON + '</g>'; }
+function ball(x, y){ return '<g transform="translate(' + x + ' ' + y + ')">' + SHAPES.ball() + '</g>'; }
 var TAIL = '<rect class="sc-tail" x="-7" y="11.5" width="4" height="2.5"/><rect class="sc-tail" x="3" y="11.5" width="4" height="2.5"/>';
 /* a sign from the question bank, placed at x,y with size s */
 function roadSign(kind, x, y, s){ return window.DRIVE && DRIVE.signSvg ? DRIVE.signSvg(kind).replace('<svg ', '<svg x="' + (x - s / 2) + '" y="' + (y - s / 2) + '" width="' + s + '" height="' + s + '" ') : ""; }
@@ -128,7 +131,7 @@ function actors(id, list){
       var up = a.shape === "tram" ? -40 : (a.shape === "truck" ? -32 : -25);
       g += '<g class="sc-a" style="animation-name:' + name + 'b' + timing + '"' + op + ' transform="translate(' + still[1] + ' ' + still[2] + ')">' +
         (a.badge ? '<circle class="sc-badge" cx="0" cy="' + up + '" r="' + (a.badge.length > 2 ? 12 : 9) + '"/><text class="sc-num" x="0" y="' + (up + 3.5) + '"' + (a.badge.length > 2 ? ' style="font-size:9px"' : "") + '>' + a.badge + '</text>' : "") +
-        (a.label ? '<text class="sc-label" x="0" y="30">' + a.label + '</text>' : "") + '</g>';
+        (a.label ? '<text class="sc-label" x="' + (a.lx || 0) + '" y="' + (a.ly || 30) + '">' + a.label + '</text>' : "") + '</g>';
     }
   });
   return '<style>' + css + '</style>' + g;
@@ -171,7 +174,7 @@ var SCENES = {
     {shape:"ball", path:[[0, 151, 84, 0, 0], [20, 151, 84, 0, 1], [55, 72, 84, 0, 1], [70, 72, 84, 0, 0], [100, 72, 84, 0, 0]], still:[0, 110, 84, 0, 1]},
     you([[0, 120, 215], [25, 120, 160], [38, 120, 138], [46, 120, 128], [100, 120, 128]], {steady:true, still:[0, 120, 128]})
   ]); },
-  hzRelease: function(){ return svg("hr", road(), '<circle class="sc-kid" cx="166" cy="58" r="5"/><circle class="sc-kid" cx="176" cy="70" r="5"/><circle class="sc-ball" cx="170" cy="84" r="4"/>', [
+  hzRelease: function(){ return svg("hr", road(), '' + kid(166, 58) + '' + kid(176, 70) + '' + ball(170, 84) + '', [
     you([[0, 120, 215], [30, 120, 140], [100, 120, 70]], {steady:true, still:[0, 120, 130]})
   ]); },
   hzNothing: function(){ return svg("hn", road(), tree(170, 60) + tree(30, 140), [
@@ -198,7 +201,7 @@ var SCENES = {
   zip: function(){ return svg("zp", zipRoad(), "", [
     {shape:"car", color:"c-red", badge:"1", path:[[0, 120, 150], [30, 120, 40], [60, 120, -40], [100, 120, -40]], still:[0, 120, 45]},
     you([[0, 80, 180], [30, 80, 108], [42, 96, 80, 25], [52, 120, 60, 0], [85, 120, -40, 0], [100, 120, -40, 0]], {badge:"2", still:[0, 98, 82, 25]}),
-    {shape:"car", color:"c-red", badge:"3", path:[[0, 120, 215], [30, 120, 156], [52, 120, 136], [90, 120, 24], [100, 120, 24]], still:[0, 120, 140]}
+    {shape:"car", color:"c-red", badge:"3", path:[[0, 120, 215], [30, 120, 168], [52, 120, 140], [90, 120, 24], [100, 120, 24]], still:[0, 120, 152]}
   ]); },
 
   /* railway crossing */
@@ -219,7 +222,7 @@ var SCENES = {
   /* seconds and metres */
   secondsAway: function(){
     var m = ""; [["3 s", 170], ["2 s", 125], ["1 s", 80]].forEach(function(x){ m += '<path class="sc-tick" d="M60 ' + x[1] + 'H140"/><text class="sc-mark" x="32" y="' + (x[1] + 4) + '">' + x[0] + '</text>'; });
-    return svg("sa", road(), m + '<circle class="sc-kid" cx="146" cy="44" r="5"/><circle class="sc-ball" cx="134" cy="52" r="4"/>', [
+    return svg("sa", road(), m + '' + kid(146, 44) + '' + ball(134, 52) + '', [
       you([[0, 120, 215], [70, 120, 92], [80, 120, 88], [100, 120, 88]], {steady:true, still:[0, 120, 125]})
     ]);
   },
@@ -261,7 +264,7 @@ var SCENES = {
   },
   erf: function(){
     var sides = '<rect class="sc-drive" x="20" y="0" width="40" height="200"/><rect class="sc-drive" x="140" y="0" width="40" height="200"/>';
-    return svg("ef", road("none"), sides + '<circle class="sc-kid" cx="88" cy="58" r="5"/><circle class="sc-ball" cx="76" cy="66" r="4"/><circle class="sc-kid" cx="158" cy="120" r="5"/>' + parked(40, 150), [
+    return svg("ef", road("none"), sides + '' + kid(88, 58) + '' + ball(76, 66) + '' + kid(158, 120) + '' + parked(40, 150), [
       you([[0, 120, 215], [100, 120, 90]], {steady:true, badge:"15", still:[0, 120, 150]})
     ]);
   },
@@ -279,7 +282,7 @@ var SCENES = {
     ]);
   },
   junction5m: function(){ return svg("j5", crossroads(), '<rect class="sc-nozone" x="100" y="132" width="30" height="26"/><rect class="sc-nozone" x="70" y="42" width="30" height="26"/>' + label(158, 149, "5 m") + label(42, 59, "5 m"), [
-    you([[0, 115, 225], [45, 115, 176], [100, 115, 176]], {still:[0, 115, 176]})
+    you([[0, 115, 225], [45, 115, 172], [100, 115, 172]], {still:[0, 115, 172], lx:26, ly:4})
   ]); },
 
   /* lights */
