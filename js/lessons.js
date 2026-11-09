@@ -84,7 +84,8 @@ var SHAPES = {
   /* cars at night: beam in front (dipped or high), rear lights, rear fog light */
   lit: function(c){ return '<path class="sc-beam" d="M-6 -14L6 -14L18 -62L-18 -62Z"/>' + SHAPES.car(c) + TAIL; },
   high: function(c){ return '<path class="sc-beam" d="M-6 -14L6 -14L26 -130L-26 -130Z"/>' + SHAPES.car(c) + TAIL; },
-  fogcar: function(c){ return SHAPES.car(c) + TAIL + '<circle class="sc-foglight" cx="-4" cy="15" r="3.2"/>'; },
+  fogcar: function(c){ return SHAPES.car(c) + TAIL + SHAPES.foglamp(); },
+  foglamp: function(){ return '<circle class="sc-fogglow" cx="0" cy="13" r="8"/><rect class="sc-foglight" x="-2.5" y="11.5" width="5" height="2.5" rx="1"/>'; },
   flash: function(c){ return '<path class="sc-ray" d="M-5 -18L-12 -34M0 -19V-37M5 -18L12 -34"/>' + SHAPES.car(c); },
   badge: function(c, t){ return '<circle class="sc-badge" r="9"/><text class="sc-num" x="0" y="3.5">' + t + '</text>'; }
 };
@@ -197,7 +198,7 @@ var SCENES = {
   zip: function(){ return svg("zp", zipRoad(), "", [
     {shape:"car", color:"c-red", badge:"1", path:[[0, 120, 150], [30, 120, 40], [60, 120, -40], [100, 120, -40]], still:[0, 120, 45]},
     you([[0, 80, 180], [30, 80, 108], [42, 96, 80, 25], [52, 120, 60, 0], [85, 120, -40, 0], [100, 120, -40, 0]], {badge:"2", still:[0, 98, 82, 25]}),
-    {shape:"car", color:"c-red", badge:"3", path:[[0, 120, 215], [30, 120, 150], [52, 120, 122], [90, 120, 12], [100, 120, 12]], still:[0, 120, 135]}
+    {shape:"car", color:"c-red", badge:"3", path:[[0, 120, 215], [30, 120, 156], [52, 120, 136], [90, 120, 24], [100, 120, 24]], still:[0, 120, 140]}
   ]); },
 
   /* railway crossing */
@@ -291,13 +292,21 @@ var SCENES = {
     you([[0, 120, 165, 0, 1], [40, 120, 165, 0, 1], [42, 120, 165, 0, 0], [100, 120, 165, 0, 0]], {shape:"high", still:[0, 120, 165, 0, 0]}),
     you([[0, 120, 165, 0, 0], [40, 120, 165, 0, 0], [42, 120, 165, 0, 1], [100, 120, 165, 0, 1]], {shape:"lit", still:[0, 120, 165, 0, 1]})
   ]); },
-  rearFog: function(){ return svg("rf2", road(), '<path class="sc-tick" d="M60 150H140M60 96H140"/>' + label(30, 127, "50 m") + '<defs><linearGradient id="rfG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="sc-fog1"/><stop offset="1" class="sc-fog2"/></linearGradient></defs>', [
-    {shape:"fogcar", color:"c-red", steady:true, path:[[0, 120, 125], [100, 120, 30]], still:[0, 120, 110]},
-    you([[0, 120, 178], [100, 120, 178]], {shape:"lit", still:[0, 120, 178]})
-  ]).replace('</svg>', '<rect x="0" y="0" width="200" height="90" fill="url(#rfG)"/></svg>'); },
-  tunnelLights: function(){ return svg("tl", road(), '<rect class="sc-tunnel" x="40" y="0" width="120" height="104"/><path class="sc-mouth" d="M40 104H160"/>', [
-    you([[0, 120, 230], [100, 120, -40]], {shape:"lit", steady:true, still:[0, 120, 80]})
-  ]); },
+  /* the car ahead drives into the fog: the car fades, its rear fog light stays visible (drawn again above the fog) */
+  rearFog: function(){
+    var away = [[0, 120, 96], [100, 120, 26]], still = [0, 120, 78];
+    return svg("rf2", road(), '<path class="sc-tick" d="M104 150H140M104 110H140"/>' + label(160, 134, "50 m") + '<defs><linearGradient id="rfG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="sc-fog1"/><stop offset="1" class="sc-fog2"/></linearGradient></defs>', [
+      {shape:"fogcar", color:"c-red", steady:true, path:away, still:still},
+      you([[0, 120, 165], [100, 120, 165]], {shape:"lit", still:[0, 120, 165]})
+    ]).replace('</svg>', '<rect x="0" y="0" width="200" height="100" fill="url(#rfG)"/>' + actors("rf3", [{shape:"foglamp", steady:true, path:away, still:still}]) + '</svg>'); },
+  /* a tunnel from above with the roof taken off: concrete walls, lamps along them. Rear lights come on at the mouth */
+  tunnelLights: function(){
+    var lamps = ""; for (var y = 12; y < 96; y += 20) lamps += '<rect class="sc-lamp" x="62" y="' + y + '" width="3" height="8" rx="1.5"/><rect class="sc-lamp" x="135" y="' + y + '" width="3" height="8" rx="1.5"/>';
+    return svg("tl", road(), '<rect class="sc-wall" x="44" y="0" width="112" height="104"/><rect class="sc-tunnel" x="60" y="0" width="80" height="104"/><path class="sc-dash" d="M100 0V104"/>' + lamps +
+      '<path class="sc-mouth" d="M44 104H60M140 104H156"/><path class="sc-shade" d="M60 104H140"/>' + label(22, 56, "Tunnel"), [
+      you([[0, 120, 230, 0, 1], [44, 120, 111, 0, 1], [46, 120, 106, 0, 0], [100, 120, -40, 0, 0]], {steady:true, still:[0, 120, 60, 0, 0]}),
+      you([[0, 120, 230, 0, 0], [44, 120, 111, 0, 0], [46, 120, 106, 0, 1], [100, 120, -40, 0, 1]], {shape:"lit", steady:true, still:[0, 120, 60, 0, 1]})
+    ]); },
   flashWarn: function(){ return svg("fw", road(), '<rect class="sc-drive" x="140" y="0" width="30" height="200"/>' + parked(155, 92), [
     {shape:"person", path:[[0, 160, 60], [45, 160, 60], [80, 138, 64], [100, 138, 64]], still:[0, 152, 62]},
     you([[0, 120, 230], [50, 120, 160], [100, 120, 140]], {shape:"flash", still:[0, 120, 150]})
