@@ -19,7 +19,8 @@ EXTRA.drive = EXTRA.drive.concat([
    e:"For a left turn you move close to the middle of the road. For a right turn you move to the right side as soon as possible.", source:G(26),
    map:{g:"cross", items:[{at:"S", you:1, go:"left", blink:"left"}]}},
   {t:"Lane use", q:"On a roundabout with two lanes you drive in the right lane, next to a car in the left lane. May you pass it on its right?", o:["Yes", "No", "Only if it is a lorry", "Only if it indicates left"], c:0,
-   e:"On a roundabout you are allowed to overtake on the right.", source:G(35)},
+   e:"On a roundabout you are allowed to overtake on the right.", source:G(35),
+   map:{g:"round", twolane:1, items:[{x:121, y:110, r:45}, {you:1, x:127, y:127, r:45, lblSide:1}]}},
   {t:"Lane use", q:"Outside a built-up area you have just overtaken a car. The right lane ahead of it is empty. What do you do?", o:["Stay left; it is your choice", "Stay left until someone is behind you", "Move back to the right lane", "Stay left if you drive the limit"], c:2,
    e:"The basic rule: keep as far to the right as possible. The left lane is for overtaking, so you move back when you have passed.", source:G(23),
    map:{g:"lanes", note:"Outside built-up area", items:[{you:1, x:80, y:70, r:0}, {x:120, y:150, r:0}]}},
@@ -106,11 +107,14 @@ EXTRA.drive = EXTRA.drive.concat([
    e:"You may cross when the broken line is on your side. Drivers coming the other way, with the solid line on their side, may not.", source:G(46),
    map:{g:"road", centre:"mixed", items:[{x:120, y:80, r:0, k:"truck", c:"c-truck"}, {you:1, x:120, y:158, r:0}]}},
   {t:"Road markings", q:"A lane is marked LIJNBUS. Who may drive in it?", o:["Any bus or coach", "Taxis and buses", "Scheduled buses and trams", "Everyone outside rush hour"], c:2,
-   e:"LIJNBUS: scheduled buses and trams only. A lane marked BUS is also open to coaches.", source:G(46)},
+   e:"LIJNBUS: scheduled buses and trams only. A lane marked BUS is also open to coaches.", source:G(46),
+   map:{g:"road", buslane:"LIJNBUS", items:[{you:1, x:120, y:150, r:0}]}},
   {t:"Road markings", q:"A cycle lane is separated from your lane by a solid line. May you stop your car on it to let someone out?", o:["Yes, briefly", "Yes, if no cyclist is near", "No", "Yes, with hazard lights on"], c:2,
-   e:"A cycle lane with a solid line is for cyclists only, and you may not stop on a cycle lane or cycle track.", source:G(29)},
+   e:"A cycle lane with a solid line is for cyclists only, and you may not stop on a cycle lane or cycle track.", source:G(29),
+   map:{g:"road", cycle:1, items:[{you:1, x:120, y:140, r:0}]}},
   {t:"Road markings", q:"You are in a lane with a left-turn arrow at a junction, but you wanted to go straight on. What must you do?", o:["Go straight on carefully", "Turn left", "Stop and reverse", "Move over on the junction"], c:1,
-   e:"At a junction you must follow the direction of the lane you are in. Turn left and find another way back.", source:G(46)}
+   e:"At a junction you must follow the direction of the lane you are in. Turn left and find another way back.", source:G(46),
+   map:{g:"cross", arrow:"left", items:[{you:1, x:115, y:186, r:0}]}}
 ]);
 })();
 var DRIVE = (function(){

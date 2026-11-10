@@ -86,6 +86,7 @@ var GROUND = {
     if (o.cycle) s += '<rect class="sc-cyclelane" x="136" y="0" width="12" height="200"/><path class="mp-cross" d="M136 70V130M148 70V130"/>';
     s += '<path class="sc-dash" d="M100 0V68M100 132V200M0 100H68M132 100H200"/>';
     if (o.rails) s += '<path class="sc-rail" d="M0 111H200M0 119H200"/>';
+    if (o.arrow === "left") s += '<path class="sc-solid" style="stroke-width:3" d="M115 166V154Q115 147 109 147"/><path class="sc-zebra" d="M109 141L100 147L109 153Z"/>';
     return s;
   },
   /* a side road (yours, from the bottom) meeting a through road; from: what you come out of */
@@ -103,6 +104,8 @@ var GROUND = {
     if (o.park) s += '<rect class="sc-drive" x="140" y="0" width="24" height="200"/>' + (o.park === "both" ? '<rect class="sc-drive" x="36" y="0" width="24" height="200"/>' : "");
     if (o.stop) s += '<path class="sc-road" d="M140 50L156 62V120L140 132Z"/><text class="sc-mark" x="174" y="150" style="text-anchor:middle">Bus stop</text>';
     if (o.rails) s += '<path class="sc-rail" d="M96 0V200M104 0V200"/>'; else s += o.centre === "mixed" ? '<path class="sc-solid" d="M98 0V200"/><path class="sc-dash" d="M102.5 0V200"/>' : o.centre === "solid" ? '<path class="sc-solid" d="M100 0V200"/>' : '<path class="sc-dash" d="M100 0V200"/>';
+    if (o.cycle) s += '<rect class="sc-cyclelane" x="140" y="0" width="14" height="200"/><path class="sc-solid" d="M140 0V200"/>';
+    if (o.buslane) s += '<rect class="sc-road" x="140" y="0" width="26" height="200"/><path class="sc-solid" d="M140 0V200"/><text class="sc-mark" transform="translate(157 150) rotate(-90)">' + o.buslane + '</text><text class="sc-mark" transform="translate(157 50) rotate(-90)">' + o.buslane + '</text>';
     if (o.kerb) s += '<rect class="sc-drive" x="140" y="0" width="16" height="200"/><path class="mp-kerb-' + o.kerb + '" d="M137 0V200"/>';
     return s;
   },
@@ -128,7 +131,8 @@ var GROUND = {
   round: function(o){
     var s = '<rect class="sc-road" x="70" y="0" width="60" height="200"/><rect class="sc-road" x="0" y="70" width="200" height="60"/>';
     if (o.cycle) s += '<circle class="mp-cring" cx="100" cy="100" r="66"/>';
-    s += '<circle class="sc-road" cx="100" cy="100" r="46"/><circle class="mp-island" cx="100" cy="100" r="18"/>';
+    s += '<circle class="sc-road" cx="100" cy="100" r="46"/><circle class="mp-island" cx="100" cy="100" r="' + (o.twolane ? 14 : 18) + '"/>';
+    if (o.twolane) s += '<circle class="sc-dash" cx="100" cy="100" r="30"/>';
     s += '<path class="sc-dash" d="M100 200V148M100 0V52M0 100H52M200 100H148"/>';
     return s;
   },
