@@ -4,6 +4,14 @@ var EXTRA = {"drive":[{"t":"Hazard perception","hz":true,"q":"You drive 50 km/h 
    English RVV booklet (government.nl). Situation questions carry a picture. */
 (function(){
 var G = function(p){ return "https://www.government.nl/site/binaries/site-content/collections/documents/2024/02/09/road-traffic-signs-and-regulations-in-the-netherlands/Road+Traffic+Signs+and+Regulations+in+the+Netherlands.pdf#page=" + p; };
+var CBRA = "https://www.cbr.nl/nl/onveilig-rijgedrag/nl/voorkom-onveilig-rijgedrag/alcohol/rijden-met-alcohol-op-mag-dat",
+    ROA = "https://www.rijksoverheid.nl/onderwerpen/verkeersveiligheid/vraag-en-antwoord/mag-ik-met-alcohol-op-deelnemen-aan-het-verkeer",
+    ROG = "https://www.rijksoverheid.nl/onderwerpen/verkeersveiligheid/vraag-en-antwoord/wanneer-moet-ik-de-autogordel-gebruiken",
+    ROZ = "https://www.rijksoverheid.nl/onderwerpen/verkeersveiligheid/vraag-en-antwoord/moet-ik-mijn-kind-in-de-auto-in-een-kinderzitje-vervoeren",
+    ROF = "https://www.rijksoverheid.nl/onderwerpen/fiets/vraag-en-antwoord/welke-regels-gelden-voor-mijn-elektrische-fiets-e-bike",
+    RDA = "https://www.rdw.nl/particulier/voertuigen/auto/apk/wanneer-en-hoe-vaak-apk-keuren",
+    RDT = "https://www.rdw.nl/particulier/voertuigen/auto/apk/tips-voor-een-veilige-auto",
+    RDB = "https://apk-handboek.rdw.nl/personenautos/ophanging/banden";
 EXTRA.drive = EXTRA.drive.concat([
   /* lane use and overtaking */
   {t:"Lane use", q:"A tram drives ahead of you on rails in the middle of the road. On which side may you pass it?", o:["Only on the left", "On the right", "Not at all", "Only once it has stopped"], c:1,
@@ -114,7 +122,78 @@ EXTRA.drive = EXTRA.drive.concat([
    map:{g:"road", cycle:1, items:[{you:1, x:120, y:140, r:0}]}},
   {t:"Road markings", q:"You are in a lane with a left-turn arrow at a junction, but you wanted to go straight on. What must you do?", o:["Go straight on carefully", "Turn left", "Stop and reverse", "Move over on the junction"], c:1,
    e:"At a junction you must follow the direction of the lane you are in. Turn left and find another way back.", source:G(46),
-   map:{g:"cross", arrow:"left", items:[{you:1, x:115, y:186, r:0}]}}
+   map:{g:"cross", arrow:"left", items:[{you:1, x:115, y:186, r:0}]}},
+
+  /* Batch 1, Nov 2026: alcohol, phones, seat belts, vehicle condition. Each rule was read on the cited page. */
+  /* alcohol */
+  {t:"Alcohol limit", q:"What is the legal alcohol limit in the breath of an experienced driver?", o:["88 micrograms per litre", "220 micrograms per litre", "350 micrograms per litre", "500 micrograms per litre"], c:1,
+   e:"Experienced drivers: 220 micrograms of alcohol per litre of breath. That matches 0.5 per mille in the blood.", source:G(21)},
+  {t:"Alcohol limit", num:true, q:"What is the alcohol limit in the breath of a beginning driver, in micrograms per litre? (type a number)", a:["88"],
+   e:"A beginner may have at most 88 micrograms per litre of breath. That matches 0.2 per mille in the blood.", source:G(21)},
+  {t:"Alcohol limit", q:"Your first licence was a moped licence, issued when you were 16. For how long does the 0.2 per mille limit apply to you in a car?", o:["5 years from the date of issue", "7 years from the date of issue", "10 years from the date of issue", "Until you turn 21"], c:1,
+   e:"If your first licence was a moped licence issued before you were 18, you are a beginner for 7 years from the date it was issued.", source:G(21)},
+  {t:"Alcohol limit", q:"About how many standard glasses of alcohol bring a man to the limit of 0.5 per mille?", o:["1", "2", "4", "6"], c:1,
+   e:"Men reach 0.5 per mille after about 2 standard glasses. Women reach it after slightly fewer.", source:CBRA},
+  {t:"Alcohol limit", q:"Which of these is one standard glass of alcohol?", o:["250 ml of beer", "A small bottle of beer", "500 ml of beer", "200 ml of wine"], c:0,
+   e:"A standard glass holds about 10 g of alcohol: 250 ml of beer, 100 ml of wine or 35 ml of spirits. A bottle of beer is more than one glass.", source:CBRA},
+  {t:"Alcohol limit", q:"Besides alcohol, what else can make it illegal for you to drive?", o:["Only illegal drugs and nothing else", "Only things you took in the last hour", "Any substance that impairs you", "Only what shows up on a breath test"], c:2,
+   e:"You may not drive under the influence of any substance, alone or mixed with another, that makes you unfit to drive. Some medicines do this.", source:G(21)},
+  {t:"Alcohol limit", q:"A friend has drunk too much and asks to drive your car. You can see it. What applies?", o:["You may let them if the trip is short", "Only the driver can be punished", "It is fine if they drive slowly", "No, that is forbidden too"], c:3,
+   e:"It is also forbidden to let someone drive when you know, or should know, that they are over the limit or unfit to drive.", source:G(21)},
+  {t:"Alcohol limit", q:"Before a night out, your group agrees who drives and drinks no alcohol. What is that person called?", o:["The Rob", "The Bob", "The Tom", "The Jan"], c:1,
+   e:"The person who stays sober and drives the others home is the Bob, after the Dutch government's campaign.", source:ROA},
+  {t:"Alcohol limit", q:"The police give you a breath test at the roadside and it shows you may be over the limit. What happens next?", o:["A fine on the spot, then you drive on", "You are asked to blow again until it is lower", "A blood test at the police station", "A warning, then you drive on"], c:2,
+   e:"The result decides whether you must come to the police station for a blood test. The police then measure exactly how much alcohol you have in your blood.", source:ROA},
+
+  /* mobile phones */
+  {t:"Mobile phones", q:"You cycle and take a call with a headset. Is that allowed?", o:["Yes, if it is not dangerous", "No, never on a bicycle", "Only on a cycle path", "Only on quiet roads outside built-up areas"], c:0,
+   e:"On a bicycle you may not hold a device, but calling hands-free and listening to music are allowed as long as they do not cause danger.", source:ROF},
+  {t:"Mobile phones", q:"You stop at the side of the road on your bicycle. May you hold your phone and use it?", o:["No, holding a phone is never allowed on a bicycle", "Only to call the emergency number 112", "Only if you hold it with one hand", "Yes, while you stand still"], c:3,
+   e:"The ban is about holding a device while you ride. When you stand still, you may hold and use your phone.", source:ROF},
+  {t:"Mobile phones", q:"Who has to follow the ban on holding a phone while driving?", o:["Only drivers of passenger cars", "Cars, mopeds and e-bikes alike", "Drivers of cars and lorries only", "Only drivers on motorways and main roads"], c:1,
+   e:"Article 61a covers motor vehicles, mopeds, motor-assisted bicycles and engine-driven vehicles for disabled people.", source:G(40)},
+  {t:"Mobile phones", q:"You hold your phone in your hand only to look at your route on the screen. Is that allowed?", o:["Yes, looking at a map is not the same as calling", "Yes, if you drive slowly on a quiet road", "No, holding it to read is banned too", "Yes, if you only glance at it"], c:2,
+   e:"The ban covers holding a device for communication and for processing information. Reading a route counts. Put the phone in a holder.", source:G(40)},
+
+  /* seat belts and child seats */
+  {t:"Seatbelts", q:"Your 12-year-old cousin is 1.40 m tall. How may they travel in your car?", o:["In a booster seat only", "Without a belt on the back seat", "On the front seat only", "With the normal seat belt"], c:3,
+   e:"Children taller than 1.35 m may use the normal seat belt. Under 1.35 m and under 18, an approved child seat is required.", source:ROG},
+  {t:"Seatbelts", q:"An adult passenger is 1.30 m tall. Must they use a child seat?", o:["No, only people under 18 need one", "Yes, everyone under 1.35 m needs one", "Yes, but only on the back seat", "Yes, but only on long trips"], c:0,
+   e:"The rules for child restraints apply only to people under 18. Adults wear the normal seat belt, front and back.", source:ROG},
+  {t:"Seatbelts", q:"Two small passengers want to share one seat belt on the back seat. May they?", o:["Yes, if they are children", "No, one belt per person", "Yes, on short trips", "Only in the middle seat"], c:1,
+   e:"Never share a belt. If the seats have belts, you may not carry more passengers than there are belts.", source:G(38)},
+  {t:"Seatbelts", q:"The seat belt is too short to go around a child seat. May you use a belt extender?", o:["No, never with a child seat", "Yes, any extender will do", "Yes, if the extender is approved", "Only on the back seat, not the front"], c:0,
+   e:"Do not use a belt extender with a child seat. If the belt is too short, have another approved belt fitted.", source:ROZ},
+  {t:"Seatbelts", q:"You have a child seat with a valid ECE R44 approval. May you still use it in the Netherlands?", o:["No, only i-Size seats are allowed", "Only for babies", "Yes, while the approval is valid", "Only on the front seat"], c:2,
+   e:"Seats with a valid ECE R44/03 or R44/04 approval may still be used. A seat you buy now should meet UN R129 (i-Size).", source:ROZ},
+  {t:"Seatbelts", q:"A 9-year-old in your car is not properly restrained. Who gets the fine?", o:["The child", "The owner of the car", "Nobody", "You, the driver"], c:3,
+   e:"If you carry a child under 12 against the rules, the fine is yours. Older children get their own fine if they do not use the belt.", source:ROG},
+  {t:"Seatbelts", q:"On a scheduled city bus inside a built-up area, must passengers wear a seat belt?", o:["Yes, always", "No", "Only in the front seats", "Only after 22:00"], c:1,
+   e:"No. People keep getting on and off, and many city buses have no belts. In other buses and coaches that have belts, you must wear them.", source:ROG},
+  {t:"Seatbelts", q:"Which is safer for a baby in a car seat?", o:["Facing forward from the very first day", "Facing forward as soon as it can sit up", "Facing backwards as long as you can", "It makes no real difference at all"], c:2,
+   e:"Whether a child sits in front or behind makes little difference. It is safer to carry babies against the direction of travel for as long as possible.", source:ROZ},
+  {t:"Seatbelts", q:"A child under 3 rides in a taxi that has no child seat. Is that allowed?", o:["Yes, in a taxi it is allowed", "No, a child seat is always needed", "Only if the child sits on the front seat", "Only if the child sits on your lap"], c:0,
+   e:"Children under 3 do not need a child seat in a taxi or bus. In your own car they always do.", source:ROZ},
+
+  /* vehicle condition */
+  {t:"Vehicle condition", q:"How often should you check the pressure of your tyres?", o:["Once a year", "Only at the APK", "Only before a holiday", "Once a month"], c:3,
+   e:"Check it every month. The right pressure gives more grip and a shorter braking distance, and saves fuel.", source:RDT},
+  {t:"Vehicle condition", q:"One of your tyres has a bulge in the side. What applies?", o:["It is allowed if the tread is deep", "It is not allowed", "It is allowed below 50 km/h", "It is allowed on the rear axle"], c:1,
+   e:"A tyre may not show bulges, and the damage may not go so deep that the carcass (the cords) is visible. Replace the tyre.", source:RDB},
+  {t:"Vehicle condition", q:"Over how much of the tyre must the main grooves be at least 1.6 mm deep?", o:["Only in the middle", "Only on the two front tyres", "The whole circumference", "Half the circumference"], c:2,
+   e:"The main grooves must be at least 1.6 mm deep around the whole circumference of the tread, apart from the wear indicators.", source:RDB},
+  {t:"Vehicle condition", q:"A petrol car is 10 years old. How often must it go for the APK?", o:["Every year", "Every 2 years", "Every 3 years", "Every 4 years"], c:0,
+   e:"Petrol and electric cars: first APK at 4 years, then every 2 years until the car is 8, and then every year.", source:RDA},
+  {t:"Vehicle condition", q:"A diesel car has just turned 3. What applies?", o:["Its first APK is due now", "Its first APK is due at 4 years", "It needs no APK until 8 years", "It needs an APK every 2 years"], c:0,
+   e:"Diesel and gas cars go for their first APK at 3 years, and then every year.", source:RDA},
+  {t:"Vehicle condition", q:"How early may you have your car inspected and still keep the same APK date?", o:["Up to 6 months before", "Only in the final two weeks", "Only after it has expired", "Up to 2 months before"], c:3,
+   e:"You can have the car inspected up to 2 months before the APK expires. You keep the same APK date, plus 1 or 2 years.", source:RDA},
+  {t:"Vehicle condition", q:"Your car passed the APK last week. What does that tell you?", o:["It stays safe all year", "You can stop checking tyres", "It cannot fail for 2 years", "It was in order on the day"], c:3,
+   e:"The APK is a snapshot. It is no guarantee that the car stays safe, so keep checking tyres, lights and wipers.", source:RDT},
+  {t:"Vehicle condition", num:true, q:"Below how many metres of visibility do you use front fog lights, according to the RDW? (type a number)", a:["200"],
+   e:"Front fog lights go on when you can see less than 200 m, rear fog lights when you can see less than 50 m.", source:RDT},
+  {t:"Vehicle condition", q:"When should you replace your windscreen wipers?", o:["Before they look worn", "When they have stopped moving", "Once a year at the APK", "Only when it rains"], c:0,
+   e:"Wipers wear out fast. Replace them before they look worn, and keep the washer fluid topped up.", source:RDT}
 ]);
 })();
 var DRIVE = (function(){
