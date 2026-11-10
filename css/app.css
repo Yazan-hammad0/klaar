@@ -213,6 +213,21 @@ main{max-width:620px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-lef
 .toast{position:fixed;left:50%;bottom:calc(var(--tabbar) + env(safe-area-inset-bottom,0px) + 14px);transform:translateX(-50%);z-index:60;
   background:var(--fg);color:var(--bg);padding:11px 16px;border-radius:12px;font-weight:700;font-size:14px;max-width:calc(100% - 32px);text-align:center;
   animation:rise .3s}
+/* order questions: tap road users in the order they may go */
+.ord-help{margin:12px 0 4px;color:var(--muted);font-size:14.5px;line-height:1.4}
+.ord-row{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.ord-b{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;padding:10px 14px;border-radius:15px;border:1.5px solid var(--line);background:var(--raise);color:var(--fg);font:600 16px var(--font-body);text-align:start;cursor:pointer;transition:border-color .2s,background .2s}
+.ord-n{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;border:2px dashed var(--line);font-weight:800;font-size:15px;color:#fff;transition:background .2s,border-color .2s}
+.ord-b.set{border-color:var(--accent)}.ord-b.set .ord-n{background:var(--accent);border:2px solid var(--accent)}
+.ord-b.right{border-color:var(--ok);background:var(--ok-soft)}.ord-b.right .ord-n{background:var(--ok);border:2px solid var(--ok)}
+.ord-b.wrong{border-color:var(--bad);background:var(--bad-soft)}.ord-b.wrong .ord-n{background:var(--bad);border:2px solid var(--bad)}
+.ord-b:disabled{cursor:default;opacity:1}
+.ord-act{display:flex;gap:10px;margin-top:14px}.ord-act .btn{flex:1}
+.mp-slot{cursor:pointer}.mp-hit{fill:transparent;pointer-events:all}
+.mp-bdg{visibility:hidden;transform-box:fill-box;transform-origin:center}
+.mp-slot.set .mp-bdg,.mp-slot.right .mp-bdg,.mp-slot.wrong .mp-bdg{visibility:visible;animation:popIn .22s cubic-bezier(.2,1.4,.4,1) both}
+.mp-bdg circle{fill:#1C4FA0;stroke:#fff;stroke-width:2}.mp-slot.right .mp-bdg circle{fill:#16A34A}.mp-slot.wrong .mp-bdg circle{fill:#DC2626}
+.mp-bdg text{fill:#fff;font:800 12px var(--font-body);text-anchor:middle}
 /* answer feedback eases in; the answered card glides out before the next one rises */
 .fb.in{animation:fbIn .32s cubic-bezier(.2,.9,.25,1) both}
 @keyframes fbIn{from{opacity:0;transform:translateY(10px)}}

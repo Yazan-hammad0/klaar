@@ -32,7 +32,7 @@ function hashId(s){ var h = 5381; s = String(s); for (var i = 0; i < s.length; i
 /* ---------------- question bank ---------------- */
 var STATIC = {drive: [], civic: []};
 DRIVE.QUESTIONS.forEach(function(q, i){
-  STATIC.drive.push({id:"d" + i, track:"drive", topic:q.t, kind:q.hz ? "hazard" : (q.num ? "num" : "mc"), q:q.q, o:q.o, c:q.c, a:q.a, e:q.e, sign:q.sign, view:q.view, map:q.map, src:q.source, lvl:1});
+  STATIC.drive.push({id:"d" + i, track:"drive", topic:q.t, kind:q.kind === "order" ? "order" : (q.hz ? "hazard" : (q.num ? "num" : "mc")), q:q.q, o:q.o, c:q.c, a:q.a, ans:q.ans, e:q.e, sign:q.sign, view:q.view, map:q.map, src:q.source, lvl:1});
 });
 CIVIC.QUESTIONS.forEach(function(q, i){
   STATIC.civic.push({id:"c" + i, track:"civic", topic:q.t, kind:"mc", q:q.q, o:q.o, c:q.c, e:q.e, icon:q.icon, sec:"basics", lvl:1});
@@ -44,7 +44,7 @@ CIVIC.STAGES.forEach(function(s){
 });
 var XB = (typeof EXTRA !== "undefined" && EXTRA) ? EXTRA : {drive: [], civic: []};
 (XB.drive || []).forEach(function(q){
-  STATIC.drive.push({id:"x-d-" + hashId(q.q), track:"drive", topic:q.t, kind:q.hz ? "hazard" : (q.num ? "num" : "mc"), q:q.q, o:q.o, c:q.c, a:q.a, e:q.e, sign:q.sign, view:q.view, map:q.map, src:q.source, lvl:1});
+  STATIC.drive.push({id:"x-d-" + hashId(q.q), track:"drive", topic:q.t, kind:q.kind === "order" ? "order" : (q.hz ? "hazard" : (q.num ? "num" : "mc")), q:q.q, o:q.o, c:q.c, a:q.a, ans:q.ans, e:q.e, sign:q.sign, view:q.view, map:q.map, src:q.source, lvl:1});
 });
 (XB.civic || []).forEach(function(q){
   var sec = SEC_LVL[q.sec] ? q.sec : "knm";
@@ -371,8 +371,37 @@ function bodyHtml(q){
   if (!run && helpEN(q) && q.kind !== "hazard") h += '<p class="en-pre">' + esc(q.en) + '</p>';
   return h;
 }
-function correctText(q){ return q.o ? q.o[q.c] : q.a[0]; }
+function correctText(q){ return q.kind === "order" ? orderText(q, q.ans) : (q.o ? q.o[q.c] : q.a[0]); }
+/* order questions (the CBR drag question): put 1, 2, 3 on the road users in the order they may go */
+function orderItems(q){ return ((q.map && q.map.items) || []).filter(function(it){ return it.id; }); }
+function orderName(q, id){ var it = orderItems(q).filter(function(x){ return x.id === id; })[0]; return it ? it.name : id; }
+function orderText(q, ids){ return (ids || []).map(function(id, i){ return (i + 1) + " " + orderName(q, id); }).join(", "); }
+function orderHtml(q, done){
+  return (done ? "" : '<p class="ord-help">Tap them in the order they may go: first, then second, then third. Tap again to undo.</p>') +
+    '<div class="ord-row">' + orderItems(q).map(function(it){ return '<button class="ord-b" data-id="' + esc(it.id) + '"' + (done ? " disabled" : "") + '><span class="ord-n" aria-hidden="true"></span><span>' + esc(it.name) + '</span></button>'; }).join("") + '</div>';
+}
+/* numbers on the buttons and on the picture, updated in place so nothing is redrawn */
+function paintOrder(root, q, pick, done){
+  $$("[data-id]", root).forEach(function(el){
+    var id = el.getAttribute("data-id"), i = pick.indexOf(id), want = q.ans.indexOf(id);
+    var num = done ? want + 1 : (i >= 0 ? i + 1 : 0), cls = done ? (i === want ? "right" : "wrong") : (i >= 0 ? "set" : "");
+    el.classList.remove("set", "right", "wrong"); if (cls) el.classList.add(cls);
+    var t = el.querySelector("text") || el.querySelector(".ord-n"); if (t) t.textContent = num ? String(num) : "";
+    if (el.tagName === "BUTTON") el.setAttribute("aria-label", orderName(q, id) + (num ? ", number " + num : ", no number yet"));
+  });
+}
+function wireOrder(root, q, pick, onChange, locked){
+  $$("[data-id]", root).forEach(function(el){
+    el.addEventListener("click", function(){
+      if (locked && locked()) return;
+      var id = el.getAttribute("data-id"), i = pick.indexOf(id);
+      if (i >= 0) pick.splice(i, 1); else pick.push(id);
+      paintOrder(root, q, pick, false); onChange();
+    });
+  });
+}
 function isRight(q, a){
+  if (q.kind === "order") return Array.isArray(a) && a.length === q.ans.length && a.every(function(x, i){ return x === q.ans[i]; });
   if (q.kind === "num") return q.a.some(function(x){ return normNum(x) === normNum(a) && normNum(a) !== ""; });
   if (q.kind === "type") return q.a.some(function(x){ return normTxt(x) === normTxt(a); });
   return a === q.c;
@@ -481,7 +510,7 @@ function nextQuestion(){
   if (needsLesson(q)){ startLesson(q); return; }
   waitingForQuestions = false;
   lastId = q.id;
-  cur = {q:q, done:false, sel:null, order:q.kind === "mc" ? shuffle(q.o.map(function(_, i){ return i; })) : (q.o ? q.o.map(function(_, i){ return i; }) : null), input:""};
+  cur = {q:q, done:false, sel:null, order:q.kind === "mc" ? shuffle(q.o.map(function(_, i){ return i; })) : (q.o ? q.o.map(function(_, i){ return i; }) : null), input:"", pick:[]};
   renderFeed(true);
   scrollTop0();
 }
@@ -568,7 +597,10 @@ function renderFeed(entering){
   var inUnit = focus && focus.track === q.track && inFocus(q);
   html2 += '<div class="eyebrow"><span>' + esc(q.topic) + '</span>' + (inUnit && focus.set ? '<span class="tag">Mistakes</span>' : "") + (inUnit ? '<span class="pr-count tabular">' + Math.min(focus.n, focus.asked + (cur.done ? 0 : 1)) + ' / ' + focus.n + '</span>' : "") + (q.sec && q.sec !== "basics" && SEC_NAME[q.sec] !== q.topic ? '<span class="tag">' + esc(SEC_NAME[q.sec] || q.sec) + '</span>' : "") + (q.gen ? '<span class="tag ai">New</span>' : "") + '</div>';
   html2 += bodyHtml(q);
-  if (q.kind === "num" || q.kind === "type"){
+  if (q.kind === "order"){
+    html2 += orderHtml(q, cur.done);
+    if (!cur.done) html2 += '<div class="ord-act"><button class="btn ghost" data-act="ord-clear">Clear</button><button class="btn" data-act="ord-check" disabled>Check</button></div>';
+  } else if (q.kind === "num" || q.kind === "type"){
     html2 += '<div class="inrow"><input class="inp" id="feed-inp" ' + (q.kind === "num" ? 'inputmode="decimal" placeholder="Type a number"' : 'autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="Type je antwoord"') + ' aria-label="Your answer" value="' + esc(cur.input) + '"' + (cur.done ? " disabled" : "") + '>' +
       (cur.done ? "" : '<button class="btn" data-act="check">Check</button>') + '</div>';
   } else {
@@ -583,6 +615,7 @@ function renderFeed(entering){
   if (cur.done){
     var ok = cur.ok;
     html2 += '<div class="fb' + (cur.fresh ? " in" : "") + '"><p class="verdict ' + (ok ? "ok" : "no") + '">' + (ok ? "Correct" : "Not quite") + '</p>';
+    if (!ok && q.kind === "order") html2 += '<p>Yours: ' + esc(orderText(q, cur.sel)) + '</p>';
     if (!ok) html2 += '<p><b>Answer: ' + esc(correctText(q)) + '</b></p>';
     if (q.en) html2 += '<p class="en">' + esc(q.en) + '</p>';
     if (q.audio) html2 += '<p class="en">Audio: ' + esc(q.audio) + '</p>';
@@ -633,6 +666,16 @@ function answer(a, btnRect){
   if (ok && rightToday() === S.goal) toast("Daily goal done. Anything now is bonus.");
 }
 function wireFeed(v){
+  if (cur && cur.q.kind === "order"){
+    var oq = cur.q, oc = $("#qcard", v);
+    paintOrder(oc, oq, cur.done ? cur.sel : cur.pick, cur.done);
+    if (!cur.done){
+      var ck = $('[data-act="ord-check"]', v), full = function(){ return cur.pick.length === orderItems(oq).length; }, upd = function(){ ck.disabled = !full(); };
+      wireOrder(oc, oq, cur.pick, upd, function(){ return cur.done; }); upd();
+      ck.addEventListener("click", function(){ if (full()) answer(cur.pick.slice()); });
+      $('[data-act="ord-clear"]', v).addEventListener("click", function(){ cur.pick.length = 0; paintOrder(oc, oq, cur.pick, false); upd(); });
+    }
+  }
   $$(".opt", v).forEach(function(b){ b.addEventListener("click", function(){ answer(+b.getAttribute("data-o")); }); });
   var inp = $("#feed-inp", v);
   if (inp){
@@ -714,7 +757,7 @@ function sizeCard(){
 window.addEventListener("resize", function(){ sizeCard(); });
 function explain(){
   if (!aiAvailable() || !cur || cur.explaining) return;
-  var q = cur.q, mine = q.o ? (cur.sel != null ? q.o[cur.sel] : "") : cur.sel;
+  var q = cur.q, mine = q.kind === "order" ? orderText(q, cur.sel) : (q.o ? (cur.sel != null ? q.o[cur.sel] : "") : cur.sel);
   cur.explaining = true; cur.explain = "Thinking…"; renderFeed();
   var prompt = [
     "A learner is practising for the " + (q.track === "drive" ? "Dutch CBR car theory exam" : "Dutch civic integration exam (A2) and Dutch language") + ".",
@@ -806,13 +849,15 @@ function updTimer(){
   if (el){ el.textContent = fmt(left); el.classList.toggle("low", left < 60000); }
   if (left <= 0) finishExam(true);
 }
-function answered(k){ var a = run.ans[k]; return a !== null && a !== ""; }
+function answered(k){ var a = run.ans[k]; if (Array.isArray(a)) return a.length === orderItems(run.qs[k]).length; return a !== null && a !== ""; }
 function renderRun(){
   var q = run.qs[run.i], n = run.qs.length, last = run.i === n - 1, v = $("#v-exams");
   var html = '<div class="run-top"><button class="link" data-act="quit">&larr; Stop</button>' + (run.end ? '<span class="timer" id="x-timer">' + fmt(run.end - Date.now()) + '</span>' : '<b>' + esc(run.m.title) + '</b>') + '<span class="count">' + (run.i + 1) + ' / ' + n + '</span></div>';
   html += '<div class="prog"><i style="width:' + Math.round((run.i + 1) / n * 100) + '%"></i></div>';
   html += '<article class="qcard' + (q.kind === "hazard" ? " hz" : "") + '">' + bodyHtml(q);
-  if (q.kind === "num" || q.kind === "type"){
+  if (q.kind === "order"){
+    html += orderHtml(q, false) + '<div class="ord-act"><button class="btn ghost" data-act="ord-clear">Clear</button></div>';
+  } else if (q.kind === "num" || q.kind === "type"){
     html += '<input class="inp" id="x-inp" style="width:100%" ' + (q.kind === "num" ? 'inputmode="decimal" placeholder="Type a number"' : 'autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="Type je antwoord"') + ' aria-label="Your answer" value="' + esc(run.ans[run.i] || "") + '">';
   } else {
     html += '<div class="opts">';
@@ -831,6 +876,11 @@ function renderRun(){
   $$(".opt", v).forEach(function(b){ b.addEventListener("click", function(){ run.ans[run.i] = +b.getAttribute("data-o"); renderRun(); }); });
   var inp = $("#x-inp", v);
   if (inp){ inp.addEventListener("input", function(){ run.ans[run.i] = inp.value; }); inp.addEventListener("keydown", function(e){ if (e.key === "Enter") $('[data-act="fwd"]', v).click(); }); }
+  if (q.kind === "order"){
+    var pk = Array.isArray(run.ans[run.i]) ? run.ans[run.i] : (run.ans[run.i] = []), oc = $(".qcard", v);
+    paintOrder(oc, q, pk, false); wireOrder(oc, q, pk, function(){});
+    $('[data-act="ord-clear"]', v).addEventListener("click", function(){ pk.length = 0; paintOrder(oc, q, pk, false); });
+  }
   wireAudio(v, q);
 }
 function finishExam(timedOut){
@@ -859,7 +909,7 @@ function finishExam(timedOut){
   html += '<div class="label">Mistakes first</div>';
   r.qs.map(function(q, k){ return k; }).sort(function(a, b){ return (isRight(r.qs[a], r.ans[a]) ? 1 : 0) - (isRight(r.qs[b], r.ans[b]) ? 1 : 0); }).forEach(function(k){
     var q = r.qs[k], a = r.ans[k], good = isRight(q, a);
-    var yours = q.o ? (a === null ? "(no answer)" : q.o[a]) : (a ? a : "(empty)");
+    var yours = q.kind === "order" ? (Array.isArray(a) && a.length ? orderText(q, a) : "(no answer)") : (q.o ? (a === null ? "(no answer)" : q.o[a]) : (a ? a : "(empty)"));
     html += '<div class="rv' + (good ? "" : " bad") + '"><div class="rq">' + esc(q.q) + '</div>' + (q.en ? '<div class="mut">' + esc(q.en) + '</div>' : "") +
       '<div>' + (good ? '<b>&#10003; ' + esc(yours) + '</b>' : 'Yours: ' + esc(yours) + '<br><b>Correct: ' + esc(correctText(q)) + '</b>') + '</div><div class="mut">' + esc(q.e) + '</div></div>';
   });
@@ -1053,7 +1103,7 @@ function plan(t){
   else next = {kind:"mock", title:"Take a mock exam", why:"You have seen every question. A mock exam shows if you are ready."};
   var status, raise = 0;
   if (!left) status = ex ? "Every question seen. Use the days left for mock exams and your weak topics." : "Every question seen. Mock exams are the real check now.";
-  else if (!ex) status = "At " + S.goal + " a day you see every question in " + Math.ceil(left / S.goal) + " days. Add your exam date and the plan works back from it.";
+  else if (!ex) status = "At " + S.goal + " a day you see every question in " + (Math.ceil(left / S.goal) === 1 ? "1 day" : Math.ceil(left / S.goal) + " days") + ". Add your exam date and the plan works back from it.";
   else if (pace <= S.goal) status = "On pace. " + pace + " new questions a day covers everything" + (mockDays ? " and leaves " + mockDays + " days for mock exams." : " before the exam.");
   else { raise = Math.min(80, Math.ceil(pace / 5) * 5); status = "Behind. You need about " + pace + " questions a day to see everything before the exam. Your daily goal is " + S.goal + "."; }
   return {topics:ts, total:total, seen:seen, left:left, ready:total ? Math.round(score / total * 100) : 0, exam:ex, pace:pace, status:status, raise:raise > S.goal ? raise : 0, next:next};

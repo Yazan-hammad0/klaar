@@ -54,6 +54,13 @@ function item(it){
     else out += '<text class="sc-label" x="' + n(p[0]) + '" y="' + n(ly) + '">' + lbl + "</text>"; }
   return out;
 }
+/* order questions: a big tap area and a number badge on each road user that takes a number, drawn on top of everything */
+function slot(it){
+  if (!it.id) return "";
+  var p = place(it), by = p[1] < 34 ? 24 : -24;
+  return '<g class="mp-slot" data-id="' + it.id + '" transform="translate(' + n(p[0]) + " " + n(p[1]) + ')"><circle class="mp-hit" r="21"/>' +
+    '<g class="mp-bdg"><circle r="10.5" cy="' + by + '"/><text y="' + (by + 4) + '"></text></g></g>';
+}
 
 /* ---- ground ---- */
 function teeth(dir, dist){
@@ -159,7 +166,7 @@ window.KLAAR_MAP = function(m){
       (b[1] === "warn" ? '<path class="mp-mx-a" d="M' + (x - 5) + ' 12L' + (x + 5) + ' 22M' + (x - 1) + ' 22H' + (x + 5) + 'V16"/>' : b[1] === "x" ? '<path class="mp-mx-x" d="M' + (x - 6) + ' 11L' + (x + 6) + ' 23M' + (x + 6) + ' 11L' + (x - 6) + ' 23"/>' :
        '<path class="' + (b[1] === "green" ? "mp-mx-g" : "mp-mx-a") + '" d="M' + x + ' 24V11M' + (x - 5) + ' 16L' + x + ' 11L' + (x + 5) + ' 16"/>'); });
   if (m.note) extra += '<rect class="mp-note" x="6" y="6" width="' + (m.note.length * 5.6 + 12) + '" height="18" rx="9"/><text class="mp-notet" x="12" y="18.5">' + m.note + "</text>";
-  var items = (m.items || []).map(item).join("");
+  var items = (m.items || []).map(item).join("") + (m.items || []).map(slot).join("");
   return '<svg class="mp" viewBox="0 0 200 200" role="img" aria-hidden="true"><rect class="sc-bg" width="200" height="200"/>' + s + extra + items + "</svg>";
 };
 })();
