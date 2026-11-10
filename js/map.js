@@ -127,7 +127,7 @@ var GROUND = {
     return s;
   },
   /* two lanes in your direction */
-  lanes: function(){ return '<rect class="sc-road" x="60" y="0" width="80" height="200"/><path class="sc-dash" d="M100 0V200"/>'; },
+  lanes: function(o){ return '<rect class="sc-road" x="60" y="0" width="80" height="200"/><path class="' + (o && o.solid ? "sc-solid" : "sc-dash") + '" d="M100 0V200"/>'; },
   round: function(o){
     var s = '<rect class="sc-road" x="70" y="0" width="60" height="200"/><rect class="sc-road" x="0" y="70" width="200" height="60"/>';
     if (o.cycle) s += '<circle class="mp-cring" cx="100" cy="100" r="66"/>';

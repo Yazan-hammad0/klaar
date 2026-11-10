@@ -247,7 +247,43 @@ EXTRA.drive = EXTRA.drive.concat([
    e:"On a motorway with three or more lanes, goods vehicles and combinations longer than 7 m may only use the two right-hand lanes, except when changing lanes.", source:G(35),
    map:{g:"lanes3", note:"Motorway, 3 lanes", items:[{you:1, k:"truck", x:160, y:130, r:0}]}},
   {t:"Motorway", q:"You want to stop for a moment on the motorway to check your phone. May you stop in the right lane?", o:["Yes, with your hazard lights on", "Yes, if the road is quiet", "No, never on the carriageway", "Yes, for less than a minute"], c:2,
-   e:"You may not stop on the carriageway of a motorway. The hard shoulder is for emergencies only.", source:G(35)}
+   e:"You may not stop on the carriageway of a motorway. The hard shoulder is for emergencies only.", source:G(35)},
+
+  /* Batch 5, Nov 2026: lane use, road markings and safety, from Articles 3, 11, 14, 55, 57, 58a, 61b and 76 to 81 */
+  {t:"Lane use", q:"Two cyclists ride side by side in front of you on a normal road. Is that allowed?", o:["Yes, cyclists may ride two abreast", "No, they must ride one behind the other", "Only on a cycle path", "Only in daylight"], c:0,
+   e:"Cyclists may ride two abreast. Riders of motor-assisted bicycles may not.", source:G(23),
+   map:{g:"road", items:[{k:"bike", x:112, y:72, r:0}, {k:"bike", x:129, y:72, r:0}, {you:1, x:120, y:160, r:0}]}},
+  {t:"Lane use", q:"The car ahead has moved to the left of its lane and indicates left. How do you pass it?", o:["On the left, as always", "You may not pass it at all", "On the right", "Only after it has turned"], c:2,
+   e:"A driver who has moved to the left and indicates left is overtaken on the right. Otherwise you always overtake on the left.", source:G(24),
+   map:{g:"road", items:[{x:106, y:80, r:0, blink:"left"}, {you:1, x:122, y:160, r:0}]}},
+  {t:"Lane use", q:"You drive slowly in town. A cyclist passes you on your right. Is that allowed?", o:["No, everyone overtakes on the left", "Only when you are stopped at a junction", "Only if your car is indicating right", "Yes, a cyclist may do that"], c:3,
+   e:"Cyclists overtake other cyclists on the left, but they may overtake slower vehicles on the right. Check your mirror before you turn right.", source:G(24),
+   map:{g:"road", items:[{you:1, x:114, y:96, r:0}, {k:"bike", x:136, y:156, r:0}]}},
+  {t:"Lane use", q:"Your light is green, but the traffic beyond the junction is not moving. May you drive onto the junction?", o:["Yes, a green light means you may go", "No, you may not block it", "Yes, if you warn others with your horn", "Yes, as long as you stay in your lane"], c:1,
+   e:"Drivers must not block junctions. Wait before it until there is room on the other side.", source:G(25),
+   map:{g:"cross", lights:[["S", "green"]], items:[{x:115, y:46, r:0}, {x:115, y:14, r:0}, {at:"S", you:1}]}},
+  {t:"Lane use", q:"When must you use your indicator?", o:["Only when you turn left or right at a junction", "Only when other road users are close to you", "Also to pull away, overtake or move over", "Only on roads that have two or more lanes"], c:2,
+   e:"You signal when you pull away, overtake, join or leave the main carriageway, change lanes or make any other sideways move.", source:G(36)},
+
+  {t:"Road markings", q:"A lane is marked BUS. Who may drive in it?", o:["Scheduled buses, coaches and trams", "Any vehicle, outside rush hour only", "Taxis and scheduled buses, nothing else", "Scheduled buses only"], c:0,
+   e:"BUS: scheduled buses, coaches and trams. LIJNBUS is stricter: scheduled buses and trams only.", source:G(46),
+   map:{g:"road", buslane:"BUS", items:[{you:1, x:120, y:150, r:0}]}},
+  {t:"Road markings", q:"You come to a stop sign with a stop line. Where must you stop?", o:["On the stop line", "Just past the line, where you can see", "Anywhere near the sign", "Behind the stop line"], c:3,
+   e:"At a stop sign you stop behind the line. Then you give way and drive on when it is safe.", source:G(46),
+   map:{g:"tee", signs:[["S", "stop"]], items:[{you:1, x:115, y:172, r:0}]}},
+  {t:"Road markings", q:"A cycle lane is separated from the road by a solid line. May a cyclist cross that line to use the cycle lane?", o:["No, nobody may cross a solid line", "Yes, cyclists may cross it", "Only where the line is broken", "Only to overtake another cyclist"], c:1,
+   e:"The ban on crossing a solid line does not apply to riders who may use the cycle lane, when the line separates that lane from the road.", source:G(46),
+   map:{g:"road", cycle:1, items:[{k:"bike", x:132, y:78, r:0}, {you:1, x:118, y:160, r:0}]}},
+  {t:"Road markings", q:"A solid line separates two lanes going the same way. May you change lanes across it?", o:["Yes, if you indicate first", "Yes, if the other lane is empty", "No, you may not cross it", "Only outside built-up areas"], c:2,
+   e:"A solid line that is not at the edge of the road may not be crossed, also between lanes going the same way.", source:G(46),
+   map:{g:"lanes", solid:1, items:[{you:1, x:120, y:140, r:0, blink:"left"}, {x:80, y:56, r:0}]}},
+
+  {t:"Safety", q:"You wait at a red light and rev your engine loudly. Is that allowed?", o:["Yes, the car is standing still", "Only outside a built-up area", "Only in the daytime, not at night", "No, that is unnecessary noise"], c:3,
+   e:"Drivers must make sure their vehicle does not cause unnecessary noise.", source:G(37)},
+  {t:"Safety", q:"A friend wants to ride in the boot of your estate car for a short trip. May they?", o:["No, never in the boot", "Yes, if it is only a short trip", "Yes, if they lie down flat", "Only at low speed in town"], c:0,
+   e:"It is forbidden to carry people in the loading space of a vehicle, open or closed.", source:G(40)},
+  {t:"Safety", q:"One seat is missing for your group. May a passenger sit on another passenger's lap?", o:["Yes, if the person on the lap is a child", "No, each needs their own seat", "Yes, if it is only a short trip", "Only on the back seat, never in front"], c:1,
+   e:"Drivers and passengers must sit in the seats meant for them. A lap is not a seat.", source:G(37)}
 ]);
 })();
 var DRIVE = (function(){
