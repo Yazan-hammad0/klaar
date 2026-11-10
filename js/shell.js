@@ -1,5 +1,5 @@
 /* Screen-tall layout for the home-screen app, update notice, service worker. */
-var KLAAR_VERSION = "53372be282", KLAAR_NEWS = "Smoother: questions glide in and out, answers ease in, switching goals cross-fades";
+var KLAAR_VERSION = "1ee850cd26", KLAAR_NEWS = "New question type: tap the road users in the order they may go, like the CBR drag questions";
 (function(){
   /* iOS home-screen apps sometimes get a layout viewport shorter than the screen, which leaves a strip under the tab bar.
      Measure it and push the bottom chrome down into that strip. */
