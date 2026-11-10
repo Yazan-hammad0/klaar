@@ -7,6 +7,9 @@ var LANGS = {
   en:{label:"English", dir:"ltr", loc:"en-GB"},
   ar:{label:"العربية", dir:"rtl", loc:"ar-u-nu-latn"}
 };
+/* Arabic is switched off for now: the app is English only. Set ARABIC to true to bring the language choice back. */
+var ARABIC = false;
+if (!ARABIC) delete LANGS.ar;
 var KEY = "klaarLang", IDX = {ar:1};
 var ATTRS = ["placeholder", "aria-label", "title", "alt"];
 /* question content stays as written; labels around it are translated */

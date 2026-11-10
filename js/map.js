@@ -22,9 +22,9 @@ var SHAPE = {
   bus: function(c){ return '<rect x="-9" y="-24" width="18" height="48" rx="3" class="sc-car ' + (c || "c-bus") + '"/><rect x="-7" y="-21" width="14" height="6" rx="1.5" class="sc-glass"/>'; },
   truck: function(c){ return '<rect x="-9" y="-22" width="18" height="44" rx="3" class="sc-car ' + (c || "c-truck") + '"/><rect x="-7" y="-19" width="14" height="7" rx="1.5" class="sc-glass"/>'; },
   tram: function(){ return '<rect x="-8" y="-34" width="16" height="68" rx="5" class="sc-car c-tram"/><rect x="-6" y="-29" width="12" height="6" rx="1.5" class="sc-glass"/>'; },
-  bike: function(){ return '<g transform="scale(1.4)"><rect x="-1.5" y="-10" width="3" height="20" rx="1.5" class="sc-bike"/><circle cx="0" cy="1" r="4.5" class="sc-rider"/></g>'; },
-  ped: function(c){ return '<circle r="6.5" class="sc-kid ' + (c || "") + '"/>'; },
-  blind: function(){ return '<circle r="6.5" class="sc-kid"/><path class="sc-cane" d="M4 4L13 15"/>'; },
+  bike: function(){ return '<g transform="scale(1.6)"><rect x="-1.4" y="-13" width="2.8" height="9" rx="1.4" class="sc-bike"/><rect x="-1.4" y="4" width="2.8" height="9" rx="1.4" class="sc-bike"/><rect x="-5" y="-8.5" width="10" height="1.8" rx=".9" class="sc-bike"/><ellipse cx="0" cy="1" rx="5.6" ry="3.4" class="sc-rider"/><circle cx="0" cy="0" r="2.6" class="sc-head"/></g>'; },
+  ped: function(c){ return '<g transform="scale(1.1)"><ellipse class="sc-kid ' + (c || "") + '" rx="8.5" ry="4.8"/><circle class="sc-head" r="3.8"/></g>'; },
+  blind: function(){ return SHAPE.ped() + '<path class="sc-cane" d="M6 4L15 15"/>'; },
   officer: function(){ return '<circle r="6" class="sc-officer"/><path class="sc-arm" d="M-12 0H12"/>'; }
 };
 /* the arrow head, drawn at the end of a path */
@@ -86,6 +86,7 @@ var GROUND = {
     if (o.cycle) s += '<rect class="sc-cyclelane" x="136" y="0" width="12" height="200"/><path class="mp-cross" d="M136 70V130M148 70V130"/>';
     s += '<path class="sc-dash" d="M100 0V68M100 132V200M0 100H68M132 100H200"/>';
     if (o.rails) s += '<path class="sc-rail" d="M0 111H200M0 119H200"/>';
+    if (o.arrow === "left") s += '<path class="sc-solid" style="stroke-width:3" d="M115 166V154Q115 147 109 147"/><path class="sc-zebra" d="M109 141L100 147L109 153Z"/>';
     return s;
   },
   /* a side road (yours, from the bottom) meeting a through road; from: what you come out of */
@@ -102,7 +103,9 @@ var GROUND = {
     var s = '<rect class="sc-road" x="60" y="0" width="80" height="200"/>';
     if (o.park) s += '<rect class="sc-drive" x="140" y="0" width="24" height="200"/>' + (o.park === "both" ? '<rect class="sc-drive" x="36" y="0" width="24" height="200"/>' : "");
     if (o.stop) s += '<path class="sc-road" d="M140 50L156 62V120L140 132Z"/><text class="sc-mark" x="174" y="150" style="text-anchor:middle">Bus stop</text>';
-    if (o.rails) s += '<path class="sc-rail" d="M96 0V200M104 0V200"/>'; else s += o.centre === "solid" ? '<path class="sc-solid" d="M100 0V200"/>' : '<path class="sc-dash" d="M100 0V200"/>';
+    if (o.rails) s += '<path class="sc-rail" d="M96 0V200M104 0V200"/>'; else s += o.centre === "mixed" ? '<path class="sc-solid" d="M98 0V200"/><path class="sc-dash" d="M102.5 0V200"/>' : o.centre === "solid" ? '<path class="sc-solid" d="M100 0V200"/>' : '<path class="sc-dash" d="M100 0V200"/>';
+    if (o.cycle) s += '<rect class="sc-cyclelane" x="140" y="0" width="14" height="200"/><path class="sc-solid" d="M140 0V200"/>';
+    if (o.buslane) s += '<rect class="sc-road" x="140" y="0" width="26" height="200"/><path class="sc-solid" d="M140 0V200"/><text class="sc-mark" transform="translate(157 150) rotate(-90)">' + o.buslane + '</text><text class="sc-mark" transform="translate(157 50) rotate(-90)">' + o.buslane + '</text>';
     if (o.kerb) s += '<rect class="sc-drive" x="140" y="0" width="16" height="200"/><path class="mp-kerb-' + o.kerb + '" d="M137 0V200"/>';
     return s;
   },
@@ -115,6 +118,8 @@ var GROUND = {
     var s = '<rect class="sc-road" x="60" y="0" width="80" height="200"/><path class="sc-dash" d="M100 0V78M100 122V200"/><rect class="mp-ballast" x="0" y="86" width="200" height="28"/>';
     for (var x = 4; x < 200; x += 12) s += '<rect class="sc-sleeper" x="' + x + '" y="88" width="5" height="24"/>';
     s += '<path class="sc-rail" d="M0 94H200M0 106H200"/>';
+    if (o.sig === "none") return s;
+    if (o.sig === "white") return s + '<rect class="mp-lbox" x="150" y="124" width="12" height="12" rx="2"/><circle class="mp-l-white mp-blink" cx="156" cy="130" r="3.4"/><rect class="mp-lbox" x="38" y="64" width="12" height="12" rx="2"/><circle class="mp-l-white mp-blink" cx="44" cy="70" r="3.4"/>';
     /* barriers standing up beside the road, lights flashing */
     s += '<rect class="mp-barrier" x="146" y="118" width="4" height="34" rx="2"/><rect class="mp-barrier" x="50" y="48" width="4" height="34" rx="2"/>';
     s += '<rect class="mp-lbox" x="152" y="126" width="16" height="9" rx="2"/><circle class="mp-l-red mp-blink" cx="156" cy="130.5" r="3"/><circle class="mp-l-red mp-blink2" cx="164" cy="130.5" r="3"/>';
@@ -126,14 +131,15 @@ var GROUND = {
   round: function(o){
     var s = '<rect class="sc-road" x="70" y="0" width="60" height="200"/><rect class="sc-road" x="0" y="70" width="200" height="60"/>';
     if (o.cycle) s += '<circle class="mp-cring" cx="100" cy="100" r="66"/>';
-    s += '<circle class="sc-road" cx="100" cy="100" r="46"/><circle class="mp-island" cx="100" cy="100" r="18"/>';
+    s += '<circle class="sc-road" cx="100" cy="100" r="46"/><circle class="mp-island" cx="100" cy="100" r="' + (o.twolane ? 14 : 18) + '"/>';
+    if (o.twolane) s += '<circle class="sc-dash" cx="100" cy="100" r="30"/>';
     s += '<path class="sc-dash" d="M100 200V148M100 0V52M0 100H52M200 100H148"/>';
     return s;
   },
   /* motorway going up (lanes x=90 and x=130) with an on-ramp joining from the right */
   motor: function(){ return '<rect class="sc-road" x="70" y="0" width="80" height="200"/><path class="sc-road" d="M150 200V95L150 50L178 95V200Z"/><path class="sc-dash" d="M110 0V200M150 100V200"/><path class="sc-solid" d="M70 0V200"/>'; },
   /* motorway with an exit lane leaving to the right */
-  exit: function(){ return '<rect class="sc-road" x="70" y="0" width="80" height="200"/><path class="sc-road" d="M150 165L178 120V78Q178 48 200 34V2Q160 22 150 70Z"/><path class="sc-dash" d="M110 0V200M150 72V140"/><path class="sc-solid" d="M70 0V200"/>'; },
+  exit: function(){ return '<rect class="sc-road" x="70" y="0" width="80" height="200"/><path class="sc-road" d="M150 165L178 120V78Q178 48 200 34V2Q160 22 150 70Z"/><path class="sc-dash" d="M110 0V200M150 72V140"/><path class="sc-solid" d="M70 0V200"/><path class="mp-hatch" d="M151 66L158 54M151 54L156 45M151 42L154 36"/>'; },
   /* your lane (left) ends; merge into the right lane */
   zip: function(){ return '<rect class="sc-road" x="100" y="0" width="40" height="200"/><path class="sc-road" d="M60 200V95L100 55V200Z"/><path class="sc-dash" d="M100 98V200"/>'; }
 };
@@ -150,7 +156,7 @@ window.KLAAR_MAP = function(m){
   (m.tline || []).forEach(function(x){ extra += teethLine.apply(null, x); });
   (m.matrix || []).forEach(function(b){ var x = b[0];
     extra += '<rect class="mp-mx" x="' + (x - 13) + '" y="6" width="26" height="22" rx="3"/>' +
-      (b[1] === "x" ? '<path class="mp-mx-x" d="M' + (x - 6) + ' 11L' + (x + 6) + ' 23M' + (x + 6) + ' 11L' + (x - 6) + ' 23"/>' :
+      (b[1] === "warn" ? '<path class="mp-mx-a" d="M' + (x - 5) + ' 12L' + (x + 5) + ' 22M' + (x - 1) + ' 22H' + (x + 5) + 'V16"/>' : b[1] === "x" ? '<path class="mp-mx-x" d="M' + (x - 6) + ' 11L' + (x + 6) + ' 23M' + (x + 6) + ' 11L' + (x - 6) + ' 23"/>' :
        '<path class="' + (b[1] === "green" ? "mp-mx-g" : "mp-mx-a") + '" d="M' + x + ' 24V11M' + (x - 5) + ' 16L' + x + ' 11L' + (x + 5) + ' 16"/>'); });
   if (m.note) extra += '<rect class="mp-note" x="6" y="6" width="' + (m.note.length * 5.6 + 12) + '" height="18" rx="9"/><text class="mp-notet" x="12" y="18.5">' + m.note + "</text>";
   var items = (m.items || []).map(item).join("");
