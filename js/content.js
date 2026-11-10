@@ -223,7 +223,31 @@ EXTRA.drive = EXTRA.drive.concat([
    e:"If you can still get your car off the track, do it, even if it damages the barrier. The damage from a train hitting you is far greater.", source:PRS,
    map:{g:"rail", items:[{you:1, x:120, y:100, r:0}]}},
   {t:"Railway crossings", num:true, q:"Vehicles up to what height can cross a level crossing without extra measures, in metres? (type a number)", a:["4"],
-   e:"Higher vehicles must take another route, because they can hit the overhead wire.", source:PRH}
+   e:"Higher vehicles must take another route, because they can hit the overhead wire.", source:PRH},
+
+  /* Batch 4, Nov 2026: lights and motorway, from Articles 32 to 35a and 42 to 43 of the RVV booklet */
+  {t:"Lights & visibility", q:"May the front or rear light on a bicycle be set to flash?", o:["No, bicycle lights may not flash", "Yes, flashing is easier to see", "Only the rear light may flash", "Only in the dark outside built-up areas"], c:0,
+   e:"The lights on a bicycle must burn steadily. They may not flash, and they may not blind other road users.", source:G(32)},
+  {t:"Lights & visibility", q:"Which colours must the lights on a bicycle have?", o:["Red at the front and white at the rear", "Yellow at both the front and the back", "White or yellow ahead, red behind", "White at both the front and the back"], c:2,
+   e:"A bicycle needs a white or yellow light at the front and a red light at the back.", source:G(32)},
+  {t:"Lights & visibility", q:"A cyclist has no front lamp but wears a white light on the chest. Is that allowed?", o:["No, the lamp must be fixed to the bike", "Only on a cycle path in town", "Only if it is a flashing light", "Yes, a chest light can replace it"], c:3,
+   e:"A white or yellow light worn on the chest may replace the front lamp. A red light worn on the back may replace the rear light.", source:G(32)},
+  {t:"Lights & visibility", q:"You tow a trailer at night. Which lights must the trailer show?", o:["Only the rear lights and the brake lights, no side lights", "Rear lights, a number plate light and side lights", "Only a number plate light and reflectors at the back", "None, the lights of your car are enough"], c:1,
+   e:"A towed trailer shows rear lights, a rear number plate light and side lights at night. In dull daytime conditions it must be lit too.", source:G(32)},
+  {t:"Lights & visibility", q:"In thick fog you switch on your front fog lights. Do your dipped headlights also have to stay on?", o:["Yes, they must always burn together", "Yes, but only on a motorway at night", "No, not when you use front fog lights", "Only in a built-up area, not outside it"], c:2,
+   e:"In fog, snow or heavy rain you may use your front fog lights, and then you do not need dipped headlights as well. Rear lights stay on.", source:G(32)},
+  {t:"Lights & visibility", q:"A cargo bike has two front wheels. How many front lights must it carry?", o:["Two white or yellow lights, left and right", "One white light in the middle of the front", "Two red lights, one on each side at the front", "None, a rear light is enough for a bike"], c:0,
+   e:"A cycle with two front wheels must carry two white or two yellow lights at the front, placed symmetrically left and right of the centre.", source:G(32)},
+
+  {t:"Motorway", num:true, q:"A motorway may only be used by vehicles that can drive faster than how many km/h? (type a number)", a:["60"],
+   e:"Motorway: faster than 60 km/h. Main highway (autoweg): faster than 50 km/h.", source:G(34)},
+  {t:"Motorway", q:"Which of these may you never do on a motorway?", o:["Drive in the left lane", "Use the hard shoulder in an emergency", "Overtake a slow lorry", "Make a U-turn or reverse"], c:3,
+   e:"U-turns and reversing are forbidden on motorways and main highways. If you miss your exit, drive on to the next one.", source:G(34)},
+  {t:"Motorway", q:"A lorry drives on a motorway with three lanes. Which lanes may it use?", o:["All three lanes, like any other vehicle", "Only the two right-hand lanes", "Only the left lane, as it is the fastest", "Only the middle lane of the three"], c:1,
+   e:"On a motorway with three or more lanes, goods vehicles and combinations longer than 7 m may only use the two right-hand lanes, except when changing lanes.", source:G(35),
+   map:{g:"lanes3", note:"Motorway, 3 lanes", items:[{you:1, k:"truck", x:160, y:130, r:0}]}},
+  {t:"Motorway", q:"You want to stop for a moment on the motorway to check your phone. May you stop in the right lane?", o:["Yes, with your hazard lights on", "Yes, if the road is quiet", "No, never on the carriageway", "Yes, for less than a minute"], c:2,
+   e:"You may not stop on the carriageway of a motorway. The hard shoulder is for emergencies only.", source:G(35)}
 ]);
 })();
 var DRIVE = (function(){
