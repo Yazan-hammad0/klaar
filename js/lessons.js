@@ -39,6 +39,14 @@ var SRC = {
   rvv20: "https://wetten.overheid.nl/jci1.3:c:BWBR0004825&artikel=20",
   rvv21: "https://wetten.overheid.nl/jci1.3:c:BWBR0004825&artikel=21",
   rvv45: "https://wetten.overheid.nl/jci1.3:c:BWBR0004825&artikel=45",
+  /* checked on 10 Nov 2026 */
+  cbrAlc: "https://www.cbr.nl/nl/onveilig-rijgedrag/nl/voorkom-onveilig-rijgedrag/alcohol/rijden-met-alcohol-op-mag-dat",
+  roAlc: "https://www.rijksoverheid.nl/onderwerpen/verkeersveiligheid/vraag-en-antwoord/mag-ik-met-alcohol-op-deelnemen-aan-het-verkeer",
+  roGordel: "https://www.rijksoverheid.nl/onderwerpen/verkeersveiligheid/vraag-en-antwoord/wanneer-moet-ik-de-autogordel-gebruiken",
+  roZitje: "https://www.rijksoverheid.nl/onderwerpen/verkeersveiligheid/vraag-en-antwoord/moet-ik-mijn-kind-in-de-auto-in-een-kinderzitje-vervoeren",
+  roFiets: "https://www.rijksoverheid.nl/onderwerpen/fiets/vraag-en-antwoord/welke-regels-gelden-voor-mijn-elektrische-fiets-e-bike",
+  rdwTips: "https://www.rdw.nl/particulier/voertuigen/auto/apk/tips-voor-een-veilige-auto",
+  rdwApk: "https://www.rdw.nl/particulier/voertuigen/auto/apk/wanneer-en-hoe-vaak-apk-keuren",
   speedRules: "https://www.rijksoverheid.nl/vraag-en-antwoord/verkeersveiligheid/wat-is-de-maximumsnelheid-voor-auto-s-op-de-snelweg"
 };
 
@@ -333,6 +341,93 @@ var SCENES = {
       '<rect class="sc-adv" x="110" y="46" width="68" height="68" rx="5"/><text class="sc-advt" x="144" y="89">70</text>' + label(58, 140, "Limit") + label(144, 140, "Advice"), []);
   },
 
+  /* driving knowledge topics: flat pictures on a light card (alcohol, phones, seat belts, your car, safety) */
+  alcLimit: function(){ return civ("al",
+    '<rect class="cv-card" x="10" y="34" width="86" height="116" rx="10"/><rect class="cv-card" x="104" y="34" width="86" height="116" rx="10"/>' +
+    ctext(53, 56, "Experienced", "cv-s") + ctext(53, 92, "0.5", "cv-big") + ctext(53, 108, "per mille", "cv-s") + ctext(53, 134, "220 µg/l", "cv-t") +
+    ctext(147, 56, "Beginner", "cv-s") + ctext(147, 92, "0.2", "cv-num") + ctext(147, 108, "per mille", "cv-s") + ctext(147, 134, "88 µg/l", "cv-t") +
+    ctext(100, 176, "µg/l = micrograms per litre of breath", "cv-s")); },
+  alcGlass: function(){ return civ("ag",
+    ctext(100, 34, "One standard glass", "cv-t") +
+    '<rect class="cv-card" x="28" y="58" width="28" height="52" rx="5"/><rect class="cv-warm" x="30" y="70" width="24" height="38" rx="3"/><rect class="cv-card" x="29" y="58" width="26" height="12" rx="5"/>' +
+    '<path class="cv-card" d="M86 58H114Q116 90 100 96Q84 90 86 58Z"/><path class="cv-red" d="M88 72H112Q111 90 100 94Q89 90 88 72Z"/><path class="cv-line" d="M100 96V116M90 118H110"/>' +
+    '<path class="cv-card" d="M148 84H172L169 110H151Z"/><path class="cv-warm" d="M150.5 94H169.5L168 108H152Z"/>' +
+    ctext(42, 132, "250 ml", "cv-t") + ctext(42, 146, "beer", "cv-s") + ctext(100, 132, "100 ml", "cv-t") + ctext(100, 146, "wine", "cv-s") + ctext(160, 132, "35 ml", "cv-t") + ctext(160, 146, "spirits", "cv-s") +
+    ctext(100, 178, "about 10 g of alcohol each", "cv-t")); },
+  alcOther: function(){ return civ("ao",
+    ctext(100, 22, "Any substance that", "cv-t") + ctext(100, 38, "makes you unfit", "cv-t") +
+    '<g transform="rotate(-35 52 82)"><rect class="cv-card" x="28" y="71" width="48" height="22" rx="11"/><path class="cv-blue" d="M52 71H65A11 11 0 0 1 65 93H52Z"/></g>' +
+    '<path class="cv-card" d="M138 56H166Q168 84 152 90Q136 84 138 56Z"/><path class="cv-red" d="M140 70H164Q163 84 152 88Q141 84 140 70Z"/><path class="cv-line" d="M152 90V108M142 110H162"/>' +
+    ctext(52, 122, "Medicine", "cv-s") + ctext(152, 126, "Alcohol", "cv-s") +
+    '<circle class="cv-dark2" cx="100" cy="150" r="17" fill="none" style="stroke-width:5"/><path class="cv-dark2" style="stroke-width:4" d="M100 150V166M100 150L86 143M100 150L114 143"/><path class="cv-plus" d="M82 168L118 132"/>'); },
+  alcBob: function(){
+    var p = function(x, cls){ return '<circle class="' + cls + '" cx="' + x + '" cy="78" r="9"/><rect class="' + cls + '" x="' + (x - 11) + '" y="90" width="22" height="30" rx="8"/>'; };
+    return civ("ab", ctext(100, 30, "Agree before you go out", "cv-t") + p(36, "cv-blue") + p(86, "cv-warm") + p(126, "cv-warm") + p(166, "cv-warm") +
+      '<circle class="cv-dark2" cx="36" cy="52" r="9" fill="none" style="stroke-width:3"/><path class="cv-dark2" style="stroke-width:2.5" d="M36 52V61M36 52L29 48M36 52L43 48"/>' +
+      ctext(36, 140, "Bob", "cv-t") + ctext(36, 154, "no alcohol", "cv-s") + ctext(126, 140, "May drink", "cv-s") + ctext(100, 182, "The Bob drives everyone home", "cv-t")); },
+  phoneHold: function(){ return civ("ph",
+    ctext(100, 26, "While you drive", "cv-t") +
+    '<rect class="cv-dark" x="30" y="48" width="44" height="80" rx="8"/><rect class="cv-card" x="35" y="56" width="34" height="58" rx="3"/><path class="cv-plus" d="M18 130L88 46"/>' +
+    ctext(52, 152, "Held", "cv-t") + ctext(52, 166, "not allowed", "cv-s") +
+    '<path class="cv-dark2" style="stroke-width:5" d="M114 128H186"/><rect class="cv-blue" x="141" y="112" width="18" height="14" rx="3"/><rect class="cv-dark" x="136" y="50" width="28" height="66" rx="6"/><rect class="cv-card" x="140" y="56" width="20" height="50" rx="2"/>' +
+    '<path d="M168 56L174 63L186 48" fill="none" stroke="#1F9D6B" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>' +
+    ctext(150, 152, "In a holder", "cv-t") + ctext(150, 166, "not held", "cv-s")); },
+  phoneBike: function(){ return civ("pb",
+    '<rect class="cv-card" x="10" y="30" width="86" height="124" rx="10"/><rect class="cv-card" x="104" y="30" width="86" height="124" rx="10"/>' +
+    '<path class="cv-dark2" style="stroke-width:5" d="M36 78Q36 52 53 52Q70 52 70 78" fill="none"/><rect class="cv-dark" x="30" y="76" width="12" height="20" rx="5"/><rect class="cv-dark" x="64" y="76" width="12" height="20" rx="5"/>' +
+    '<path d="M62 52L68 59L82 42" fill="none" stroke="#1F9D6B" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>' +
+    ctext(53, 126, "Hands-free", "cv-t") + ctext(53, 141, "if no danger", "cv-s") +
+    '<rect class="cv-dark" x="130" y="46" width="34" height="58" rx="7"/><rect class="cv-card" x="135" y="53" width="24" height="40" rx="2"/><path class="cv-plus" d="M124 100L170 44"/>' +
+    ctext(147, 126, "Holding it", "cv-t") + ctext(147, 141, "while riding", "cv-s") +
+    ctext(100, 180, "Standing still: you may hold it", "cv-t")); },
+  beltAlways: function(){
+    var seat = function(x, y){ return '<circle class="cv-blue" cx="' + x + '" cy="' + (y - 6) + '" r="7"/><rect class="cv-blue" x="' + (x - 11) + '" y="' + (y + 2) + '" width="22" height="13" rx="5"/><rect class="cv-warm" x="' + (x - 13) + '" y="' + (y + 6) + '" width="26" height="4" rx="2"/>'; };
+    return civ("ba", '<rect class="cv-card" x="52" y="14" width="96" height="140" rx="22"/><path class="cv-line" d="M70 30H130"/>' +
+      seat(76, 54) + seat(124, 54) + seat(70, 112) + seat(100, 112) + seat(130, 112) + ctext(100, 180, "One belt each. No sharing.", "cv-t")); },
+  beltChild: function(){ return civ("bc",
+    '<path class="cv-line" style="stroke-dasharray:4 4" d="M18 84H182"/><text class="cv-t" x="168" y="76" style="fill:#C0392B">1.35 m</text>' +
+    '<path class="cv-blue" d="M36 150V118Q36 110 44 110H70V150Z"/><circle class="cv-warm" cx="58" cy="100" r="8"/><rect class="cv-warm" x="50" y="108" width="16" height="22" rx="5"/>' +
+    '<rect class="cv-card" x="120" y="92" width="32" height="58" rx="6"/><circle class="cv-warm" cx="136" cy="52" r="11"/><rect class="cv-warm" x="126" y="64" width="20" height="54" rx="7"/><path d="M128 66L146 108" stroke="#C0392B" stroke-width="3" stroke-linecap="round" fill="none"/>' +
+    '<text class="cv-t" x="54" y="168" style="font-size:11px">Under 1.35 m</text>' + ctext(54, 182, "child seat", "cv-s") + '<text class="cv-t" x="140" y="168" style="font-size:11px">Over 1.35 m</text>' + ctext(140, 182, "normal belt", "cv-s")); },
+  beltBaby: function(){ return civ("bb",
+    '<path class="cv-arrow" d="M50 40H150M142 34L150 40L142 46"/>' + ctext(100, 30, "Travel", "cv-s") +
+    '<path class="cv-blue" d="M86 140V96Q86 78 104 78H134V140Z"/><circle class="cv-warm" cx="110" cy="96" r="10"/><rect class="cv-warm" x="104" y="106" width="22" height="22" rx="7"/>' +
+    '<path class="cv-arrow" d="M80 100H58M65 94L58 100L65 106"/>' + ctext(38, 118, "Looks back", "cv-s") +
+    '<rect class="cv-red" x="142" y="88" width="50" height="34" rx="8"/>' + ctext(167, 102, "Airbag", "cv-w") + ctext(167, 117, "off", "cv-w") +
+    ctext(100, 164, "Facing backwards", "cv-t") + ctext(100, 180, "as long as you can", "cv-t")); },
+  beltFine: function(){ return civ("bf",
+    '<rect class="cv-card" x="10" y="38" width="96" height="40" rx="8"/>' + '<text class="cv-t" x="58" y="62" style="font-size:11px">Child under 12</text>' + '<path class="cv-arrow" d="M110 58H128M122 52L128 58L122 64"/><rect class="cv-red" x="132" y="38" width="58" height="40" rx="8"/>' + ctext(161, 63, "You pay", "cv-w") +
+    '<rect class="cv-card" x="10" y="98" width="96" height="40" rx="8"/>' + '<text class="cv-t" x="58" y="122" style="font-size:11px">Child 12 or older</text>' + '<path class="cv-arrow" d="M110 118H128M122 112L128 118L122 124"/><rect class="cv-blue" x="132" y="98" width="58" height="40" rx="8"/>' + ctext(161, 123, "They pay", "cv-w") +
+    ctext(100, 172, "If the belt or seat is not used", "cv-s")); },
+  tyreDepth: function(){ return civ("td",
+    '<rect class="cv-blue" x="24" y="38" width="152" height="30" rx="8"/><rect class="cv-dark" x="30" y="68" width="56" height="46" rx="3"/><rect class="cv-dark" x="114" y="68" width="56" height="46" rx="3"/><path class="cv-line" d="M16 116H184"/>' +
+    '<path class="cv-arrow" style="stroke:#C0392B" d="M100 70V112M95 77L100 70L105 77M95 105L100 112L105 105"/>' + '<text class="cv-t" x="100" y="136" style="fill:#C0392B">at least 1.6 mm</text>' +
+    ctext(100, 160, "In the main grooves, all the way round", "cv-s") + ctext(100, 176, "Check the pressure every month", "cv-s")); },
+  apkWhen: function(){
+    var X = function(y){ return 16 + y * 14; }, row = function(y0, years, lbl){ var s = '<path class="cv-line" d="M' + X(years[0]) + " " + y0 + "H" + X(years[years.length - 1]) + '"/>', i;
+      for (i = 0; i < years.length; i++){ s += '<circle class="cv-blue" cx="' + X(years[i]) + '" cy="' + y0 + '" r="5.5"/>'; if (i < 3) s += ctext(X(years[i]), y0 + 20, String(years[i]), "cv-t"); }
+      return ctext(100, y0 - 16, lbl, "cv-s") + s; };
+    return civ("ak", ctext(100, 26, "Age of the car in years", "cv-t") + row(70, [4, 6, 8, 9, 10, 11, 12], "Petrol or electric") + row(128, [3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "Diesel or gas") + ctext(100, 184, "Up to 2 months early: same date", "cv-s")); },
+  lightsCheck: function(){ return civ("lc",
+    ctext(100, 30, "Fog lights: when you see less than", "cv-s") +
+    '<path class="sc-beam" d="M126 92L190 70V122L126 102Z"/><rect class="cv-blue" x="74" y="84" width="52" height="26" rx="9"/><rect class="cv-card" x="106" y="88" width="10" height="18" rx="2"/>' +
+    '<circle class="sc-fogglow" cx="66" cy="97" r="15"/><rect class="sc-foglight" x="68" y="93" width="5" height="8" rx="1"/>' +
+    ctext(40, 146, "Rear", "cv-s") + '<text class="cv-t" x="40" y="168" style="fill:#C0392B;font-size:22px">50 m</text>' + ctext(160, 146, "Front", "cv-s") + '<text class="cv-t" x="160" y="168" style="fill:#C0392B;font-size:22px">200 m</text>'); },
+  safeHorn: function(){ return civ("sh",
+    '<path class="cv-red" style="stroke:#C0392B;stroke-width:6;stroke-linejoin:round" d="M100 34L148 112H52Z"/>' + ctext(100, 100, "!", "cv-hbig") +
+    '<path class="cv-line" d="M40 58Q26 76 40 94M28 50Q8 76 28 102M160 58Q174 76 160 94M172 50Q192 76 172 102"/>' +
+    ctext(100, 148, "Horn and headlight flash", "cv-t") + ctext(100, 164, "only to warn of danger", "cv-t")); },
+  safeTriangle: function(){ return civ("st",
+    '<path class="cv-arrow" d="M14 58H46M40 52L46 58L40 64"/>' + ctext(30, 48, "Traffic", "cv-s") +
+    '<rect class="cv-dark" x="10" y="80" width="180" height="40" rx="6"/><path class="sc-dash" d="M14 100H186" style="stroke-width:1.4"/>' +
+    '<path class="cv-card" style="stroke:#C0392B;stroke-width:4;stroke-linejoin:round" d="M44 84L56 106H32Z"/><rect class="cv-blue" x="138" y="88" width="40" height="24" rx="8"/><rect class="cv-card" x="140" y="92" width="10" height="16" rx="2"/>' +
+    '<path class="cv-arrow" d="M62 142H132M69 136L62 142L69 148M125 136L132 142L125 148"/>' + ctext(97, 164, "about 30 m", "cv-t") + ctext(100, 184, "Not needed if hazard lights flash", "cv-s")); },
+  safeTow: function(){ return civ("sw",
+    '<path class="cv-line" d="M14 120H186"/><rect class="cv-blue" x="26" y="88" width="46" height="24" rx="8"/><rect class="cv-warm" x="128" y="88" width="46" height="24" rx="8"/>' +
+    '<path class="cv-dark2" style="stroke-width:3;stroke-dasharray:3 3" d="M72 100H128"/>' +
+    '<path class="cv-arrow" d="M74 70H126M81 64L74 70L81 76M119 64L126 70L119 76"/>' + '<text class="cv-t" x="100" y="58" style="fill:#C0392B">5 m at most</text>' +
+    ctext(49, 138, "Towed", "cv-s") + ctext(151, 138, "Your car", "cv-s") + ctext(100, 172, "Gap between the two cars", "cv-t")); },
+
   /* civic: healthcare */
   insCard: function(){ return civ("ic", '<rect class="cv-card" x="18" y="44" width="104" height="68" rx="9"/><rect class="cv-blue" x="18" y="44" width="104" height="20" rx="9"/><rect class="cv-blue" x="18" y="56" width="104" height="8"/>' +
     ctext(70, 58, "Zorgverzekering", "cv-w") + '<path class="cv-plus" d="M44 82V100M35 91H53"/><path class="cv-line" d="M64 84H110M64 96H98"/>' + calendar(150, 120, "4", "months") + ctext(100, 178, "Within 4 months", "cv-t")); },
@@ -452,6 +547,64 @@ window.LESSONS = {
       {scene:"railRoom", h:"Never stop on the tracks",
        t:"Only drive onto the crossing when there is room to get off it completely on the other side. If traffic is queuing, wait before the crossing.",
        why:"If the barriers close while you are stuck on the tracks, you can't get out of the way.", src:SRC.rvv23}
+    ],
+    "Alcohol limit": [
+      {scene:"alcLimit", h:"0.5 per mille, and only 0.2 for beginners",
+       t:"An experienced driver may have at most 0.5 per mille of alcohol in the blood, or 220 micrograms per litre of breath. In your first 5 years with a first car licence the limit is 0.2 per mille, or 88 micrograms.",
+       why:"Even one glass makes an accident more likely, and beginners have the least experience to make up for it.", src:SRC.cbrAlc},
+      {scene:"alcGlass", h:"One standard glass holds about 10 g of alcohol",
+       t:"A standard glass is 250 ml of beer, 100 ml of wine or 35 ml of spirits. A bottle of beer counts as more than one. A man reaches 0.5 per mille after about 2 standard glasses and 0.2 after about 1. A woman gets there after slightly fewer.",
+       why:"The limit is the alcohol in your blood, not the number of drinks, so you need to know what a drink holds.", src:SRC.cbrAlc},
+      {scene:"alcOther", h:"Medicine and other substances count too",
+       t:"You may not drive under the influence of any substance, alone or mixed with another, that makes you unfit to drive. Some medicines do. You also may not let someone drive when you know, or should know, that they are over the limit or unfit.",
+       why:"What matters is whether you can still drive safely, whatever the cause.", src:SRC.gov(21)},
+      {scene:"alcBob", h:"Choose the Bob before you go out",
+       t:"Agree beforehand who drives. That person drinks no alcohol and is the Bob.",
+       why:"A clear agreement in advance keeps the Bob from being tempted to have a drink.", src:SRC.roAlc}
+    ],
+    "Mobile phones": [
+      {scene:"phoneHold", h:"Do not hold a phone while you drive",
+       t:"You may not hold a phone, tablet or media player while driving, to call, type or read a route. The rule covers cars, mopeds and e-bikes. It is about holding, so a phone in a holder is not held.",
+       why:"A device in your hand takes your hand, your eyes and your mind off the road.", src:SRC.gov(40)},
+      {scene:"phoneBike", h:"On a bike: hands-free is fine, holding is not",
+       t:"When you cycle you may not hold a phone. Calling hands-free and listening to music are allowed if they cause no danger. When you stand still you may hold and use your phone.",
+       why:"The danger is in riding with a device in your hand.", src:SRC.roFiets}
+    ],
+    "Seatbelts": [
+      {scene:"beltAlways", h:"Belt on, in front and at the back",
+       t:"Wear a seat belt whenever your seat has one, as driver or passenger, in front or behind. Two people may not share a belt, and you may not carry more passengers than there are belts. An adult shorter than 1.35 m just wears the normal belt.",
+       why:"A belt only protects the person it is fitted around.", src:SRC.roGordel},
+      {scene:"beltChild", h:"Under 1.35 m and under 18: a child seat",
+       t:"Children shorter than 1.35 m must travel in an approved child seat, in front or behind, in your car and in anyone else's. Taller than 1.35 m, they may use the normal belt.",
+       why:"A normal belt is made for people over 1.35 m and sits in the wrong place on a smaller child.", src:SRC.roZitje},
+      {scene:"beltBaby", h:"Babies: backwards for as long as you can, and mind the airbag",
+       t:"It is safer to carry a baby facing backwards for as long as possible. A rear-facing seat may only go on a seat with an airbag if the airbag is switched off. Never use a belt extender with a child seat.",
+       why:"An airbag that fires against a rear-facing seat can hurt the child.", src:SRC.roZitje},
+      {scene:"beltFine", h:"Who gets the fine",
+       t:"If a child under 12 is not secured as required, you, the driver, get the fine. Older children get their own fine if they do not use the belt.",
+       why:"The driver decides who rides and how, so the driver is responsible.", src:SRC.roGordel}
+    ],
+    "Vehicle condition": [
+      {scene:"tyreDepth", h:"Tyres: 1.6 mm of tread, all the way round",
+       t:"The main grooves must be at least 1.6 mm deep around the whole tyre. A tyre with a bulge, or with damage that shows the cords, fails the APK. Check the pressure every month.",
+       why:"Worn tread grips less on a wet road, and the right pressure gives more grip and a shorter braking distance.", src:SRC.rdwTips},
+      {scene:"apkWhen", h:"The APK: when to go",
+       t:"A petrol or electric car goes for its first APK at 4 years, then every 2 years until it is 8, then every year. A diesel or gas car goes at 3 years, then every year. You may go up to 2 months early and keep your date.",
+       why:"The APK is a snapshot of the day, not a promise for the year, so keep checking tyres and lights yourself.", src:SRC.rdwApk},
+      {scene:"lightsCheck", h:"Lights and wipers: check them yourself",
+       t:"Check your lights, brake lights and reversing lights regularly. Use front fog lights when you can see less than 200 m, and the rear fog light below 50 m. Replace wipers before they look worn and keep the washer fluid topped up.",
+       why:"You need to see and be seen, and lights and wipers are how you do both.", src:SRC.rdwTips}
+    ],
+    "Safety": [
+      {scene:"safeHorn", h:"Horn and headlights: only to warn of danger",
+       t:"You may only sound your horn or flash your headlights to warn of an emergency. Not to say hello, and not to hurry someone up.",
+       why:"If the horn were used for chat, a real warning would get lost.", src:SRC.gov(30)},
+      {scene:"safeTriangle", h:"Broken down: the warning triangle",
+       t:"If your stopped car could be a danger to approaching traffic, put a warning triangle on the road about 30 m behind it, facing the traffic. You do not need it when your hazard lights flash.",
+       why:"Approaching drivers need time to see you and slow down.", src:SRC.gov(37)},
+      {scene:"safeTow", h:"Towing: no more than 5 m between the cars",
+       t:"When you tow another vehicle, the gap between the back of your car and the front of the towed car may not be more than 5 m.",
+       why:"A short, visible link keeps the two cars moving as one.", src:SRC.gov(36)}
     ],
     "Road markings": [
       {scene:"overtake", h:"Solid line: don't cross it. Broken line: you may, when safe",
@@ -619,7 +772,7 @@ window.LESSONS = {
   }
 };
 /* the order lessons come in: basics first, motorway and hazards later */
-window.LESSON_ORDER = {drive:["Priority", "Signs", "Road markings", "Speed limits", "Distances", "Lane use", "Stopping & parking", "Lights & visibility", "Railway crossings", "Motorway", "Hazard perception"], civic:["Listening", "Reading", "Grammar", "Administration", "Healthcare", "Work life"]};
+window.LESSON_ORDER = {drive:["Priority", "Signs", "Road markings", "Speed limits", "Distances", "Lane use", "Stopping & parking", "Lights & visibility", "Railway crossings", "Motorway", "Seatbelts", "Mobile phones", "Alcohol limit", "Vehicle condition", "Safety", "Hazard perception"], civic:["Listening", "Reading", "Grammar", "Administration", "Healthcare", "Work life"]};
 /* exam-section topics that share a lesson with a skill */
 window.LESSON_ALIAS = {civic:{"A2 Luisteren":"Listening", "A2 Lezen":"Reading", "A2 Schrijven":"Grammar", "Writing":"Grammar"}};
 window.LESSON_SCENE = function(id){ return SCENES[id] ? SCENES[id]() : ""; };
