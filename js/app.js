@@ -564,7 +564,7 @@ function renderFeed(entering){
     return;
   }
   var q = cur.q, html2 = feedHead();
-  html2 += '<article class="qcard' + (entering ? " enter" : "") + (q.kind === "hazard" ? " hz" : "") + '" id="qcard">';
+  html2 += '<article class="qcard' + (entering ? " enter" : "") + (q.kind === "hazard" ? " hz" : "") + '" id="qcard" data-qid="' + esc(String(q.id)) + '">';
   var inUnit = focus && focus.track === q.track && inFocus(q);
   html2 += '<div class="eyebrow"><span>' + esc(q.topic) + '</span>' + (inUnit && focus.set ? '<span class="tag">Mistakes</span>' : "") + (inUnit ? '<span class="pr-count tabular">' + Math.min(focus.n, focus.asked + (cur.done ? 0 : 1)) + ' / ' + focus.n + '</span>' : "") + (q.sec && q.sec !== "basics" && SEC_NAME[q.sec] !== q.topic ? '<span class="tag">' + esc(SEC_NAME[q.sec] || q.sec) + '</span>' : "") + (q.gen ? '<span class="tag ai">New</span>' : "") + '</div>';
   html2 += bodyHtml(q);
@@ -575,14 +575,14 @@ function renderFeed(entering){
     html2 += '<div class="opts">';
     cur.order.forEach(function(orig, k){
       var cls = "opt";
-      if (cur.done){ if (orig === q.c) cls += " right"; else if (orig === cur.sel) cls += " wrong"; }
+      if (cur.done){ if (orig === q.c) cls += " right" + (cur.fresh ? " in" : ""); else if (orig === cur.sel) cls += " wrong" + (cur.fresh ? " in" : ""); }
       html2 += '<button class="' + cls + '" data-o="' + orig + '"' + (cur.done ? " disabled" : "") + '><span class="k">' + String.fromCharCode(65 + k) + '</span><span>' + mark(q.track, q.o[orig]) + '</span></button>';
     });
     html2 += '</div>';
   }
   if (cur.done){
     var ok = cur.ok;
-    html2 += '<div class="fb"><p class="verdict ' + (ok ? "ok" : "no") + '">' + (ok ? "Correct" : "Not quite") + '</p>';
+    html2 += '<div class="fb' + (cur.fresh ? " in" : "") + '"><p class="verdict ' + (ok ? "ok" : "no") + '">' + (ok ? "Correct" : "Not quite") + '</p>';
     if (!ok) html2 += '<p><b>Answer: ' + esc(correctText(q)) + '</b></p>';
     if (q.en) html2 += '<p class="en">' + esc(q.en) + '</p>';
     if (q.audio) html2 += '<p class="en">Audio: ' + esc(q.audio) + '</p>';
@@ -593,7 +593,11 @@ function renderFeed(entering){
     html2 += '<p class="hint">Swipe up for the next question</p>';
   }
   html2 += '</article>';
+  /* re-rendering the same question (after answering) keeps its picture, so it doesn't flash or restart */
+  var old = entering ? null : $("#qcard", v), keep = old && old.getAttribute("data-qid") === String(q.id) ? $(".visual", old) : null;
+  if (keep && keep.querySelector("button,audio,input")) keep = null;
   v.innerHTML = html2;
+  if (keep){ var nv = $("#qcard .visual", v); if (nv) nv.parentNode.replaceChild(keep, nv); }
   wireFeed(v);
 }
 function burst(btn){
@@ -612,11 +616,11 @@ function burst(btn){
 function answer(a, btnRect){
   if (cur.done) return;
   var q = cur.q, ok = isRight(q, a);
-  cur.done = true; cur.sel = a; cur.ok = ok;
+  cur.done = true; cur.sel = a; cur.ok = ok; cur.fresh = true;
   if (window.KLAAR_STATS) KLAAR_STATS.answer(q, ok);
   var leveled = record(q, ok, false);
   if (focus && focus.track === q.track && inFocus(q)){ focus.asked++; if (ok) focus.ok++; }
-  renderFeed();
+  renderFeed(); cur.fresh = false;
   var card = $("#qcard");
   if (card){ card.classList.add(ok ? "hit" : "miss"); }
   if (ok) burst($(".opt.right") || $(".inp"));
@@ -633,15 +637,22 @@ function wireFeed(v){
   var inp = $("#feed-inp", v);
   if (inp){
     inp.addEventListener("input", function(){ cur.input = inp.value; });
-    inp.addEventListener("keydown", function(e){ if (e.key === "Enter"){ if (!cur.done && inp.value.trim()) answer(inp.value); else if (cur.done) nextQuestion(); } });
+    inp.addEventListener("keydown", function(e){ if (e.key === "Enter"){ if (!cur.done && inp.value.trim()) answer(inp.value); else if (cur.done) leaveThenNext(); } });
   }
   var chk = $('[data-act="check"]', v); if (chk) chk.addEventListener("click", function(){ if (inp && inp.value.trim()) answer(inp.value); });
-  var nx = $('[data-act="next"]', v); if (nx) nx.addEventListener("click", nextQuestion);
+  var nx = $('[data-act="next"]', v); if (nx) nx.addEventListener("click", leaveThenNext);
   var ex = $('[data-act="explain"]', v); if (ex) ex.addEventListener("click", explain);
   if (cur) wireAudio(v, cur.q);
   var card = $("#qcard", v);
   if (card) wireSwipe(card);
   sizeCard();
+}
+/* The answered card glides up and out, then the next one rises in (the same motion as the swipe). */
+function leaveThenNext(){
+  var c = $("#v-feed #qcard");
+  if (c && c.classList.contains("leave")) return;
+  if (!c || reduced()){ nextQuestion(); return; }
+  c.classList.add("leave"); setTimeout(nextQuestion, 170);
 }
 function atEnd(){ var se = scroller(); return se.scrollTop + se.clientHeight >= se.scrollHeight - 4; }
 function rubber(x, dim){ var c = 0.55; return (x * dim * c) / (dim + c * Math.abs(x)); }
@@ -1247,8 +1258,26 @@ function setTrack(t){
   if (t === S.track) return;
   if (run && !confirmLeave()) return;
   stopSound();
-  S.track = t; save(); applyTrack(); cur = null; lesson = null; focus = null; lastId = null; stopTimer(); run = null;
-  renderAll(true);
+  smooth(function(){
+    S.track = t; save(); applyTrack(); cur = null; lesson = null; focus = null; lastId = null; stopTimer(); run = null;
+    renderAll(true);
+  });
+}
+function reduced(){ return window.matchMedia("(prefers-reduced-motion: reduce)").matches; }
+/* Cross-fade the whole screen for a big change (switching goal). Browsers without View Transitions get the slide-in. */
+function smooth(fn){
+  var done = false;
+  function run(){ if (done) return; done = true; fn(); }
+  if (document.startViewTransition && !reduced() && !document.hidden){
+    try {
+      var vt = document.startViewTransition(run);
+      /* safety net: if the browser never gets to the transition, switch at once anyway */
+      setTimeout(function(){ if (!done){ try { vt.skipTransition(); } catch (e) {} run(); } }, 400);
+      return;
+    } catch (e) {}
+  }
+  run();
+  var sec = $("#v-" + view); if (sec && !reduced()){ sec.classList.remove("v-in"); void sec.offsetWidth; sec.classList.add("v-in"); }
 }
 function confirmLeave(){ return true; }
 function setView(v){

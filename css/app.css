@@ -85,8 +85,8 @@ main{max-width:620px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-lef
 /* question card */
 .qcard{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:20px 18px 18px;position:relative;overflow:hidden;
   box-shadow:0 18px 40px -26px rgba(0,0,0,.45);touch-action:pan-y}
-.qcard.enter{animation:rise .38s cubic-bezier(.2,.8,.2,1)}
-@keyframes rise{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.qcard.enter{animation:rise .34s cubic-bezier(.2,.85,.25,1)}
+@keyframes rise{from{transform:translateY(22px);opacity:0}to{transform:none;opacity:1}}
 .qcard.hit{animation:hit .5s}
 @keyframes hit{0%{box-shadow:0 0 0 0 var(--ok)}100%{box-shadow:0 0 0 18px transparent}}
 .qcard.miss{animation:shake .4s}
@@ -213,7 +213,16 @@ main{max-width:620px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-lef
 .toast{position:fixed;left:50%;bottom:calc(var(--tabbar) + env(safe-area-inset-bottom,0px) + 14px);transform:translateX(-50%);z-index:60;
   background:var(--fg);color:var(--bg);padding:11px 16px;border-radius:12px;font-weight:700;font-size:14px;max-width:calc(100% - 32px);text-align:center;
   animation:rise .3s}
-@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+/* answer feedback eases in; the answered card glides out before the next one rises */
+.fb.in{animation:fbIn .32s cubic-bezier(.2,.9,.25,1) both}
+@keyframes fbIn{from{opacity:0;transform:translateY(10px)}}
+.opt.in{animation:optIn .3s ease-out both}
+@keyframes optIn{from{background:var(--raise);border-color:var(--line)}}
+#v-feed .qcard.leave{animation:leave .18s cubic-bezier(.4,0,1,1) forwards;pointer-events:none}
+@keyframes leave{to{opacity:0;transform:translateY(-26px)}}
+/* switching goal cross-fades the whole screen */
+::view-transition-old(root),::view-transition-new(root){animation-duration:.32s;animation-timing-function:cubic-bezier(.2,.9,.25,1)}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}
 
 html{-webkit-text-size-adjust:100%}
 body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent}
