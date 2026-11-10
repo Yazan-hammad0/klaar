@@ -11,7 +11,10 @@ var CBRA = "https://www.cbr.nl/nl/onveilig-rijgedrag/nl/voorkom-onveilig-rijgedr
     ROF = "https://www.rijksoverheid.nl/onderwerpen/fiets/vraag-en-antwoord/welke-regels-gelden-voor-mijn-elektrische-fiets-e-bike",
     RDA = "https://www.rdw.nl/particulier/voertuigen/auto/apk/wanneer-en-hoe-vaak-apk-keuren",
     RDT = "https://www.rdw.nl/particulier/voertuigen/auto/apk/tips-voor-een-veilige-auto",
-    RDB = "https://apk-handboek.rdw.nl/personenautos/ophanging/banden";
+    RDB = "https://apk-handboek.rdw.nl/personenautos/ophanging/banden",
+    PRS = "https://www.prorail.nl/campagnes/schat-de-situatie-niet-verkeerd-in",
+    PRF = "https://www.prorail.nl/veelgestelde-vragen/veiligheid/kan-ik-met-elk-voertuig-een-overweg-passeren",
+    PRH = PRF;
 EXTRA.drive = EXTRA.drive.concat([
   /* lane use and overtaking */
   {t:"Lane use", q:"A tram drives ahead of you on rails in the middle of the road. On which side may you pass it?", o:["Only on the left", "On the right", "Not at all", "Only once it has stopped"], c:1,
@@ -193,7 +196,34 @@ EXTRA.drive = EXTRA.drive.concat([
   {t:"Vehicle condition", num:true, q:"Below how many metres of visibility do you use front fog lights, according to the RDW? (type a number)", a:["200"],
    e:"Front fog lights go on when you can see less than 200 m, rear fog lights when you can see less than 50 m.", source:RDT},
   {t:"Vehicle condition", q:"When should you replace your windscreen wipers?", o:["Before they look worn", "When they have stopped moving", "Once a year at the APK", "Only when it rains"], c:0,
-   e:"Wipers wear out fast. Replace them before they look worn, and keep the washer fluid topped up.", source:RDT}
+   e:"Wipers wear out fast. Replace them before they look worn, and keep the washer fluid topped up.", source:RDT},
+
+  /* Batch 2, Nov 2026: level crossings. Signs J10 to J13 and Articles 15a, 23 and 71 from the RVV booklet;
+     stalled car, barrier and timing from ProRail. */
+  {t:"Railway crossings", q:"What does this sign tell you?", sign:"crossing-barrier", o:["A level crossing with barrier or gates", "A level crossing without any barrier or gates", "Road works with a barrier across the road", "A toll gate where you stop to pay"], c:0,
+   e:"J10 warns of a level crossing with a barrier or gates ahead. Expect lights and a barrier, and be ready to stop.", source:G(11)},
+  {t:"Railway crossings", q:"What does this sign tell you?", sign:"crossing-open", o:["A level crossing with a barrier across the road", "A railway station with a platform ahead", "A level crossing without barrier or gates", "A tram stop where trams pick up people"], c:2,
+   e:"J11 warns of a level crossing without barrier or gates. You still give priority to rail vehicles and wait until the crossing is completely free.", source:G(11)},
+  {t:"Railway crossings", q:"This sign stands at a level crossing. How many tracks does the road cross?", sign:"crossing-single", o:["Two or more tracks", "A tram line only", "No tracks, it is only a warning", "One track"], c:3,
+   e:"J12 marks a level crossing with a single track. J13, with two crosses, marks a crossing with two or more tracks.", source:G(11)},
+  {t:"Railway crossings", q:"This sign stands at a level crossing. How many tracks does the road cross?", sign:"crossing-double", o:["One track", "Two or more tracks", "A tram line only", "No tracks, it is only a warning"], c:1,
+   e:"J13 marks a level crossing with two or more tracks. J12, with one cross, marks a single track.", source:G(12)},
+  {t:"Railway crossings", q:"At a level crossing the red lights are flashing, but you cannot see a train. What do you do?", o:["Cross if the road looks clear", "Cross slowly and carefully", "Stop and wait", "Cross if you are on a priority road"], c:2,
+   e:"A flashing red light means stop, whether or not you see a train.", source:G(45),
+   map:{g:"rail", items:[{you:1, x:120, y:160, r:0}]}},
+  {t:"Railway crossings", q:"A passenger wants to get out right on the level crossing. May you stop there for a moment?", o:["No, never wait on a level crossing", "Yes, if it only takes a few seconds", "Yes, if the crossing looks empty and quiet", "Only with your hazard lights on"], c:0,
+   e:"You may not wait on a level crossing, not even briefly.", source:G(29),
+   map:{g:"rail", sig:"none", items:[{you:1, x:120, y:160, r:0}]}},
+  {t:"Railway crossings", num:true, q:"After the lights and bells start at a level crossing, a train can pass within how many seconds? (type a number)", a:["21"],
+   e:"ProRail says a train can pass as soon as 21 seconds after the signals start. Never try to beat the barriers.", source:PRF},
+  {t:"Railway crossings", q:"Your engine stalls on a level crossing and will not start. What do you do?", o:["Stay in the car and phone a friend for help", "Keep trying to start the engine until it runs", "Switch on the hazard lights and wait in the car", "Get out and move well away from the track"], c:3,
+   e:"Leave the vehicle immediately and go to a safe place away from the track. Then call 112 and follow the instructions of the emergency services.", source:PRS,
+   map:{g:"rail", items:[{you:1, x:120, y:100, r:0}]}},
+  {t:"Railway crossings", q:"The barriers come down while your car is on the crossing. The engine still runs. What do you do?", o:["Wait on the crossing until it opens", "Drive on through the barrier", "Reverse and wait between the rails", "Leave the car and walk away"], c:1,
+   e:"If you can still get your car off the track, do it, even if it damages the barrier. The damage from a train hitting you is far greater.", source:PRS,
+   map:{g:"rail", items:[{you:1, x:120, y:100, r:0}]}},
+  {t:"Railway crossings", num:true, q:"Vehicles up to what height can cross a level crossing without extra measures, in metres? (type a number)", a:["4"],
+   e:"Higher vehicles must take another route, because they can hit the overhead wire.", source:PRH}
 ]);
 })();
 var DRIVE = (function(){
@@ -213,6 +243,10 @@ function signSvg(kind){
     case "mandatory-up": return svg('<circle cx="50" cy="50" r="46" fill="#145DA0" stroke="#fff" stroke-width="4"/><path d="M50 22 L74 52 H58 V80 H42 V52 H26 Z" fill="#fff"/>');
     case "no-entry": return svg('<circle cx="50" cy="50" r="46" fill="#D7152A" stroke="#fff" stroke-width="4"/><circle cx="50" cy="50" r="38" fill="#fff"/><rect x="18" y="42" width="64" height="16" rx="2" fill="#D7152A"/>');
     case "warning": return svg('<path d="M50 6 L96 88 H4 Z" fill="#fff" stroke="#D7152A" stroke-width="7" stroke-linejoin="round"/><rect x="45" y="34" width="10" height="34" rx="3" fill="#111"/><circle cx="50" cy="76" r="5.5" fill="#111"/>');
+    case "crossing-barrier": return svg('<path d="M50 6 L96 88 H4 Z" fill="#fff" stroke="#D7152A" stroke-width="7" stroke-linejoin="round"/><rect x="24" y="42" width="5" height="36" fill="#111"/><rect x="24" y="48" width="52" height="4" fill="#111"/><rect x="34" y="52" width="3" height="18" fill="#111"/><rect x="44" y="52" width="3" height="18" fill="#111"/><rect x="54" y="52" width="3" height="18" fill="#111"/><rect x="64" y="52" width="3" height="18" fill="#111"/><rect x="18" y="78" width="64" height="3" fill="#111"/>');
+    case "crossing-open": return svg('<path d="M50 6 L96 88 H4 Z" fill="#fff" stroke="#D7152A" stroke-width="7" stroke-linejoin="round"/><rect x="22" y="52" width="46" height="18" rx="2" fill="#111"/><rect x="52" y="42" width="16" height="12" rx="1.5" fill="#111"/><rect x="28" y="42" width="6" height="12" fill="#111"/><circle cx="30" cy="74" r="5" fill="#111"/><circle cx="46" cy="74" r="5" fill="#111"/><circle cx="62" cy="74" r="5" fill="#111"/><rect x="18" y="80" width="64" height="3" fill="#111"/>');
+    case "crossing-single": return svg('<rect x="3" y="3" width="94" height="94" rx="10" fill="#EEF2F7" stroke="#CBD5E1" stroke-width="2"/><rect x="46.5" y="34" width="7" height="60" fill="#fff" stroke="#D7152A" stroke-width="1.6"/><rect x="46.5" y="42" width="7" height="8" fill="#D7152A"/><rect x="46.5" y="58" width="7" height="8" fill="#D7152A"/><rect x="46.5" y="74" width="7" height="8" fill="#D7152A"/><g transform="rotate(35 50 27)"><rect x="29" y="23" width="42" height="8" rx="1.5" fill="#fff" stroke="#D7152A" stroke-width="2.4"/></g><g transform="rotate(-35 50 27)"><rect x="29" y="23" width="42" height="8" rx="1.5" fill="#fff" stroke="#D7152A" stroke-width="2.4"/></g>');
+    case "crossing-double": return svg('<rect x="3" y="3" width="94" height="94" rx="10" fill="#EEF2F7" stroke="#CBD5E1" stroke-width="2"/><rect x="46.5" y="44" width="7" height="50" fill="#fff" stroke="#D7152A" stroke-width="1.6"/><rect x="46.5" y="52" width="7" height="8" fill="#D7152A"/><rect x="46.5" y="68" width="7" height="8" fill="#D7152A"/><rect x="46.5" y="84" width="7" height="8" fill="#D7152A"/><g transform="rotate(38 50 17)"><rect x="34" y="14" width="32" height="6" rx="1.5" fill="#fff" stroke="#D7152A" stroke-width="2.2"/></g><g transform="rotate(-38 50 17)"><rect x="34" y="14" width="32" height="6" rx="1.5" fill="#fff" stroke="#D7152A" stroke-width="2.2"/></g><g transform="rotate(38 50 36)"><rect x="34" y="33" width="32" height="6" rx="1.5" fill="#fff" stroke="#D7152A" stroke-width="2.2"/></g><g transform="rotate(-38 50 36)"><rect x="34" y="33" width="32" height="6" rx="1.5" fill="#fff" stroke="#D7152A" stroke-width="2.2"/></g>');
     case "give-way": return svg('<path d="M6 10 L94 10 L50 92 Z" fill="#fff" stroke="#D7152A" stroke-width="7" stroke-linejoin="round"/>');
     case "stop": return svg('<polygon points="32,6 68,6 94,32 94,68 68,94 32,94 6,68 6,32" fill="#D7152A" stroke="#fff" stroke-width="4"/><text x="50" y="62" font-size="26" font-family="IBM Plex Sans" font-weight="700" text-anchor="middle" fill="#fff">STOP</text>');
     case "priority-road": return svg('<rect x="18" y="18" width="64" height="64" fill="#fff" stroke="#111" stroke-width="3" transform="rotate(45 50 50)"/><rect x="28" y="28" width="44" height="44" fill="#F4B400" transform="rotate(45 50 50)"/>');
