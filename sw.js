@@ -17,6 +17,11 @@ self.addEventListener("fetch", e => {
     return;
   }
   if (url.origin !== location.origin) return;
+  // Only the app itself is cached. The landing page (welcome/) and marketing/ are ordinary web pages: leave them to the browser,
+  // or a visit to them would overwrite the app's saved page and break opening the app offline.
+  const root = new URL("./", self.location).pathname, rest = url.pathname.slice(root.length);
+  if (url.pathname.indexOf(root) !== 0 || /^(welcome|marketing)\//.test(rest)) return;
+  if (req.mode === "navigate" && rest !== "" && rest !== "index.html") return;
   // network first for the page (so updates arrive), cache when offline
   if (req.mode === "navigate") {
     e.respondWith(fetch(req).then(res => { const copy = res.clone(); caches.open(CACHE).then(c => c.put("./index.html", copy)); return res; })
