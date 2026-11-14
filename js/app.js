@@ -978,7 +978,6 @@ function renderProfile(){
 
   html += '<div class="label">Your level and goals</div><div class="ai-box"><p>' + esc(profileLine()) + '</p><button class="btn ghost" data-act="redo-prof" style="width:100%">Change my level and goals</button></div>';
   html += '<div class="label">Share Klaar</div><div class="ai-box"><p>Know someone preparing for these exams? Send them the link. It shows them how to install it.</p><button class="btn ghost" data-act="share-app" style="width:100%">Share the link</button></div>';
-  html += '<div class="label">Show Claude your progress</div><div class="ai-box"><p>Your progress stays on this phone, so Claude can\'t see it. Tap below, then paste the text into your chat with Claude.</p><button class="btn" data-act="share-prog" style="width:100%">Copy my progress</button></div>';
   html += '<div class="label">Start again</div><div class="ai-box"><p>Clears your answers, mocks and streak on this phone. Your name, language and goals stay.</p><button class="btn ghost danger" data-act="reset" style="width:100%">Start from scratch</button></div>';
   html += '<div class="label">Backup</div><div class="ai-box"><p>Progress lives on this phone only. Save a backup file now and then, so a new phone or a cleared browser doesn\'t wipe it.</p><div class="pair"><button class="btn ghost" data-act="bk-save">Save backup</button><label class="btn ghost" for="bk-file">Restore<input type="file" id="bk-file" accept="application/json,.json" hidden></label></div></div>';
   if (window.KLAAR_STATS && KLAAR_STATS.ready()) html += '<div class="label">Anonymous stats</div><div class="ai-box"><p>Klaar counts which screens are used and which questions people get wrong, so the hard parts can be fixed. No name, no account, no cookies. Your progress itself stays on this phone.</p><button class="btn ghost" data-act="stats" style="width:100%">' + (KLAAR_STATS.on() ? "Turn off anonymous stats" : "Turn on anonymous stats") + '</button></div>';
@@ -990,8 +989,7 @@ function renderProfile(){
   nm.addEventListener("input", function(){ clearTimeout(nt); nt = setTimeout(function(){ S.prof = S.prof || {}; S.prof.name = nm.value.trim().slice(0, 30); save(); renderAvatar(); var a = $(".prof-card .avatar", v); if (a) a.innerHTML = avatarInner(); }, 300); });
   var rp = $('[data-act="redo-prof"]', v); if (rp) rp.addEventListener("click", function(){ if (window.KLAAR_PROFILE) window.KLAAR_PROFILE(); });
   var sa = $('[data-act="share-app"]', v); if (sa) sa.addEventListener("click", shareApp);
-  var sp = $('[data-act="share-prog"]', v); if (sp) sp.addEventListener("click", shareProgress);
-  var dg = $("#diag", v); if (dg && window.KLAAR_DIAG) dg.textContent = window.KLAAR_DIAG();
+  var dg = $("#diag", v); if (dg && window.KLAAR_DIAG){ dg.textContent = "Version " + KLAAR_VERSION; dg.addEventListener("click", function(){ dg.textContent = window.KLAAR_DIAG(); }); }
   var bx = $('[data-act="bk-save"]', v); if (bx) bx.addEventListener("click", backupSave);
   var rs = $('[data-act="reset"]', v); if (rs) rs.addEventListener("click", function(){ if (rs.getAttribute("data-sure")){ resetProgress(); toast("Fresh start. Your progress is back to zero."); return; } rs.setAttribute("data-sure", "1"); rs.textContent = "Tap again to clear everything"; });
   var bi = $("#bk-file", v); if (bi) bi.addEventListener("change", function(){ if (bi.files && bi.files[0]) backupLoad(bi.files[0]); });
@@ -1001,34 +999,6 @@ function renderProfile(){
   $$("[data-style]", v).forEach(function(b){ b.addEventListener("click", function(){ S.prof = S.prof || {}; S.prof.style = b.getAttribute("data-style"); lesson = null; save(); renderProfile(); }); });
 }
 
-function progressSummary(){
-  var L = ["Klaar progress, " + dayKey()];
-  ["drive", "civic"].forEach(function(t){
-    var tr = S.t[t], acc = tr.ans ? Math.round(tr.ok / tr.ans * 100) + "%" : "n/a";
-    L.push(""); L.push(NAMES[t] + ": " + tr.ans + " answered, " + acc + " right, " + levelName(t) + ", " + tr.xp + " XP");
-    var tp = tr.topics, ks = Object.keys(tp).filter(function(k){ return tp[k].a >= 3; }).sort(function(x, y){ return tp[x].ok / tp[x].a - tp[y].ok / tp[y].a; }).slice(0, 4);
-    if (ks.length) L.push("Weakest: " + ks.map(function(k){ return k + " " + Math.round(tp[k].ok / tp[k].a * 100) + "% (" + tp[k].a + ")"; }).join(", "));
-    var ms = [];
-    Object.keys(tr.mocks).forEach(function(id){
-      var h = tr.mocks[id]; if (!h || !h.length) return;
-      var m = modes(t).filter(function(x){ return x.id === id; })[0], last = h[h.length - 1];
-      ms.push((m ? m.title : id) + ": last " + last.s + "/" + last.n + (last.p ? " pass" : " fail") + ", " + h.filter(function(x){ return x.p; }).length + "/" + h.length + " passed");
-    });
-    L.push(ms.length ? "Mock exams: " + ms.join("; ") : "Mock exams: none yet");
-    var done = journey(t).steps.filter(function(p){ return p.done; }).map(function(p){ return p.name; });
-    if (done.length) L.push("Roadmap done: " + done.join("; "));
-  });
-  L.push(""); L.push("Streak " + streak() + " days. Goal " + S.goal + "/day. Days practised: " + Object.keys(S.days).length + (S.arrived ? ". Arrived " + S.arrived : "") + ".");
-  return L.join("\n");
-}
-function shareProgress(){
-  var text = progressSummary();
-  function copied(){ toast("Copied. Paste it in your chat with Claude."); }
-  if (navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(text).then(copied, function(){ if (navigator.share) navigator.share({text:text}).catch(function(){}); });
-  } else if (navigator.share){ navigator.share({text:text}).catch(function(){}); }
-  else { openSheet('<h2>Your progress</h2><p style="white-space:pre-wrap;user-select:all">' + esc(text) + '</p>'); }
-}
 function srcName(u){ var m = /^https?:\/\/(?:www\.)?([^\/]+)/.exec(String(u)), p = /#page=(\d+)$/.exec(String(u)); return (m ? m[1] : String(u)) + (p ? ", page " + p[1] : ""); }
 /* a source line that opens the page the fact comes from */
 function srcLink(u){ return /^https:\/\//.test(String(u)) ? '<p class="src"><a href="' + esc(u) + '" target="_blank" rel="noopener">Source: ' + esc(srcName(u)) + '</a></p>' : '<p class="src">Source: ' + esc(srcName(u)) + '</p>'; }

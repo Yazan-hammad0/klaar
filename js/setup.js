@@ -6,7 +6,7 @@ function $(s, r){ return (r || document).querySelector(s); }
 function $$(s, r){ return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
 function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-var ICON = '<img src="icon-180.png" alt="">';
+var ICON = '<img src="icons/icon-180.png" alt="">';
 var K = null, a = {}, hist = [], el = null, existing = false;
 
 function overlay(){

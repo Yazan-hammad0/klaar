@@ -9,11 +9,24 @@ Questions are original and written in the style of the real exams. They are not 
 ## How it's built
 No framework and no build step. GitHub Pages serves this folder as-is.
 
+## Where things are
+| Folder | What is in it |
+|---|---|
+| (top level) | `index.html`, `manifest.webmanifest` and `sw.js` must stay here: they are the app's front door. `release.py` stamps a new version |
+| `js/` | The app's code and all questions and lessons (see the table below) |
+| `css/` | The one stylesheet |
+| `audio/` | Recorded Dutch audio and the script that makes it |
+| `icons/` | App icons and `og.png`, the picture shown next to the link when someone shares it |
+| `welcome/` | The landing page for people who do not know Klaar yet |
+| `marketing/` | Messaging, ready-to-post copy, app screenshots and social pictures. Start with `marketing/README.md` |
+
+## The app's files
+
 | File | What it holds |
 |---|---|
 | `index.html` | Page markup: header (current goal, profile button), three tabs (Home, Feed, Exams), menu bar |
 | `css/app.css` | All styles, light and dark |
-| `js/content.js` | Question banks, road-sign drawings, glossaries. `EXTRA` holds the sourced questions added in Nov 2026; the block right under it adds more, each checked on its page of the RVV booklet |
+| `js/content.js` | Question banks, road-sign drawings, glossaries. `EXTRA` holds the sourced questions added in Nov 2026, one question per line; the block right under it adds more, each checked on its page of the RVV booklet |
 | `js/lessons.js` | Topic lessons: short steps with an animated scene, the rule and why. Shown once before a topic's first questions. Driving: Priority, Signs, Road markings, Speed limits, Distances, Lane use, Stopping & parking, Lights & visibility, Railway crossings, Motorway, Seatbelts, Mobile phones, Alcohol limit, Vehicle condition, Safety, Hazard perception. Inburgering: Dutch (Listening: times and numbers, Reading, Grammar: word order, niet/geen, de/het) and KNM (Administration, Healthcare, Work life). Dutch steps can have `say` phrases you tap to hear; `LESSON_ALIAS` lets exam sections share a skill lesson |
 | `js/view.js` | Driver's-eye pictures for hazard-perception questions: the road ahead in perspective, with every object placed in metres. Each question has a `view` spec |
 | `js/map.js` | Top-down pictures for driving questions: the junction or road from above, your car marked "You", other road users and arrows for where each one goes. Each question has a `map` spec. Order questions (`kind:"order"`, like the CBR drag question) give road users an `id` and `name` and list the right order in `ans` |

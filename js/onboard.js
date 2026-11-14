@@ -34,7 +34,7 @@
   window.addEventListener("appinstalled", function(){ lsSet("klaarInstallSeen", "1"); close(); });
   function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
   function lsSet(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }
-  var ICON = '<img src="icon-180.png" alt="">';
+  var ICON = '<img src="icons/icon-180.png" alt="">';
   var URL_NOW = location.href.split("#")[0].split("?")[0];
 
   function open(html){
@@ -81,7 +81,7 @@
   }
   function showInstall(){
     var head = '<div class="onb-brand">' + ICON + 'Klaar</div>' + langRow();
-    var pitch = "Practise for the Dutch driving theory exam and the integration exam, one question at a time. Free, and it works offline.";
+    var pitch = "On your home screen Klaar opens full screen, works without internet and keeps your progress.";
     var OPEN = ["Open Klaar from your home screen", "It opens full screen and works without internet."];
     var g = guide(), html = head;
     function linkBox(){ return '<div class="onb-url">' + URL_NOW + '</div><div class="onb-foot" style="margin-top:14px;padding-top:0"><button class="btn" id="onb-copy">Copy link</button></div>'; }
@@ -122,7 +122,7 @@
     } else {
       html += '<h1>Klaar is made for your phone</h1><p class="sub">This browser can\'t install apps. Open the link on your phone, or in Chrome or Edge on this computer.</p>' + linkBox();
     }
-    html += '<div class="onb-foot"><button class="onb-link" id="onb-later">Try it in the browser first</button></div>';
+    html += '<div class="onb-foot"><button class="onb-link" id="onb-later">Not now</button></div>';
     var el = open(html);
     wireLang(el);
     var copy = el.querySelector("#onb-copy");
@@ -149,6 +149,7 @@
   window.KLAAR_PROFILE = function(){ if (window.KLAAR_SETUP) KLAAR_SETUP.open(true); };
   function maybeIntro(){ if (window.KLAAR_SETUP && KLAAR_SETUP.needed()) KLAAR_SETUP.open(false); }
   window.KLAAR_GUIDE = showInstall;
-  if (!standalone && !lsGet("klaarInstallSeen")) showInstall();
-  else maybeIntro();
+  /* First visit goes straight to the setup and a first question. Installing is offered by the banner in shell.js
+     and from the profile, after the app has shown what it does. */
+  maybeIntro();
 })();
