@@ -6,11 +6,6 @@
 window.UNTAUGHT = {
   drive: {
     /* Priority */
-    "d26": "Pedestrians: always let a person with a white cane or guide dog cross",
-    "x-d-5hum4h": "Pedestrians: give way at a zebra to people waiting to cross",
-    "x-d-1weu7br": "Pedestrians: no priority on a red pedestrian light",
-    "x-d-18jpjfr": "Pedestrians: give way to passengers getting on or off a tram or bus",
-    "x-d-1te92mi": "Pedestrians: trams also let people cross at a zebra",
     "x-d-1srv5k": "Roundabouts: shark teeth mean give way to traffic on the roundabout",
     "x-d-b8cz2c": "Roundabouts: without signs, traffic from the right goes first",
     "x-d-bi92gc": "Roundabouts: cycle track crossing inside a built-up area",

@@ -187,6 +187,21 @@ var SCENES = {
     {shape:"car", color:"c-red", badge:"1", path:[[0, 85, -25, 180], [30, 85, 55, 180], [42, 72, 80, 225], [52, 50, 85, 270], [72, -30, 85, 270], [100, -30, 85, 270]], still:[0, 85, 50, 180]},
     you([[0, 115, 215, 0], [20, 115, 150, 0], [55, 115, 150, 0], [65, 115, 108, 0], [75, 98, 87, -90], [95, -30, 85, -90], [100, -30, 85, -90]], {badge:"2", still:[0, 115, 152]})
   ]); },
+  /* someone waits at a zebra: you stop and let them cross */
+  zebraWait: function(){
+    var z = ""; for (var x = 63; x < 138; x += 10) z += '<rect class="sc-zebra" x="' + x + '" y="80" width="6" height="18"/>';
+    return svg("zw", road("none"), z, [
+      {shape:"person", path:[[0, 152, 89], [35, 152, 89], [70, 46, 89], [100, 46, 89]], still:[0, 150, 89]},
+      you([[0, 120, 215], [25, 120, 128], [75, 120, 128], [100, 120, -40]], {still:[0, 120, 128]})
+    ]);
+  },
+  /* a tram stopped in the road: its passengers cross your lane, you wait */
+  tramStop: function(){ return svg("tq", road("none") + '<path class="sc-rail" d="M86 0V200M94 0V200"/>', "", [
+    {shape:"tram", path:[[0, 90, 70], [100, 90, 70]], still:[0, 90, 70]},
+    {shape:"person", path:[[0, 104, 62], [10, 104, 62], [45, 156, 62], [100, 156, 62]], still:[0, 128, 62]},
+    {shape:"person", path:[[0, 104, 80], [18, 104, 80], [52, 156, 80], [100, 156, 80]], still:[0, 112, 80]},
+    you([[0, 124, 215], [25, 124, 140], [60, 124, 140], [100, 124, -40]], {still:[0, 124, 140]})
+  ]); },
   driveway: function(){ return svg("dw", drivewayRoad(), "", [
     {shape:"car", color:"c-red", badge:"1", path:[[0, -25, 105, 90], [48, 225, 105, 90], [100, 225, 105, 90]], still:[0, 100, 105, 90]},
     you([[0, 45, 205], [15, 45, 145], [52, 45, 145], [62, 45, 120], [72, 70, 105, 90], [100, 230, 105, 90]], {badge:"2", still:[0, 45, 145]})
@@ -598,6 +613,12 @@ window.LESSONS = {
       {scene:"leftWaits", h:"Turning left? Wait for an oncoming car turning right",
        t:"If you turn left and an oncoming driver turns right at the same junction, they go first. Your left turn crosses their path, their right turn doesn't cross yours.",
        why:"You both head for the same street, so one fixed rule stops you both waiting for each other.", src:SRC.gov(26)},
+      {scene:"zebraWait", h:"Zebra crossing: stop for people waiting, not only crossing",
+       t:"At a zebra crossing, let people cross who are on it or clearly waiting to cross. Always let a blind person with a white cane (with red rings) cross, and anyone who has trouble walking, zebra or not. Tram drivers must stop at a zebra too.",
+       why:"Someone at the kerb can't step out until a driver stops, so you have to stop first.", src:SRC.gov(35)},
+      {scene:"tramStop", h:"Red pedestrian light, and passengers getting off",
+       t:"When the pedestrian light at a zebra is red, people on foot have no priority and you may drive on. When you pass a tram or bus that has stopped, on the side where people get on and off, let them get on and off first.",
+       why:"The light decides who goes, and passengers have to cross your path to reach the pavement.", src:SRC.gov(36)},
       {scene:"driveway", h:"Special manoeuvres: you give way to everyone",
        t:"Coming out of a driveway or parking place, reversing, a U-turn or changing lanes is a special manoeuvre (bijzondere manoeuvre). You let all other traffic go first, from every direction.",
        why:"You are joining or crossing traffic that is already moving, so it goes first.", src:SRC.anwbPriority}
