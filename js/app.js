@@ -305,10 +305,10 @@ function levelName(t){ return t === "drive" ? "Level " + S.t.drive.level : CIVIC
 
 /* ---------------- glossary sheet ---------------- */
 function mark(t, s){ return LIBS[t].markGlossary(s); }
-function openSheet(html){
+function openSheet(html, noClose){
   var root = $("#overlay-root");
-  root.innerHTML = '<div class="overlay" id="ov" role="dialog" aria-modal="true"><div class="sheet">' + html + '<button class="btn" id="sheet-close">Got it</button></div></div>';
-  $("#sheet-close").addEventListener("click", closeSheet);
+  root.innerHTML = '<div class="overlay" id="ov" role="dialog" aria-modal="true"><div class="sheet">' + html + (noClose ? "" : '<button class="btn" id="sheet-close">Got it</button>') + '</div></div>';
+  if (!noClose) $("#sheet-close").addEventListener("click", closeSheet);
   $("#ov").addEventListener("click", function(e){ if (e.target.id === "ov") closeSheet(); });
 }
 function closeSheet(){
@@ -1241,6 +1241,89 @@ function topicsHtml(t){
     (rest.length ? '<details class="tp-more"' + (homeOpen.topics ? " open" : "") + ' data-fold="topics"><summary>All ' + ts.length + ' topics</summary><div class="topics">' + rest.map(row).join("") + '</div></details>' : "");
 }
 
+/* ---------------- driving Home: a readiness ring, the route to a licence, one next step, topics as colour tiles ---------------- */
+var SHORT = {"Hazard perception":"Hazards", "Lights & visibility":"Lights", "Railway crossings":"Railway", "Vehicle condition":"Vehicle", "Road markings":"Markings",
+  "Alcohol limit":"Alcohol", "Stopping & parking":"Parking", "Mobile phones":"Phones", "Speed limits":"Speed", "Lane use":"Lanes"};
+var TILE_WORD = {weak:"Fix", going:"Going", strong:"Solid", "new":"New"};
+var ringShown = {};
+function readyState(t, p){ return p === 0 ? "new" : (p < 50 ? "weak" : (p < PASS_PCT[t] ? "going" : "strong")); }
+var READY_WORD = {"new":"Let's start", weak:"Not yet", going:"Getting close", strong:"Klaar"};
+function addDays(d, n){ var x = new Date(d.getTime()); x.setDate(x.getDate() + n); return x; }
+function monthName(d, yr){ return d.toLocaleDateString(loc(), yr ? {month:"long", year:"numeric"} : {month:"long"}); }
+function dayMonth(d){ return d.toLocaleDateString(loc(), {day:"numeric", month:"short"}); }
+/* the road from theory to licence. Lessons: most people need about 40 hours, so about 4 months at 2 or 3 a week.
+   After the practical exam you apply at your town hall, and the licence is ready about 5 working days later. */
+function licenceRoute(t, P){
+  var pl = S.plan || {}, ex = P.exam, now = new Date();
+  var theory = ex ? addDays(now, ex.n) : null;
+  var practical = theory ? addDays(theory, 120) : null, licence = practical ? addDays(practical, 14) : null;
+  var at = pl["d-practical"] ? 3 : (pl["d-lessons"] ? 2 : (pl["d-theory"] ? 1 : 0));
+  var done = at === 0 ? P.ready / 100 * 0.22 : at * 0.25 + 0.05;
+  var stops = [
+    {name:"Theory", when:pl["d-theory"] ? "Passed" : (theory ? dayMonth(theory) : "Add a date")},
+    {name:"Lessons", when:pl["d-lessons"] ? "Done" : (theory ? "4 months" : "After theory")},
+    {name:"Practical", when:pl["d-practical"] ? "Passed" : (practical ? monthName(practical) : "After lessons")},
+    {name:"Licence", when:licence ? monthName(licence) : "A week later"}
+  ];
+  return {stops:stops, at:at, done:Math.min(1, done), licence:licence};
+}
+function driveHomeHtml(t, P){
+  var st = readyState(t, P.ready), ex = P.exam, today = rightToday(), sk = streak();
+  var R = licenceRoute(t, P), r = 58, C = 364.4;
+  var html = '<section class="rc" aria-label="Your readiness"><div class="rc-top">' +
+    '<div class="rc-ring rs-' + st + '" data-ready="' + P.ready + '"><i class="rc-glow"></i><svg viewBox="0 0 140 140" role="img" aria-label="' + P.ready + '% ready, pass mark ' + PASS_PCT[t] + '%"><circle class="rc-track" cx="70" cy="70" r="' + r + '"/><circle class="rc-arc" cx="70" cy="70" r="' + r + '" style="stroke-dasharray:' + C + ';stroke-dashoffset:' + (C * (1 - P.ready / 100)).toFixed(1) + '"/></svg>' +
+    '<div class="rc-num"><b class="tabular"><span class="rc-n">' + P.ready + '</span><small>%</small></b><span>ready</span></div></div>' +
+    '<div class="rc-side"><span class="rc-pill rs-' + st + '">' + READY_WORD[st] + '</span>' +
+    (ex ? '<div><b class="rc-days tabular">' + ex.n + '</b><span class="rc-cap">' + (ex.n === 1 ? "day" : "days") + ' to your theory exam' + (ex.exact ? "" : ", roughly") + '</span></div>' :
+      '<div><span class="rc-cap">No theory exam date yet</span></div>') +
+    '<span class="rc-today">' + today + ' of ' + S.goal + ' today' + (sk > 1 ? ", " + sk + "-day streak" : "") + '</span>' +
+    '<button class="link rc-date" data-act="plan-date-edit">' + (ex && ex.exact ? "Change date" : "Add exam date") + '</button></div></div>' +
+    '<div class="plan-date" hidden id="plan-date"><label for="plan-date-in">Theory exam date</label><div class="hero-row"><input type="date" class="inp" id="plan-date-in" value="' + esc((((prof().exam || {})[t]) || {}).date || "") + '"><button class="btn" data-act="plan-date-ok">Save</button></div></div>' +
+    (P.raise ? '<button class="rc-raise" data-act="plan-raise" data-n="' + P.raise + '">You need about ' + P.pace + ' a day to be ready. <b>Make my goal ' + P.raise + '</b></button>' : "") +
+    '<div class="rc-route"><div class="rc-route-h"><span>' + (R.licence ? "Licence around " + monthName(R.licence, true) : "Your route to a licence") + '</span><button class="link" data-act="your-plan">Your plan ›</button></div>' +
+    '<div class="rc-road"><i style="width:' + Math.round(R.done * 100) + '%"></i></div><ol class="rc-stops">' +
+    R.stops.map(function(s, i){ return '<li class="' + (i < R.at ? "done" : (i === R.at ? "now" : "")) + '"><b>' + s.name + '</b><span>' + esc(s.when) + '</span></li>'; }).join("") + '</ol></div></section>';
+  var n = P.next, cap = n.kind === "drill" || n.kind === "mistakes" ? "Fix this first" : (P.seen ? "Next up" : "Start here");
+  html += '<section class="nx" aria-label="Next up"><span class="nx-cap">' + cap + '</span><h3 class="nx-t">' + esc(n.kind === "drill" ? n.topic : n.title) + '</h3><p class="nx-s">' + esc(n.why) + '</p>' +
+    '<button class="btn pop" data-act="plan-go">' + (n.kind === "mock" ? "Go to exams" : "Start") + '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></button></section>';
+  html += tilesHtml(t, P.topics);
+  return html;
+}
+function tilesHtml(t, ts){
+  var rank = {weak:0, going:1, "new":2, strong:3};
+  ts = ts.map(function(x, i){ x.i = i; return x; }).sort(function(a, b){ return rank[a.state] - rank[b.state] || (a.state === "new" ? a.i - b.i : (a.acc || 0) - (b.acc || 0)); });
+  var fix = ts.filter(function(x){ return x.state === "weak"; }).length, fresh = ts.filter(function(x){ return x.state === "new"; }).length, ms = mistakes(t).length;
+  var html = '<section class="tl" aria-label="Your topics"><div class="tl-h"><h2>Your topics</h2><span>' + (fix ? fix + " to fix" : (fresh === ts.length ? ts.length + " to start" : "Nothing to fix")) + '</span></div><div class="tl-grid">';
+  ts.forEach(function(x, j){
+    html += '<button class="tile ts-' + x.state + '" data-tile="' + esc(x.name) + '" style="animation-delay:' + (300 + j * 30) + 'ms" aria-label="' + esc(x.name) + ', ' + TILE_WORD[x.state] + '"><i></i><span>' + esc(SHORT[x.name] || x.name) + '</span></button>';
+  });
+  html += '</div><div class="tl-key"><span class="ts-weak"><i></i>Fix</span><span class="ts-going"><i></i>Going</span><span class="ts-strong"><i></i>Solid</span><span class="ts-new"><i></i>New</span></div>' +
+    (ms ? '<button class="link tl-miss" data-act="mistakes">Fix your ' + ms + (ms === 1 ? " mistake" : " mistakes") + ' ›</button>' : "") + '</section>';
+  return html;
+}
+function topicSheet(t, name){
+  var x = topicStats(t).filter(function(y){ return y.name === name; })[0]; if (!x) return;
+  var les = topicLesson(t, name), seenLes = ((S.t[t].primers || {})[lessonKey(t, name)]);
+  var stat = x.state === "new" ? "Not started. " + x.total + " questions." : Math.round((x.acc || 0) * 100) + "% right. " + x.seen + " of " + x.total + " questions seen.";
+  openSheet('<div class="tsh ts-' + x.state + '"><div class="tsh-h"><i></i><h2>' + esc(name) + '</h2></div><p>' + esc(stat) + '</p>' +
+    '<div class="tsh-bar"><i style="width:' + Math.round(x.seen / x.total * 100) + '%"></i></div>' +
+    '<button class="btn pop" data-act="tsh-go">' + (les && !seenLes ? "Start with the lesson" : "Practise " + Math.min(UNIT_MAX, x.total) + " questions") + '</button>' +
+    (les && seenLes ? '<button class="btn ghost" data-act="tsh-les">Read the lesson again</button>' : "") + '</div>', true);
+  var go = $('[data-act="tsh-go"]'); if (go) go.addEventListener("click", function(){ closeSheet(); practiseTopic(t, name); });
+  var le = $('[data-act="tsh-les"]'); if (le) le.addEventListener("click", function(){ closeSheet(); practiseTopic(t, name, true); });
+}
+/* the ring fills and the number counts up, only when the number changed since you last saw it */
+function animateRing(v, t){
+  var el = $(".rc-ring", v); if (!el) return;
+  var to = +el.getAttribute("data-ready"), from = ringShown[t] == null ? 0 : ringShown[t]; ringShown[t] = to;
+  if (from === to || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var arc = $(".rc-arc", el), num = $(".rc-n", el), C = 364.4, t0 = null, dur = 1300;
+  function paint(p){ arc.style.strokeDashoffset = (C * (1 - p / 100)).toFixed(1); num.textContent = Math.round(p); el.className = "rc-ring rs-" + readyState(t, Math.round(p)); }
+  paint(from);
+  function tick(ts){ if (t0 == null) t0 = ts; var k = Math.min(1, (ts - t0 - 200) / dur), e = k < 0 ? 0 : 1 - Math.pow(1 - k, 3); paint(from + (to - from) * e); if (k < 1) requestAnimationFrame(tick); }
+  requestAnimationFrame(tick);
+}
+
 /* ---------------- where you are (journey), milestone cards, share ---------------- */
 function journey(t){
   var tr = S.t[t], rec = tr.recent || [], recAcc = rec.length ? rec.reduce(function(a, b){ return a + b; }, 0) / rec.length : 0;
@@ -1339,12 +1422,12 @@ function renderHome(){
   var nm = String(prof().name || "").trim();
   var line = today === 0 ? "Nothing yet today. Your goal is " + S.goal + " right answers." : (today < S.goal ? today + " of " + S.goal + " right today." : "Daily goal done. Anything now is bonus.");
   if (st > 1) line += " " + st + "-day streak.";
-  var html = '<div class="home-hi"><h2 class="h2">' + hi + (nm ? ', <span translate="no">' + esc(nm) + '</span>' : "") + '</h2></div>';
-  var t = S.track;
-  html += planHtml(t, line);
-  if (t === "civic") html += civicHero();
-
-  html += topicsHtml(t);
+  var t = S.track, html = "";
+  if (t === "drive") html += driveHomeHtml(t, plan(t));
+  else {
+    html += '<div class="home-hi"><h2 class="h2">' + hi + (nm ? ', <span translate="no">' + esc(nm) + '</span>' : "") + '</h2></div>';
+    html += planHtml(t, line) + civicHero() + topicsHtml(t);
+  }
   if (window.KLAAR_GLOSSARY) html += '<button class="row gl-open" data-act="glossary"><span class="badge">Aa</span><span class="row-main"><span class="row-title">Words to know</span><span class="row-sub">' + KLAAR_GLOSSARY.count(t) + ' terms, with the logic behind them</span></span><span class="nu-go">›</span></button>';
   renderProgress(html);
   wirePlan(v, t);
@@ -1354,6 +1437,9 @@ function renderHome(){
   $$("[data-topic-les]", v).forEach(function(b){ b.addEventListener("click", function(){ practiseTopic(t, b.getAttribute("data-topic-les"), true); }); });
   var gl = $('[data-act="glossary"]', v); if (gl) gl.addEventListener("click", function(){ setView("glossary"); });
   $$("details[data-fold]", v).forEach(function(d){ d.addEventListener("toggle", function(){ homeOpen[d.getAttribute("data-fold")] = d.open; }); });
+  $$("[data-tile]", v).forEach(function(b){ b.addEventListener("click", function(){ topicSheet(t, b.getAttribute("data-tile")); }); });
+  var yp = $('[data-act="your-plan"]', v); if (yp) yp.addEventListener("click", function(){ var d = $(".home-road", v); if (d){ d.open = true; d.scrollIntoView({behavior:"smooth", block:"start"}); } });
+  animateRing(v, t);
 }
 
 /* ---------------- shell ---------------- */
