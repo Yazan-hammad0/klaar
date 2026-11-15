@@ -1,5 +1,5 @@
 /* Screen-tall layout for the home-screen app, update notice, service worker. */
-var KLAAR_VERSION = "f6793ad442", KLAAR_NEWS = "Inburgering has its own look again, with your citizenship countdown near the top";
+var KLAAR_VERSION = "df8e1de07e", KLAAR_NEWS = "New look for the Klaar website: green light for your exam";
 (function(){
   /* iOS home-screen apps sometimes get a layout viewport shorter than the screen, which leaves a strip under the tab bar.
      Measure it and push the bottom chrome down into that strip. */

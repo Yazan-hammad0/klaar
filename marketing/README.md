@@ -2,8 +2,8 @@
 
 | File or folder | What it is |
 |---|---|
-| `messaging.md` | Who Klaar is for, the promise, what we may and may not claim. Start here |
-| `posts.md` | Copy-paste text for Reddit, WhatsApp, LinkedIn, Instagram, a Reel script and two outreach emails |
+| `messaging.md` | The "Green light" idea, who Klaar is for, what we may and may not claim, colours and fonts. Start here |
+| `posts.md` | Copy-paste text for Reddit, WhatsApp, LinkedIn, Instagram, a story, a Reel script and two outreach emails |
 | `screenshots/` | Real app screens at iPhone size (1170 x 2532) |
 | `social/` | Instagram and LinkedIn carousel (1080 x 1350, six slides) and a story (1080 x 1920) |
 | `make_assets.js` | Remakes every picture from the live app |
@@ -22,6 +22,14 @@ Every time:
 1. In the Klaar folder, start the app: `python3 -m http.server 8765`
 2. In a second terminal: `cd marketing && node make_assets.js`
 3. Look at the new pictures, then commit them.
+
+Only changed the look or the words on the pictures, not the app? Skip the server and keep today's screenshots:
+
+```bash
+cd marketing && node make_assets.js --no-shots
+```
+
+The pictures use the brand fonts from `../fonts/` (Bricolage Grotesque and Inter). The script stops with an error if they do not load.
 
 The learner in the pictures ("Sara") is made up by the script. Never use a real person's progress.
 

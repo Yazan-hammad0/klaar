@@ -3,6 +3,8 @@
    Setup (once):   cd marketing && npm install playwright-core     (uses the Chrome already on this Mac)
    Run:            1. in the Klaar folder:  python3 -m http.server 8765
                    2. in another terminal:  cd marketing && node make_assets.js
+   Only the social pictures and og.png, keeping today's app screenshots (no server needed):
+                   cd marketing && node make_assets.js --no-shots
 
    Output: screenshots/ (real app screens), social/ (carousel, story), ../welcome/img/ (small copies for the
    landing page) and ../icons/og.png (the picture WhatsApp, LinkedIn and Reddit show next to the link).
@@ -11,7 +13,8 @@ const { chromium } = require('playwright-core');
 const fs = require('fs'), path = require('path');
 
 const SITE = 'yazan-hammad0.github.io/klaar';          // shown on the pictures
-const BASE = process.argv[2] || 'http://localhost:8765/';
+const ARGS = process.argv.slice(2), SHOTS = !ARGS.includes('--no-shots');
+const BASE = ARGS.find(a => !a.startsWith('--')) || 'http://localhost:8765/';
 const HERE = __dirname, ROOT = path.join(HERE, '..');
 const DIRS = { shots: path.join(HERE, 'screenshots'), social: path.join(HERE, 'social'), web: path.join(ROOT, 'welcome', 'img') };
 Object.values(DIRS).forEach(d => fs.mkdirSync(d, { recursive: true }));
@@ -67,48 +70,77 @@ async function appShots(browser){
 }
 
 const b64 = f => 'data:image/png;base64,' + fs.readFileSync(path.join(DIRS.shots, f + '.png')).toString('base64');
+const font = f => 'data:font/woff2;base64,' + fs.readFileSync(path.join(ROOT, 'fonts', f)).toString('base64');
+
+/* The "Green light" brand: ink, ground, green light. Bricolage Grotesque for headings, Inter for the rest. */
+const C = { ink:'#0E1726', ground:'#F3F4F1', green:'#19B35C', go:'#0B8A43', greenText:'#0A6B34', amber:'#F2A51A', red:'#E5533D', muted:'#5B6474' };
 const CSS = `
+@font-face{font-family:'Bricolage Grotesque';src:url(${font('bricolage-grotesque-latin.woff2')}) format('woff2');font-weight:200 800}
+@font-face{font-family:'Inter';src:url(${font('inter-latin.woff2')}) format('woff2');font-weight:100 900}
 *{box-sizing:border-box;margin:0}
-body{font-family:system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;-webkit-font-smoothing:antialiased}
+body{font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 .s{position:relative;overflow:hidden;width:100vw;height:100vh;padding:84px 84px 0;display:flex;flex-direction:column}
-.blue{background:#1C4FA0;color:#fff}.light{background:#EDF1F7;color:#0F1A2E}.navy{background:#0A101C;color:#E8EEF8}
-.s::before{content:"";position:absolute;left:0;right:0;top:0;height:14px;background:#F2B705}
-.top{display:flex;justify-content:space-between;align-items:baseline;font-weight:700;font-size:26px;letter-spacing:.08em;text-transform:uppercase;opacity:.9}
-.wm{font-style:italic;font-weight:900;font-size:54px;letter-spacing:-.03em;text-transform:none;opacity:1}
-h1{font-weight:900;font-size:92px;line-height:1.02;letter-spacing:-.035em;margin-top:56px;max-width:900px}
-h1 em{font-style:normal;color:#F2B705}.light h1 em{color:#1C4FA0}
-p{font-size:38px;line-height:1.3;font-weight:500;margin-top:28px;max-width:860px;opacity:.88}
-.phone{position:absolute;left:50%;transform:translateX(-50%);width:600px;border:16px solid #0F1A2E;border-radius:76px;overflow:hidden;box-shadow:0 40px 90px rgba(5,12,30,.45);background:#0F1A2E}
-.navy .phone,.blue .phone{border-color:#0A101C}
+.ink{background:${C.ink};color:#fff}.ground{background:${C.ground};color:${C.ink}}
+.top{display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:28px;opacity:.9}
+.brand{display:flex;align-items:center;gap:18px}
+.wm{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:56px;letter-spacing:-.03em;line-height:1}
+h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:92px;line-height:1.04;letter-spacing:-.025em;margin-top:60px;max-width:900px}
+h1 em{font-style:normal;color:${C.green}}.ground h1 em{color:${C.greenText}}
+p{font-size:38px;line-height:1.3;font-weight:500;margin-top:28px;max-width:860px;opacity:.85}
+.phone{position:absolute;left:50%;transform:translateX(-50%);width:600px;border:16px solid ${C.ink};border-radius:76px;overflow:hidden;box-shadow:0 40px 90px rgba(5,12,30,.4);background:${C.ink}}
+.ink .phone{border-color:#1E2A3C}
 .phone img{display:block;width:100%}
-.pill{display:inline-block;align-self:flex-start;background:#F2B705;color:#0F1A2E;font-weight:800;font-size:40px;padding:26px 44px;border-radius:999px;margin-top:48px}
+.pill{display:inline-block;align-self:flex-start;background:${C.go};color:#fff;font-weight:700;font-size:40px;padding:26px 44px;border-radius:999px;margin-top:48px}
 .list{margin-top:44px;display:grid;gap:22px}.list div{font-size:42px;font-weight:700;display:flex;gap:22px;align-items:center}
-.list b{flex:none;width:58px;height:58px;border-radius:50%;background:#F2B705;color:#0F1A2E;display:grid;place-items:center;font-size:34px}
-.url{position:absolute;left:84px;bottom:72px;font-size:34px;font-weight:700;opacity:.9}
-.fine{position:absolute;left:84px;right:84px;bottom:72px;font-size:24px;opacity:.7;font-weight:500}
+.list b{flex:none;width:60px;height:60px;border-radius:50%;background:${C.green};color:${C.ink};display:grid;place-items:center;font-size:32px;font-weight:800}
+.fine{position:absolute;left:84px;right:84px;bottom:72px;font-size:24px;opacity:.65;font-weight:500}
+.rings{display:flex;gap:28px;margin-top:150px}
+.rcard{flex:1;background:#fff;color:${C.ink};border-radius:40px;padding:36px 20px 30px;display:flex;flex-direction:column;align-items:center;gap:18px}
+.rcard svg{transform:rotate(-90deg)}
+.rcard b{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:56px;letter-spacing:-.03em;margin-top:-176px;margin-bottom:96px}
+.rcard span{font-size:30px;font-weight:700;padding:8px 20px;border-radius:99px}
 `;
-const top = (i, n) => `<div class="top"><span class="wm">Klaar</span><span>${n ? i + ' / ' + n : ''}</span></div>`;
+const LOGO = s => `<svg width="${s}" height="${s}" viewBox="0 0 32 32"><rect width="32" height="32" rx="9" fill="${C.ink}" stroke="rgba(255,255,255,.22)" stroke-width=".6"/><circle cx="16" cy="16" r="9.5" fill="${C.green}"/><path d="M11.6 16.3l3 3 5.8-6.2" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const top = (i, n) => `<div class="top"><span class="brand">${LOGO(60)}<span class="wm">klaar</span></span><span>${n ? i + ' of ' + n : ''}</span></div>`;
 const slide = (cls, inner) => `<!doctype html><meta charset="utf-8"><style>${CSS}</style><div class="s ${cls}">${inner}</div>`;
+
+/* A traffic light with the green lamp on, the brand's one picture. Height h px. */
+const light = h => `<svg width="${h * 0.42}" height="${h}" viewBox="0 0 126 300"><defs><filter id="g" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="12"/></filter></defs>
+<rect x="3" y="3" width="120" height="294" rx="40" fill="#1A2535" stroke="rgba(255,255,255,.1)" stroke-width="2"/>
+<circle cx="63" cy="60" r="36" fill="${C.red}" opacity=".2"/><circle cx="63" cy="150" r="36" fill="${C.amber}" opacity=".2"/>
+<circle cx="63" cy="240" r="36" fill="${C.green}" filter="url(#g)" opacity=".85"/><circle cx="63" cy="240" r="36" fill="${C.green}"/>
+<path d="M11.6 16.3l3 3 5.8-6.2" transform="translate(63 240) scale(3.8) translate(-16 -16)" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+/* Readiness ring, as in the app: red, amber, green. */
+const ring = (p, col, label, bg, fg) => `<div class="rcard"><svg width="220" height="220" viewBox="0 0 140 140"><circle cx="70" cy="70" r="58" fill="none" stroke="#EDEFEB" stroke-width="14"/><circle cx="70" cy="70" r="58" fill="none" stroke="${col}" stroke-width="14" stroke-linecap="round" stroke-dasharray="364.4" stroke-dashoffset="${(364.4 * (1 - p / 100)).toFixed(1)}"/></svg><b>${p}%</b><span style="background:${bg};color:${fg}">${label}</span></div>`;
+const rings = () => `<div class="rings">${ring(38, C.red, 'Not yet', '#FCE3DE', '#9F2A17')}${ring(76, C.amber, 'Getting close', '#FDF0D3', '#7A4E00')}${ring(91, C.green, 'Klaar', '#DDF3E5', C.greenText)}</div>`;
 
 function carousel(){
   const N = 6;
   return [
-    slide('blue', `${top(1, N)}<h1>Pass the Dutch driving theory exam. <em>In English.</em></h1><p>Made for expats and international students.</p><div class="phone" style="top:700px"><img src="${b64('1-plan')}"></div>`),
-    slide('light', `${top(2, N)}<h1>A plan that counts back from <em>your exam date.</em></h1><p>It tells you how ready you are and what to do today.</p><div class="phone" style="top:640px"><img src="${b64('1-plan')}"></div>`),
-    slide('blue', `${top(3, N)}<h1>See the situation, <em>not a wall of text.</em></h1><p>Junctions, lanes and roundabouts drawn from above, with who goes where.</p><div class="phone" style="top:640px"><img src="${b64('3-question')}"></div>`),
-    slide('light', `${top(4, N)}<h1>Wrong answer? You get <em>the rule and the reason.</em></h1><p>Most answers link to the page of the official rulebook.</p><div class="phone" style="top:640px"><img src="${b64('4-explained')}" style="margin-top:-540px"></div>`),
-    slide('blue', `${top(5, N)}<h1>Mock exams with <em>the real CBR rules.</em></h1><p>50 questions, 30 minutes, 44 to pass. No feedback until you hand in.</p><div class="phone" style="top:660px"><img src="${b64('6-mock-exams')}"></div>`),
-    slide('navy', `${top(6, N)}<h1 style="font-size:132px;margin-top:110px">Start today.<br><em>Free.</em></h1><div class="list" style="margin-top:70px;gap:34px"><div><b>1</b>Open the link on your phone</div><div><b>2</b>Tell it your exam date</div><div><b>3</b>Do today's questions</div></div><div class="pill" style="margin-top:84px">${SITE}</div><div class="fine">No account. Works offline. Original practice questions, not official CBR material.</div>`)
+    slide('ink', `${top(1, N)}<h1>Pass the Dutch driving theory exam. <em>In English.</em></h1><p>Made for expats and international students. Klaar turns green when you are ready.</p>${rings()}`),
+    slide('ground', `${top(2, N)}<h1>A plan that counts back from <em>your exam date.</em></h1><p>It tells you how ready you are and what to do today.</p><div class="phone" style="top:640px"><img src="${b64('1-plan')}"></div>`),
+    slide('ink', `${top(3, N)}<h1>See the situation, <em>not a wall of text.</em></h1><p>Junctions, lanes and roundabouts drawn from above, with who goes where.</p><div class="phone" style="top:640px"><img src="${b64('3-question')}"></div>`),
+    slide('ground', `${top(4, N)}<h1>Wrong answer? You get <em>the rule and the reason.</em></h1><p>Most answers link to the page in the government's English rulebook.</p><div class="phone" style="top:640px"><img src="${b64('4-explained')}" style="margin-top:-540px"></div>`),
+    slide('ink', `${top(5, N)}<h1>Mock exams in <em>the real CBR format.</em></h1><p>50 questions, 30 minutes, 44 to pass. No feedback until you hand in.</p><div class="phone" style="top:660px"><img src="${b64('6-mock-exams')}"></div>`),
+    slide('ink', `${top(6, N)}<div style="display:flex;gap:56px;align-items:center;margin-top:84px"><div style="flex:none">${light(380)}</div><h1 style="font-size:100px;margin:0">When the light is green, you are <em>klaar.</em></h1></div><div class="list" style="margin-top:72px;gap:30px"><div><b>1</b>Open the link on your phone</div><div><b>2</b>Tell it your exam date</div><div><b>3</b>Practise until your light is green</div></div><div class="pill" style="margin-top:64px">${SITE}</div><div class="fine">Free, no account, works offline. Original practice questions, not CBR exam material.</div>`)
   ];
 }
-const story = () => slide('blue', `${top()}<h1 style="font-size:104px;margin-top:150px">Dutch driving theory exam? Practise <em>in English.</em></h1><p style="font-size:44px">A plan that follows your exam date. Free, no account.</p><div class="phone" style="top:860px;width:680px"><img src="${b64('1-plan')}"></div>`);
+const story = () => slide('ink', `${top()}<h1 style="font-size:104px;margin-top:150px">Dutch driving theory exam? Practise <em>in English.</em></h1><p style="font-size:44px">A plan that follows your exam date. Free, no account.</p><div style="position:absolute;left:0;right:0;top:900px;display:flex;justify-content:center">${light(640)}</div><div style="position:absolute;left:84px;right:84px;bottom:110px;text-align:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:56px;letter-spacing:-.03em">When the light is green, you are klaar.</div>`);
 const og = () => `<!doctype html><meta charset="utf-8"><style>${CSS}
-.s{padding:64px 0 0 72px}h1{font-size:68px;margin-top:40px;max-width:640px}p{font-size:30px;max-width:600px;margin-top:22px}.phone{left:auto;right:70px;transform:none;top:70px;width:340px;border-width:10px;border-radius:46px}.url{left:72px;bottom:54px;font-size:28px}</style>
-<div class="s blue">${top()}<h1>Pass the Dutch driving theory exam. <em>In English.</em></h1><p>A plan that follows your exam date. Free, works offline.</p><div class="phone"><img src="${b64('1-plan')}"></div><div class="url">${SITE}</div></div>`;
+.s{padding:60px 0 0 72px}.top{width:760px}.wm{font-size:46px}h1{font-size:70px;margin-top:44px;max-width:760px}p{font-size:30px;max-width:700px;margin-top:22px}
+.lt{position:absolute;right:110px;top:50%;transform:translateY(-50%)}.url{position:absolute;left:72px;bottom:56px;font-size:26px;font-weight:600;opacity:.7}</style>
+<div class="s ink">${top()}<h1>Green light for your <em>Dutch driving theory exam.</em></h1><p>Practise the CBR theory exam in English. A plan that follows your exam date. Free, no account.</p><div class="lt">${light(470)}</div><div class="url">${SITE}</div></div>`;
 
 async function render(browser, html, w, h, file){
   const ctx = await browser.newContext({ viewport: {width:w, height:h}, deviceScaleFactor: 1 });
-  const page = await ctx.newPage(); await page.setContent(html); await page.waitForTimeout(250);
+  const page = await ctx.newPage(); await page.setContent(html);
+  const ok = await page.evaluate(async () => {
+    const a = await document.fonts.load('800 40px "Bricolage Grotesque"'), b = await document.fonts.load('500 40px "Inter"');
+    await document.fonts.ready; return a.length > 0 && b.length > 0;
+  });
+  if (!ok) throw new Error('Brand fonts did not load for ' + file);
+  await page.waitForTimeout(150);
   await page.screenshot({ path: file }); await ctx.close(); console.log('made', path.relative(ROOT, file));
 }
 async function webCopies(browser){
@@ -124,11 +156,11 @@ async function webCopies(browser){
 
 (async () => {
   const browser = await chromium.launch({ channel: 'chrome', headless: true });
-  await appShots(browser);
+  if (SHOTS){ await appShots(browser); await webCopies(browser); }
+  else console.log('skipping app screenshots (--no-shots): using the ones in screenshots/');
   const slides = carousel();
   for (let i = 0; i < slides.length; i++) await render(browser, slides[i], 1080, 1350, path.join(DIRS.social, `carousel-${i + 1}.png`));
   await render(browser, story(), 1080, 1920, path.join(DIRS.social, 'story.png'));
   await render(browser, og(), 1200, 630, path.join(ROOT, 'icons', 'og.png'));
-  await webCopies(browser);
   await browser.close();
 })();

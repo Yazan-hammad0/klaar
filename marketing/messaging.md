@@ -2,6 +2,15 @@
 
 Everything in posts, pictures and the landing page comes from this page. Change it here first.
 
+## The idea
+Klaar is Dutch for ready. A traffic light turning green is the moment you are ready for your exam. In the app, your readiness ring goes from red to amber to green.
+
+- Tagline: **When the light is green, you are klaar.**
+- Short line: **Green light for your exam.**
+- Promise: **Pass the Dutch driving theory exam. In English.**
+
+Use the promise where people do not know Klaar yet (headlines, link previews, the first line of a post). Use the tagline to close. Use the short line where space is tight.
+
 ## Who it is for
 Expats and international students in the Netherlands who need a Dutch car licence and want to prepare for the CBR theory exam in English.
 
@@ -10,31 +19,39 @@ Expats and international students in the Netherlands who need a Dutch car licenc
 - "I do hundreds of questions and still don't know if I'm ready."
 - "I failed by two points and had to pay and wait again."
 
-## The promise (one line)
-Pass the Dutch driving theory exam. In English.
-
 ## Why believe it (only say what is true today)
 | Claim | Proof in the app |
 |---|---|
 | A plan that follows your exam date | Home shows days left, % ready, daily pace and one next step |
+| You know when you are ready | The readiness ring goes red, amber, green |
 | You see the situation | Junctions drawn from above, hazards from the driver's seat |
 | You learn the rule and the reason | Every answer explains why. Most link to the page of the English RVV booklet on government.nl |
-| Mock exams with the real rules | 50 questions, 30 minutes, 44 to pass, no feedback until you hand in |
+| Mock exams in the real format | 50 questions, 30 minutes, 44 to pass, no feedback until you hand in |
 | No friction | Free, no account, works offline, progress stays on the phone |
 
+## Inburgering
+An add-on, not the headline. Mention it once per page or post at most, near the end: "Also doing your inburgering? Add KNM and Dutch A2 practice from your profile." Marketing stays driving-first.
+
 ## Words we use
-- "driving theory exam", "CBR theory exam", "practice app", "mock exam", "your exam date"
-- Plain English. Short sentences. Say "you".
+- "driving theory exam", "CBR theory exam", "practice app", "mock exam", "your exam date", "ready", "green light"
+- Plain English. Short sentences. Say "you". No em dashes.
+- "klaar" in lowercase in the logo. In a sentence, "Klaar" with a capital is fine.
 
 ## Words we do not use
-- "official" (Klaar is not CBR material; say "original questions in the style of the exam")
+- "official" about Klaar (say "original questions in the style of the exam"). Klaar prepares you for the CBR theory exam and sends you to cbr.nl, duo.nl or ind.nl to book and apply.
 - "guaranteed", "100% pass", "the real exam questions"
 - A pass rate for Klaar users. There is no data for that yet.
+- CBR, DUO or IND logos, anywhere.
 
 ## Numbers to recheck before each campaign
 - Question count in the app (300+ on 15 Nov 2026).
 - CBR exam format and price: read them on cbr.nl, do not copy them from another site.
-- "Free": change every picture and post on the day a paid plan starts.
+- "Free": change every picture and post on the day a paid plan starts (planned for 15 Dec 2026).
 
-## Look
-Blue #1C4FA0, yellow #F2B705, dark #0F1A2E, light #EDF1F7. Heavy sans headline, yellow or blue on the key words. Real app screens only, never mock-ups.
+## Look ("Green light", approved 15 Nov 2026)
+- Logo: a dark rounded square with a green circle and a white check, next to "klaar" in lowercase, Bricolage Grotesque 800, upright. No italics anywhere.
+- Colours: Ink #0E1726, Ground #F3F4F1, Green light #19B35C, Go (buttons, white text) #0B8A43, Amber #F2A51A, Red #E5533D. Inburgering: Delft blue #1F3A93 on warm paper #F4EFE4.
+- Green #19B35C is for shapes and for text on Ink only. Green text on a light background uses #0A6B34.
+- Type: Bricolage Grotesque for headings and big numbers, Inter for everything else. Both are in `fonts/`.
+- Picture: the traffic light with the green lamp on, or the readiness ring going red, amber, green.
+- Real app screens only, never mock-ups. Retired: sign blue #1C4FA0 and plate yellow.
