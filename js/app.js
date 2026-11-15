@@ -15,7 +15,7 @@ function clone(o){ return JSON.parse(JSON.stringify(o)); }
 
 var LIBS = {drive: DRIVE, civic: CIVIC};
 var NAMES = {drive: "Rijbewijs", civic: "Inburgering"};
-var SUBS = {drive: "Driving theory", civic: "Inburgering"};
+var SUBS = {drive: "Driving licence", civic: "Inburgering"};
 var MAXLV = {drive: 5, civic: 4};
 var CIVIC_LV = {1: "KNM + A2", 2: "B1", 3: "B2", 4: "C1"};
 var SEC_LVL = {"basics":1,"knm":1,"a2-lezen":1,"a2-luisteren":1,"a2-schrijven":1,"b1":2,"b2":3,"c1":4};

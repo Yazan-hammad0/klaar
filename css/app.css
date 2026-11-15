@@ -1,9 +1,9 @@
-/* layout: track-colored sign band header (motorway blue / passport maroon), one big card per screen, fixed bottom tab bar */
+/* layout: plain header with the logo, one big card per screen, fixed bottom tab bar. Driving is ink and green light, inburgering paper and Delft blue */
 :root{
-  --d-bg:#EDF1F7; --d-surface:#FFFFFF; --d-raise:#F6F8FC; --d-fg:#0F1A2E; --d-muted:#56627A; --d-line:#D6DDEA;
-  --d-accent:#1C4FA0; --d-on:#FFFFFF; --d-accent-soft:#DCE6F7; --d-pop:#F2B705;
-  --c-bg:#F5F0EE; --c-surface:#FFFFFF; --c-raise:#FBF8F6; --c-fg:#22121A; --c-muted:#73606A; --c-line:#E6DAD6;
-  --c-accent:#7A2233; --c-on:#FFF7EC; --c-accent-soft:#F3DFE3; --c-pop:#C9A227;
+  --d-bg:#F3F4F1; --d-surface:#FFFFFF; --d-raise:#F7F8F5; --d-fg:#0E1726; --d-muted:#5B6474; --d-line:#E3E6E1;
+  --d-accent:#0E1726; --d-on:#FFFFFF; --d-accent-soft:#DDF3E5; --d-pop:#0B8A43;
+  --c-bg:#F4EFE4; --c-surface:#FFFDF8; --c-raise:#FAF6EE; --c-fg:#1A1B2E; --c-muted:#5E5A52; --c-line:#E6DFD0;
+  --c-accent:#1F3A93; --c-on:#FFFFFF; --c-accent-soft:#E3E9FA; --c-pop:#1F3A93;
   --ok:#21804B; --ok-soft:#DDF1E5; --bad:#C0392B; --bad-soft:#FBE3E0;
   --bg:var(--d-bg); --surface:var(--d-surface); --raise:var(--d-raise); --fg:var(--d-fg); --muted:var(--d-muted); --line:var(--d-line);
   --accent:var(--d-accent); --on:var(--d-on); --accent-soft:var(--d-accent-soft); --pop:var(--d-pop);
@@ -14,19 +14,19 @@
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --d-bg:#0A101C; --d-surface:#121B2C; --d-raise:#18233A; --d-fg:#E8EEF8; --d-muted:#93A1BA; --d-line:#24314A;
-    --d-accent:#2F63BD; --d-on:#FFFFFF; --d-accent-soft:#1A2B4C; --d-pop:#F5C52E;
-    --c-bg:#140C0F; --c-surface:#20151A; --c-raise:#2A1C22; --c-fg:#F4E9EC; --c-muted:#B39CA4; --c-line:#38252C;
-    --c-accent:#8E2B3F; --c-on:#FFF5E6; --c-accent-soft:#3A1E26; --c-pop:#D9B444;
+    --d-bg:#0B111B; --d-surface:#141C29; --d-raise:#1A2333; --d-fg:#EEF2F7; --d-muted:#9AA5B5; --d-line:#263142;
+    --d-accent:#EEF2F7; --d-on:#0B111B; --d-accent-soft:#12301F; --d-pop:#0B8A43;
+    --c-bg:#100E0B; --c-surface:#1B1814; --c-raise:#24201A; --c-fg:#F2EEE6; --c-muted:#ABA393; --c-line:#2E2922;
+    --c-accent:#9DB4F5; --c-on:#100E0B; --c-accent-soft:#1A2547; --c-pop:#2A4BB0;
     --ok:#47B97A; --ok-soft:#14321F; --bad:#EE7064; --bad-soft:#3B1814;
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --d-bg:#0A101C; --d-surface:#121B2C; --d-raise:#18233A; --d-fg:#E8EEF8; --d-muted:#93A1BA; --d-line:#24314A;
-  --d-accent:#2F63BD; --d-on:#FFFFFF; --d-accent-soft:#1A2B4C; --d-pop:#F5C52E;
-  --c-bg:#140C0F; --c-surface:#20151A; --c-raise:#2A1C22; --c-fg:#F4E9EC; --c-muted:#B39CA4; --c-line:#38252C;
-  --c-accent:#8E2B3F; --c-on:#FFF5E6; --c-accent-soft:#3A1E26; --c-pop:#D9B444;
+  --d-bg:#0B111B; --d-surface:#141C29; --d-raise:#1A2333; --d-fg:#EEF2F7; --d-muted:#9AA5B5; --d-line:#263142;
+  --d-accent:#EEF2F7; --d-on:#0B111B; --d-accent-soft:#12301F; --d-pop:#0B8A43;
+  --c-bg:#100E0B; --c-surface:#1B1814; --c-raise:#24201A; --c-fg:#F2EEE6; --c-muted:#ABA393; --c-line:#2E2922;
+  --c-accent:#9DB4F5; --c-on:#100E0B; --c-accent-soft:#1A2547; --c-pop:#2A4BB0;
   --ok:#47B97A; --ok-soft:#14321F; --bad:#EE7064; --bad-soft:#3B1814;
   color-scheme:dark;
 }
@@ -1013,3 +1013,60 @@ body[data-track="civic"] .hero .hero-q{font-size:17px}
 body[data-track="civic"] .hero .hero-row .inp{background:var(--raise)}
 body[data-track="civic"] .hero .hero-note{color:var(--muted);opacity:1}
 body[data-track="civic"] .hero .hero-edit{color:var(--link);opacity:1}
+
+/* ================= The look: Green light (Nov 2026) =================
+   Letters: Bricolage Grotesque for headings and big numbers, Inter for reading. Both served from fonts/, so every phone shows them, also offline.
+   Driving is ink and green light on a cool grey ground. Inburgering is Delft blue on warm paper. */
+@font-face{font-family:'Bricolage Grotesque';src:url(../fonts/bricolage-grotesque-latin.woff2) format('woff2');font-weight:200 800;font-style:normal;font-display:swap}
+@font-face{font-family:'Inter';src:url(../fonts/inter-latin.woff2) format('woff2');font-weight:100 900;font-style:normal;font-display:swap}
+:root{--font-display:'Bricolage Grotesque','Inter',-apple-system,BlinkMacSystemFont,system-ui,'Segoe UI',Roboto,sans-serif;
+  --font-body:'Inter',-apple-system,BlinkMacSystemFont,system-ui,'Segoe UI',Roboto,sans-serif;
+  --plate-ink:#fff;--ink:#0E1726;--green:#19B35C;--amber:#F2A51A;--red:#E5533D;
+  --panel:#0E1726;--chip-fg:#0A6B34;--link:#0B7A3C}
+body[data-track="civic"]{--panel:#1F3A93;--chip-fg:#1F3A93;--link:#1F3A93}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--panel:#1A2333;--chip-fg:#7EE0A6;--link:#6FD79B}
+  :root:not([data-theme="light"]) body[data-track="civic"]{--panel:#2A4BB0;--chip-fg:#9DB4F5;--link:#9DB4F5}}
+:root[data-theme="dark"]{--panel:#1A2333;--chip-fg:#7EE0A6;--link:#6FD79B}
+:root[data-theme="dark"] body[data-track="civic"]{--panel:#2A4BB0;--chip-fg:#9DB4F5;--link:#9DB4F5}
+body{font-weight:400;letter-spacing:0}
+.h2,.home-hi .h2,.label,.empty h3,.also h3,.sheet h2{font-family:var(--font-display);font-weight:800;letter-spacing:-.02em}
+.gl-k,.onb-brand,.fb .verdict{font-style:normal}
+
+/* header: logo, the name, and a chip that says which goal you are on. The strip under the phone's clock stays ink so its white text reads */
+body::before{background:var(--ink)}
+.top{background:var(--bg);color:var(--fg);box-shadow:none;padding-block:12px 8px}
+.top::after{display:none}
+html.shell .top{background:linear-gradient(var(--ink) 0 env(safe-area-inset-top,0px),var(--bg) 0);padding-top:calc(env(safe-area-inset-top,0px) + 12px)}
+.brand{font-style:normal;font-size:inherit;align-items:center;gap:9px;letter-spacing:0}
+.brand .logo{width:32px;height:32px;flex:none}
+.brand-word{font-family:var(--font-display);font-weight:800;font-size:25px;letter-spacing:-.04em;line-height:1}
+.brand small{font-family:var(--font-body);font-size:12.5px;font-weight:700;letter-spacing:0;text-transform:none;opacity:1;padding:4px 10px;border-radius:99px;background:var(--accent-soft);color:var(--chip-fg)}
+.avatar{border:1.5px solid var(--line);background:var(--surface);color:var(--fg)}
+.avatar[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+
+/* the main action is the green light (Delft blue in inburgering), with white letters */
+.btn.pop,.chip.hot,.tag.ai,.j-dot.now,.rd.now .rd-dot{color:var(--plate-ink)}
+.btn.pop{border-radius:14px}
+.opt.multi.sel .k,.spot-b.set{color:var(--on)}
+.tab-ind::before{inset:auto 32% calc(100% + 2px);height:3px;border-radius:0 0 3px 3px;background:var(--pop)}
+
+/* the plan panel until the new Home lands: ink for driving, Delft blue for inburgering */
+.sign{background:var(--panel)}
+.sign::before{display:none}
+.sign .plan-bar i{background:var(--green)}
+body[data-track="civic"] .sign .plan-bar i{background:#fff}
+body[data-track="civic"] .sign .plan-fig b{color:#fff}
+.hero .bar i{background:var(--green)}
+
+/* opening: a traffic light turns red, amber, green, a check draws in, then the name rises */
+.intro{background:var(--ink);grid-template-rows:auto auto;align-content:center;gap:26px;animation:intro-out .4s ease-in 1.3s forwards}
+.intro-box{width:156px;height:156px;border-radius:44px;background:#18233A;display:grid;place-items:center;animation:intro-in .5s cubic-bezier(.2,.9,.25,1) both}
+.intro-lens{width:104px;height:104px;border-radius:50%;background:var(--red);display:grid;place-items:center;animation:intro-lens .75s steps(1,end) .1s both,intro-glow .5s ease-out .85s both}
+.intro-lens svg{width:62px;height:62px}
+.intro-lens path{fill:none;stroke:#fff;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:44;stroke-dashoffset:44;animation:intro-check .35s cubic-bezier(.3,.8,.3,1) .85s forwards}
+.intro-word{font-family:var(--font-display);font-weight:800;font-size:64px;letter-spacing:-.045em;line-height:1;color:#fff;text-align:center;animation:intro-word .5s cubic-bezier(.2,.9,.25,1) .7s both}
+.intro ~ main,.intro ~ .onb>*{animation:app-in .5s cubic-bezier(.2,.9,.25,1) 1.35s both}
+@keyframes intro-lens{0%{background:#3A2320}1%{background:var(--red)}40%{background:var(--amber)}100%{background:var(--green)}}
+@keyframes intro-glow{from{box-shadow:0 0 0 0 rgba(25,179,92,.6)}to{box-shadow:0 0 0 22px rgba(25,179,92,0)}}
+@keyframes intro-check{to{stroke-dashoffset:0}}
+@keyframes intro-word{from{opacity:0;transform:translateY(18px)}}

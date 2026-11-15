@@ -1,5 +1,5 @@
 /* Screen-tall layout for the home-screen app, update notice, service worker. */
-var KLAAR_VERSION = "df8e1de07e", KLAAR_NEWS = "New look for the Klaar website: green light for your exam";
+var KLAAR_VERSION = "d37c187d01", KLAAR_NEWS = "New look: the green light logo, new fonts and a traffic light when you open Klaar";
 (function(){
   /* iOS home-screen apps sometimes get a layout viewport shorter than the screen, which leaves a strip under the tab bar.
      Measure it and push the bottom chrome down into that strip. */
@@ -33,7 +33,7 @@ var KLAAR_VERSION = "df8e1de07e", KLAAR_NEWS = "New look for the Klaar website: 
   /* the opening sign: gone after it has played, at once after an update reload */
   var intro = document.getElementById("intro"), updated = false;
   try{ updated = sessionStorage.getItem("klaarUpdated") === "1"; sessionStorage.removeItem("klaarUpdated"); }catch(e){}
-  if (intro) setTimeout(function(){ intro.remove(); }, updated ? 0 : 1700);
+  if (intro) setTimeout(function(){ intro.remove(); }, updated ? 0 : 1800);
 
   /* updates: check when the app comes back to the front. A new version that arrives before you have touched anything
      is put in straight away; later on, a one-tap card offers it so nothing reloads under your thumb. */

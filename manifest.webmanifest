@@ -1,13 +1,13 @@
 {
   "name": "Klaar",
   "short_name": "Klaar",
-  "description": "Practise for the Dutch driving theory exam and the Dutch integration exam. Works offline.",
+  "description": "Practise for the Dutch driving theory exam and the Dutch integration exam. Practice works offline.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0A101C",
-  "theme_color": "#1C4FA0",
+  "background_color": "#0E1726",
+  "theme_color": "#0E1726",
   "icons": [
     {
       "src": "icons/icon-192.png",
