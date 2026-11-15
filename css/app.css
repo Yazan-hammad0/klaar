@@ -963,3 +963,15 @@ html.shell .top{padding-top:calc(env(safe-area-inset-top,0px) + 12px)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--link:#8FB4F2}:root:not([data-theme="light"]) body[data-track="civic"]{--link:#E7A3B2}}
 :root[data-theme="dark"]{--link:#8FB4F2}:root[data-theme="dark"] body[data-track="civic"]{--link:#E7A3B2}
 .link,.tp-les,.ai-box a,.note a,.lead a,.eyebrow{color:var(--link)}
+
+/* opening: the name on a blue sign, a yellow road line draws under it, then the app rises in */
+.intro{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:var(--accent);pointer-events:none;animation:intro-out .45s ease-in 1s forwards}
+.intro-sign{position:relative;padding:20px 34px 24px;border:3px solid rgba(255,255,255,.95);border-radius:20px;animation:intro-in .55s cubic-bezier(.2,.9,.25,1) both}
+.intro-sign b{display:block;font-family:var(--font-display);font-weight:900;font-style:italic;font-size:56px;line-height:1;letter-spacing:-.03em;color:#fff}
+.intro-sign i{display:block;height:6px;margin-top:10px;border-radius:99px;background:var(--pop);transform-origin:0 50%;animation:intro-road .5s cubic-bezier(.3,.8,.3,1) .35s both}
+.intro ~ main,.intro ~ .onb>*{animation:app-in .5s cubic-bezier(.2,.9,.25,1) 1.05s both}
+@keyframes intro-in{from{opacity:0;transform:scale(.86)}}
+@keyframes intro-road{from{transform:scaleX(0)}}
+@keyframes intro-out{to{opacity:0;visibility:hidden}}
+@keyframes app-in{from{opacity:0;transform:translateY(14px)}}
+@media (prefers-reduced-motion: reduce){.intro{display:none}}

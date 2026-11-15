@@ -1,5 +1,5 @@
 /* Screen-tall layout for the home-screen app, update notice, service worker. */
-var KLAAR_VERSION = "321ede4b22", KLAAR_NEWS = "27 new road sign questions, each with its sign drawn";
+var KLAAR_VERSION = "6b668097f2", KLAAR_NEWS = "A new opening, and updates now arrive by themselves when you open the app";
 (function(){
   /* iOS home-screen apps sometimes get a layout viewport shorter than the screen, which leaves a strip under the tab bar.
      Measure it and push the bottom chrome down into that strip. */
@@ -30,17 +30,33 @@ var KLAAR_VERSION = "321ede4b22", KLAAR_NEWS = "27 new road sign questions, each
   ["gesturestart", "gesturechange"].forEach(function(n){ document.addEventListener(n, function(e){ e.preventDefault(); }, {passive:false}); });
   window.addEventListener("scroll", function(){ if (root.classList.contains("shell") && window.scrollY) window.scrollTo(0, 0); }, {passive:true});
 
-  /* updates: check when the app comes back to the front; when a new version takes over, offer a one-tap reload */
-  function updateBar(){
+  /* the opening sign: gone after it has played, at once after an update reload */
+  var intro = document.getElementById("intro"), updated = false;
+  try{ updated = sessionStorage.getItem("klaarUpdated") === "1"; sessionStorage.removeItem("klaarUpdated"); }catch(e){}
+  if (intro) setTimeout(function(){ intro.remove(); }, updated ? 0 : 1700);
+
+  /* updates: check when the app comes back to the front. A new version that arrives before you have touched anything
+     is put in straight away; later on, a one-tap card offers it so nothing reloads under your thumb. */
+  var touched = false;
+  document.addEventListener("pointerdown", function(){ touched = true; }, {capture:true, once:true});
+  function updateBar(done){
     if (document.getElementById("upd")) return;
     var u = document.createElement("div"); u.id = "upd"; u.className = "upd"; u.setAttribute("role", "status");
-    u.innerHTML = '<span><b>New version of Klaar</b>' + KLAAR_NEWS + '</span><button class="btn pop">Update</button>';
-    u.querySelector("button").addEventListener("click", function(){ location.reload(); });
+    u.innerHTML = '<span><b>' + (done ? "Klaar just updated" : "New version of Klaar") + '</b>' + KLAAR_NEWS + '</span><button class="btn pop">' + (done ? "OK" : "Update") + '</button>';
+    u.querySelector("button").addEventListener("click", function(){ if (done) u.remove(); else location.reload(); });
     document.body.appendChild(u);
+    if (done) setTimeout(function(){ u.remove(); }, 6000);
   }
+  if (updated) setTimeout(function(){ updateBar(true); }, 300);
   if ("serviceWorker" in navigator){
     var hadController = !!navigator.serviceWorker.controller, reg = null;
-    navigator.serviceWorker.addEventListener("controllerchange", function(){ if (hadController) updateBar(); hadController = true; });
+    navigator.serviceWorker.addEventListener("controllerchange", function(){
+      if (hadController){
+        if (!touched){ try{ sessionStorage.setItem("klaarUpdated", "1"); }catch(e){} location.reload(); }
+        else updateBar(false);
+      }
+      hadController = true;
+    });
     window.addEventListener("load", function(){ navigator.serviceWorker.register("sw.js").then(function(r){ reg = r; }).catch(function(){}); });
     document.addEventListener("visibilitychange", function(){ if (!document.hidden){ setTimeout(fit, 120); if (reg) reg.update().catch(function(){}); } });
     setInterval(function(){ if (reg && !document.hidden) reg.update().catch(function(){}); }, 30 * 60 * 1000);
