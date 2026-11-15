@@ -626,6 +626,14 @@ function renderPrimer(v, entering){
   });
 }
 function renderLesson(v, entering){ renderPrimer(v, entering); }
+/* after a wrong answer: the whole lesson in a sheet, so you can reread the rule and come back to the same card */
+function reviewLesson(t, topic){
+  var steps = topicLesson(t, topic); if (!steps) return;
+  openSheet('<div class="rvw"><h2>' + esc(lessonKey(t, topic)) + '</h2>' + steps.map(function(st){
+    return '<section class="rvw-step">' + (st.scene && window.LESSON_SCENE ? '<div class="lscene">' + LESSON_SCENE(st.scene) + '</div>' : "") +
+      '<h3 class="les-h">' + esc(st.h) + '</h3><p class="pr-t">' + esc(st.t) + '</p><p class="pr-why"><b>Why</b><span>' + esc(st.why) + '</span></p>' + (st.src ? srcLink(st.src) : "") + '</section>';
+  }).join("") + '</div>');
+}
 function renderFeed(entering){
   var v = $("#v-feed");
   if (lesson){ renderLesson(v, entering); return; }
@@ -678,7 +686,7 @@ function renderFeed(entering){
     if (q.src) html2 += srcLink(q.src);
     html2 += '<div class="rep" id="rep">' + (cur.reported ? '<span class="note">Reported. Thank you.</span>' : '<button class="link" data-act="report">Report a problem with this question</button>') + '</div>';
     if (cur.explain) html2 += '<div class="ai-out" id="ai-out">' + esc(cur.explain) + '</div>';
-    html2 += '<div class="fb-actions">' + (aiAvailable() && !cur.explaining && !cur.explain ? '<button class="btn ghost" data-act="explain">Explain it simpler</button>' : "") + '<button class="btn" data-act="next">Next</button></div></div>';
+    html2 += '<div class="fb-actions">' + (!ok && topicLesson(q.track, q.topic) ? '<button class="btn ghost" data-act="review">Review the lesson</button>' : "") + (aiAvailable() && !cur.explaining && !cur.explain ? '<button class="btn ghost" data-act="explain">Explain it simpler</button>' : "") + '<button class="btn" data-act="next">Next</button></div></div>';
     html2 += '<p class="hint">Swipe up for the next question</p>';
   }
   html2 += '</article>';
@@ -764,6 +772,7 @@ function wireFeed(v){
     }); });
   });
   var ex = $('[data-act="explain"]', v); if (ex) ex.addEventListener("click", explain);
+  var rv = $('[data-act="review"]', v); if (rv) rv.addEventListener("click", function(){ reviewLesson(cur.q.track, cur.q.topic); });
   if (cur) wireAudio(v, cur.q);
   var card = $("#qcard", v);
   if (card) wireSwipe(card);
