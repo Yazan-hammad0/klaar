@@ -516,10 +516,10 @@ function pickNext(t){
     }
   }
   var cap = levelCap(t);
-  var p = pool(t).filter(function(q){ return (q.lvl || 1) <= cap; });
+  var p = pool(t).filter(function(q){ return (q.lvl || 1) <= cap; }), all = p;
   var fit = p.filter(fitsProfile); if (fit.length >= 12) p = fit;
   if (focus && focus.track === t && focus.asked < focus.n){
-    var inT = p.filter(function(x){ return inFocus(x) && x.id !== lastId; });
+    var inT = all.filter(function(x){ return inFocus(x) && x.id !== lastId; });   /* you picked this topic, so the profile filter does not hide its questions */
     var fq = inT.filter(function(x){ return !tr.seen[x.id]; });
     if (focus.drill){   /* a drill: questions you missed and new ones first, then the ones you saw longest ago */
       var missed = {}; tr.wrong.forEach(function(w){ missed[w.id] = 1; });
@@ -529,10 +529,11 @@ function pickNext(t){
     }
     if (fq.length){ var pk = fq[Math.floor(Math.random() * fq.length)]; if (focus.ids) focus.ids[pk.id] = 1; return pk; }
     focus.n = focus.asked;
+    return null;   /* the unit ran out: end it with the "topic done" card, never an off-topic question */
   }
   if (teachFirst() && !focus){
     var nt = nextLessonTopic(t, p);
-    if (nt){ var lq = p.filter(function(x){ return x.topic === nt && !tr.seen[x.id]; }); return lq[Math.floor(Math.random() * lq.length)]; }
+    if (nt){ var lq = p.filter(function(x){ return lessonKey(t, x.topic) === nt && !tr.seen[x.id]; }); return lq[Math.floor(Math.random() * lq.length)]; }
   }
   var unseen = p.filter(function(q){ return !tr.seen[q.id] && q.id !== lastId; });
   if (unseen.length <= 8) maybeAutoGen(t);
@@ -553,6 +554,7 @@ function nextQuestion(){
   if (lesson && lesson.track === S.track){ renderFeed(); return; }
   if (focus && focus.track === S.track && focus.asked >= focus.n){ renderUnitDone(); return; }
   var q = pickNext(S.track);
+  if (!q && focus && focus.track === S.track && focus.asked >= focus.n){ renderUnitDone(); return; }
   if (!q){ cur = null; waitingForQuestions = true; renderFeed(); return; }
   if (needsLesson(q)){ startLesson(q); return; }
   waitingForQuestions = false;
