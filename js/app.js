@@ -1367,7 +1367,7 @@ function renderLicencePlan(){
     }
     html += '</section>';
     html += '<section class="lp-card"><h3>What it takes</h3><ul class="lp-list">' +
-      '<li>You must be 18 to drive alone. With 2toDrive you can drive with a coach from 17.</li>' +
+      '<li>You must be 18 to drive on your own.</li>' +
       '<li>A DigiD to book your theory exam.</li>' +
       '<li>A driving school. Ask if they teach in English.</li>' +
       '<li>Your theory pass is valid for 1.5 years.</li></ul></section>';
@@ -1420,7 +1420,8 @@ function civicCountdownHtml(){
     bars += '</div><div class="cv-meta"><span>' + fmtDate(cd.from) + '</span><span>' + fmtDate(cd.at) + '</span></div>';
   }
   var sub = future ? "Your 5 years start when you move. Sort out the checklist below first." :
-    (C.goal === "integrate" ? "No deadline here. If DUO sent you a letter, you have 3 years from the date in it." : "Most people can apply after 5 years with a residence permit.");
+    (C.goal === "integrate" ? "No deadline here. If DUO sent you a letter, you have 3 years from the date in it." :
+      (C.why === "study" ? "A study permit is temporary. To apply, you need a permit for a non-temporary purpose, such as work. Check ind.nl." : "Most people can apply after 5 years living here legally."));
   html = '<section class="cv-hero"><div class="cv-top"><span class="cv-cap">' + (future ? "Before you move" : (C.goal === "integrate" ? "Your time here" : "Your 5 years")) + '</span><button class="link cv-edit" data-act="civ-edit">Change</button></div>' +
     (big ? '<b class="cv-big tabular">' + big.toLocaleString(loc()) + '</b>' : "") + '<span class="cv-what">' + cap + '</span>' + bars +
     '<p class="cv-sub">' + sub + '</p>' +
@@ -1465,11 +1466,11 @@ function stampSheet(i){
   var e = $('[data-act="st-exam"]'); if (e) e.addEventListener("click", function(){ closeSheet(); setView("exams"); startExam(s.id); });
   $('[data-act="st-real"]').addEventListener("click", function(){ S.plan[s.key] = !S.plan[s.key]; save(); closeSheet(); renderHome(); });
 }
-/* what to sort out, by why you came and what you want. Each line was checked on the official page it links to. */
+/* what to sort out, by why you came and what you want. Lines with a link were checked on that page; the permit lines are general advice. */
 function civicChecklist(){
   var C = civ(), L = [];
-  if (C.why === "study") L.push(["cl-permit", "Your university applies for your residence permit. Send them what they ask for.", ""]);
-  if (C.why === "work") L.push(["cl-permit", "Your employer applies for your residence permit. Send them what they ask for.", ""]);
+  if (C.why === "study") L.push(["cl-permit", "If you need a residence permit, your university usually applies for it. Send them what they ask for.", ""]);
+  if (C.why === "work") L.push(["cl-permit", "If you need a residence permit, your employer usually applies for it. Send them what they ask for.", ""]);
   if (C.why === "family") L.push(["cl-abroad", "Check if you must pass the civic integration exam abroad before you come.", "https://ind.nl/en/civic-integration-exam-abroad"]);
   L.push(["cl-bsn", "Register at your town hall. You get your BSN there.", ""]);
   L.push(["cl-digid", "Apply for your DigiD. You need it for Mijn Inburgering.", "https://www.digid.nl/en"]);
