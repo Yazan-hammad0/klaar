@@ -22,7 +22,8 @@ Expats and international students in the Netherlands who need a Dutch car licenc
 ## Why believe it (only say what is true today)
 | Claim | Proof in the app |
 |---|---|
-| A plan that follows your exam date | Home shows days left, % ready, daily pace and one next step |
+| A plan that follows your exam date | Home shows the readiness ring, days left, today's count, the route to a licence and one next step |
+| Your road to a licence | "Your plan" asks when you want your licence, says if that is very tight, realistic or comfortable, dates every step and links to mijn.cbr.nl, cbr.nl, government.nl and rdw.nl. It checks first if a foreign licence can be swapped |
 | You know when you are ready | The readiness ring goes red, amber, green |
 | You see the situation | Junctions drawn from above, hazards from the driver's seat |
 | You learn the rule and the reason | Every answer explains why. Most link to the page of the English RVV booklet on government.nl |
@@ -31,6 +32,8 @@ Expats and international students in the Netherlands who need a Dutch car licenc
 
 ## Inburgering
 An add-on, not the headline. Mention it once per page or post at most, near the end: "Also doing your inburgering? Add KNM and Dutch A2 practice from your profile." Marketing stays driving-first.
+
+What the inburgering side shows (for when you do mention it): a Delft blue countdown to the day you can apply to become Dutch or stay for good (or the days until you move), a stamp for each exam that lands when you pass its practice exam, a checklist for your situation, and "How to apply, step by step" with links to inburgeren.nl and ind.nl. Always add that Klaar is an independent practice app, not DUO or the IND. Pictures: `screenshots/8-inburgering.png`, `8b-stamps.png`, `9-route.png`.
 
 ## Words we use
 - "driving theory exam", "CBR theory exam", "practice app", "mock exam", "your exam date", "ready", "green light"

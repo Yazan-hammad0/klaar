@@ -44,28 +44,65 @@ function seed(){
   localStorage.setItem("klaarInstallSeen", "1"); localStorage.setItem("klaarInstallHint", "no"); localStorage.setItem("klaarStats", "off");
 }
 
+/* The same learner, also doing inburgering: moved here a little over 2 years ago for work, wants to become Dutch. */
+function seedCivic(){
+  var S = JSON.parse(localStorage.getItem("klaarStateV1")), day = 86400000, now = Date.now();
+  function pad(n){ return (n < 10 ? "0" : "") + n; }
+  var a = new Date(now - 800 * day); S.arrived = a.getFullYear() + "-" + pad(a.getMonth() + 1) + "-" + pad(a.getDate());
+  S.track = "civic"; S.prof.goals = ["civic"]; S.prof.civ = {why:"work", goal:"citizen"};
+  var tr = S.t.civic; tr.topics = {"KNM":{a:64, ok:52}, "A2 Lezen":{a:40, ok:33}, "A2 Luisteren":{a:24, ok:15}};
+  tr.ans = 128; tr.ok = 100; tr.xp = 980;
+  tr.mocks = {"knm":[{s:36, n:40, p:true, at:now - 20 * day}], "a2-lezen":[{s:22, n:25, p:true, at:now - 3 * day}], "a2-luisteren":[{s:15, n:25, p:false, at:now - day}]};
+  S.plan = Object.assign({}, S.plan, {"c-knm":true});
+  localStorage.setItem("klaarStateV1", JSON.stringify(S));
+}
+
 async function appShots(browser){
   const ctx = await browser.newContext({ viewport: {width:390, height:844}, deviceScaleFactor: 3, isMobile: true, hasTouch: true, userAgent: UA, colorScheme: 'light', serviceWorkers: 'block' });
+  /* home-screen layout, and no news card (news.json changes; the pictures should not) */
   await ctx.addInitScript(() => { Object.defineProperty(navigator, 'standalone', {get: () => true}); });
+  await ctx.route('**/news.json*', r => r.fulfill({ status: 200, contentType: 'application/json', body: '{"items":[]}' }));
   const page = await ctx.newPage();
   await page.goto(BASE); await page.waitForTimeout(500);
-  await page.evaluate(seed); await page.reload(); await page.waitForTimeout(900);
+  await page.evaluate(seed); await page.evaluate(() => { var S = JSON.parse(localStorage.getItem("klaarStateV1")); S.prof.lic = {from:"none", by:6, at:Date.now() - 12 * 86400000}; S.onboarded = true; localStorage.setItem("klaarStateV1", JSON.stringify(S)); });
+  await page.reload(); await page.waitForTimeout(2500);
   const shot = async name => { await page.screenshot({ path: path.join(DIRS.shots, name + '.png') }); console.log('screenshot', name); };
   const scrollMain = y => page.evaluate(y => { document.querySelector('main').scrollTop = y; }, y);
+  const home = async () => { await page.keyboard.press('Escape'); await page.waitForTimeout(400); await page.click('.tab[data-view="home"]'); await page.waitForTimeout(500); await scrollMain(0); };
 
-  await page.click('.tab[data-view="home"]'); await page.waitForTimeout(700); await shot('1-plan');
-  await scrollMain(700); await page.waitForTimeout(300); await shot('2-topics');
+  await home(); await page.waitForTimeout(2200); await shot('1-plan');
+  await page.evaluate(() => { var g = document.querySelector('#v-home .tile'), m = document.querySelector('main'); if (g) m.scrollTop += g.getBoundingClientRect().top - 300; });
+  await page.waitForTimeout(400);
+  const tile = await page.$('#v-home [data-tile="Priority"]'); if (tile){ await tile.click(); await page.waitForTimeout(900); }
+  await shot('2-topics');
 
-  /* a question with a picture: open the Priority topic from Home */
-  await scrollMain(0);
-  const openTopic = async name => { await page.click('.tab[data-view="home"]'); await page.waitForTimeout(400);
-    await page.click('#v-home [data-topic="' + name + '"]');
-    await page.waitForTimeout(1200); };
-  await openTopic('Priority'); await scrollMain(0); await shot('3-question');
-  const opt = await page.$('#v-feed .opt'); if (opt){ await opt.click(); await page.waitForTimeout(1100); await page.evaluate(() => { var v = document.querySelector('#v-feed .verdict'), m = document.querySelector('main'); if (v) m.scrollTop += v.getBoundingClientRect().top - 150; }); await page.waitForTimeout(400); await shot('4-explained'); }
-  await openTopic('Hazard perception'); await scrollMain(0); await shot('5-hazard');
+  /* a question with a picture: Priority from its tile */
+  const openTopic = async name => { await home(); await page.click('#v-home [data-tile="' + name + '"]'); await page.waitForTimeout(700);
+    await page.click('[data-act="tsh-go"]'); await page.waitForTimeout(1300); await scrollMain(0); };
+  await openTopic('Priority'); await shot('3-question');
+  /* a wrong answer, so the picture shows the right one and the rule. Options are shuffled: try until one is wrong. */
+  for (let i = 0; i < 8; i++){
+    const opts = await page.$$('#v-feed .opt'); if (!opts.length) break;
+    await opts[opts.length - 1].click(); await page.waitForTimeout(1100);
+    if (await page.$('#v-feed .verdict.no')) break;
+    await page.click('#v-feed [data-act="next"]'); await page.waitForTimeout(1300); await scrollMain(0);
+  }
+  if (await page.$('#v-feed .verdict')){ await page.evaluate(() => { var v = document.querySelector('#v-feed .verdict'), m = document.querySelector('main'); if (v) m.scrollTop += v.getBoundingClientRect().top - 150; }); await page.waitForTimeout(400); await shot('4-explained'); }
+  await openTopic('Hazard perception'); await shot('5-hazard');
 
   await page.click('.tab[data-view="exams"]'); await page.waitForTimeout(700); await shot('6-mock-exams');
+
+  await home(); await page.click('#v-home [data-act="your-plan"]'); await page.waitForTimeout(800);
+  await page.evaluate(() => { var r = document.querySelector('.lp-card:nth-of-type(2)'), m = document.querySelector('main'); if (r) m.scrollTop += r.getBoundingClientRect().top - 110; });
+  await page.waitForTimeout(400); await shot('7-licence-plan');
+
+  await page.evaluate(seedCivic); await page.reload(); await page.waitForTimeout(2500);
+  await home(); await page.waitForTimeout(1500);
+  await page.evaluate(() => { var h = document.querySelector('#v-home .cv-hero'), m = document.querySelector('main'); if (h) m.scrollTop += h.getBoundingClientRect().top - 110; });
+  await page.waitForTimeout(400); await shot('8-inburgering');
+  await page.evaluate(() => { var h = document.querySelector('#v-home .stamps'), m = document.querySelector('main'); if (h) m.scrollTop += h.getBoundingClientRect().top - 200; });
+  await page.waitForTimeout(400); await shot('8b-stamps'); await scrollMain(0);
+  await page.click('#v-home [data-act="civic-route"]'); await page.waitForTimeout(800); await shot('9-route');
   await ctx.close();
 }
 
@@ -121,7 +158,7 @@ function carousel(){
     slide('ink', `${top(1, N)}<h1>Pass the Dutch driving theory exam. <em>In English.</em></h1><p>Made for expats and international students. Klaar turns green when you are ready.</p>${rings()}`),
     slide('ground', `${top(2, N)}<h1>A plan that counts back from <em>your exam date.</em></h1><p>It tells you how ready you are and what to do today.</p><div class="phone" style="top:640px"><img src="${b64('1-plan')}"></div>`),
     slide('ink', `${top(3, N)}<h1>See the situation, <em>not a wall of text.</em></h1><p>Junctions, lanes and roundabouts drawn from above, with who goes where.</p><div class="phone" style="top:640px"><img src="${b64('3-question')}"></div>`),
-    slide('ground', `${top(4, N)}<h1>Wrong answer? You get <em>the rule and the reason.</em></h1><p>Most answers link to the page in the government's English rulebook.</p><div class="phone" style="top:640px"><img src="${b64('4-explained')}" style="margin-top:-540px"></div>`),
+    slide('ground', `${top(4, N)}<h1>Wrong answer? You get <em>the rule and the reason.</em></h1><p>Most answers link to the page in the government's English rulebook.</p><div class="phone" style="top:640px"><img src="${b64('4-explained')}" style="margin-top:-400px"></div>`),
     slide('ink', `${top(5, N)}<h1>Mock exams in <em>the real CBR format.</em></h1><p>50 questions, 30 minutes, 44 to pass. No feedback until you hand in.</p><div class="phone" style="top:660px"><img src="${b64('6-mock-exams')}"></div>`),
     slide('ink', `${top(6, N)}<div style="display:flex;gap:56px;align-items:center;margin-top:84px"><div style="flex:none">${light(380)}</div><h1 style="font-size:100px;margin:0">When the light is green, you are <em>klaar.</em></h1></div><div class="list" style="margin-top:72px;gap:30px"><div><b>1</b>Open the link on your phone</div><div><b>2</b>Tell it your exam date</div><div><b>3</b>Practise until your light is green</div></div><div class="pill" style="margin-top:64px">${SITE}</div><div class="fine">Free, no account, works offline. Original practice questions, not CBR exam material.</div>`)
   ];
@@ -147,7 +184,7 @@ async function webCopies(browser){
   /* small JPGs for the landing page, 2x a 300px-wide phone */
   const ctx = await browser.newContext({ viewport: {width:600, height:1298}, deviceScaleFactor: 1 });
   const page = await ctx.newPage();
-  for (const f of ['1-plan', '2-topics', '3-question', '4-explained', '6-mock-exams']){
+  for (const f of ['1-plan', '2-topics', '3-question', '4-explained', '6-mock-exams', '7-licence-plan']){
     await page.setContent(`<body style="margin:0"><img src="${b64(f)}" style="display:block;width:600px">`); await page.waitForTimeout(150);
     await page.screenshot({ path: path.join(DIRS.web, f + '.jpg'), type: 'jpeg', quality: 82 });
   }
