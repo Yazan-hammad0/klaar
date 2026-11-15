@@ -261,6 +261,8 @@ body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent}
 .hero-edit{color:inherit;opacity:.8;font-size:12px;margin-top:8px;text-decoration:underline}
 .src{font:500 11.5px var(--font-mono);color:var(--muted);margin:6px 0 0}
 .src a{color:inherit;text-decoration:underline;text-underline-offset:2px;display:inline-block;padding:6px 0}
+.rep{margin-top:2px}.rep .link{font-size:13px;font-weight:700;color:var(--muted);text-decoration:underline;text-underline-offset:2px}
+.rep-row{display:flex;flex-wrap:wrap;gap:8px}.rep-row .chip{min-height:40px;padding:8px 14px;font-size:13.5px;cursor:pointer;color:var(--fg);white-space:normal;text-align:start}
 label.btn{display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
 .install{margin:0 0 12px;padding:12px 14px;border-radius:14px;background:var(--accent-soft);color:var(--fg);font-size:13.5px;display:flex;gap:10px;align-items:flex-start}
 .install b{display:block}

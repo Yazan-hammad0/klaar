@@ -668,6 +668,7 @@ function renderFeed(entering){
     if (q.audio) html2 += '<p class="en">Audio: ' + esc(q.audio) + '</p>';
     html2 += '<p class="ex">' + mark(q.track, q.e) + '</p>';
     if (q.src) html2 += srcLink(q.src);
+    html2 += '<div class="rep" id="rep">' + (cur.reported ? '<span class="note">Reported. Thank you.</span>' : '<button class="link" data-act="report">Report a problem with this question</button>') + '</div>';
     if (cur.explain) html2 += '<div class="ai-out" id="ai-out">' + esc(cur.explain) + '</div>';
     html2 += '<div class="fb-actions">' + (aiAvailable() && !cur.explaining && !cur.explain ? '<button class="btn ghost" data-act="explain">Explain it simpler</button>' : "") + '<button class="btn" data-act="next">Next</button></div></div>';
     html2 += '<p class="hint">Swipe up for the next question</p>';
@@ -741,6 +742,19 @@ function wireFeed(v){
   }
   var chk = $('[data-act="check"]', v); if (chk) chk.addEventListener("click", function(){ if (inp && inp.value.trim()) answer(inp.value); });
   var nx = $('[data-act="next"]', v); if (nx) nx.addEventListener("click", leaveThenNext);
+  /* report a question: sends the question id and the reason, nothing about the person */
+  var rp = $('[data-act="report"]', v);
+  if (rp) rp.addEventListener("click", function(){
+    var box = $("#rep", v), rq = cur.q, why = [["answer", "The answer is wrong"], ["unclear", "The question is unclear"]];
+    if (rq.map || rq.view || rq.sign) why.push(["picture", "The picture is wrong"]);
+    box.innerHTML = '<p class="note">What is wrong? This sends the question number and your reason. Nothing about you.</p><div class="rep-row">' +
+      why.map(function(r){ return '<button class="chip" data-rep="' + r[0] + '">' + r[1] + '</button>'; }).join("") + '</div>';
+    $$("[data-rep]", box).forEach(function(b){ b.addEventListener("click", function(){
+      if (window.KLAAR_STATS && KLAAR_STATS.report) KLAAR_STATS.report(rq, b.getAttribute("data-rep"));
+      if (cur && cur.q === rq) cur.reported = true;
+      box.innerHTML = '<span class="note">Reported. Thank you.</span>';
+    }); });
+  });
   var ex = $('[data-act="explain"]', v); if (ex) ex.addEventListener("click", explain);
   if (cur) wireAudio(v, cur.q);
   var card = $("#qcard", v);
@@ -1047,7 +1061,7 @@ function renderProfile(){
   html += '<div class="label">Share Klaar</div><div class="ai-box"><p>Know someone preparing for these exams? Send them the link. It shows them how to install it.</p><button class="btn ghost" data-act="share-app" style="width:100%">Share the link</button></div>';
   html += '<div class="label">Start again</div><div class="ai-box"><p>Clears your answers, mocks and streak on this phone. Your name, language and goals stay.</p><button class="btn ghost danger" data-act="reset" style="width:100%">Start from scratch</button></div>';
   html += '<div class="label">Backup</div><div class="ai-box"><p>Progress lives on this phone only. Save a backup file now and then, so a new phone or a cleared browser doesn\'t wipe it.</p><div class="pair"><button class="btn ghost" data-act="bk-save">Save backup</button><label class="btn ghost" for="bk-file">Restore<input type="file" id="bk-file" accept="application/json,.json" hidden></label></div></div>';
-  if (window.KLAAR_STATS && KLAAR_STATS.ready()) html += '<div class="label">Anonymous stats</div><div class="ai-box"><p>Klaar counts which screens are used and which questions people get wrong, so the hard parts can be fixed. No name, no account, no cookies. Your progress itself stays on this phone.</p><button class="btn ghost" data-act="stats" style="width:100%">' + (KLAAR_STATS.on() ? "Turn off anonymous stats" : "Turn on anonymous stats") + '</button></div>';
+  if (window.KLAAR_STATS && KLAAR_STATS.ready()) html += '<div class="label">Anonymous stats</div><div class="ai-box"><p>Klaar counts which screens are used and which questions people get wrong, so the hard parts can be fixed. If you report a question, the question number and your reason are sent, also when stats are off. No name, no account, no cookies. Your progress itself stays on this phone.</p><button class="btn ghost" data-act="stats" style="width:100%">' + (KLAAR_STATS.on() ? "Turn off anonymous stats" : "Turn on anonymous stats") + '</button></div>';
   html += '<p class="note">Works offline. Practice questions are original and in the style of the real exams, not official CBR or DUO material.</p><p class="note diag" id="diag"></p>';
   v.innerHTML = html;
   $('[data-act="prof-back"]', v).addEventListener("click", function(){ setView(backTo); });

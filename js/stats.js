@@ -1,15 +1,16 @@
 /* Anonymous usage counts, so we can see which screens get used and which questions people get wrong.
    Sent to GoatCounter (no cookies, no IP addresses stored, nothing that identifies a person).
    Off until SITE is set, only on the live site, and each user can switch it off in their profile.
-   What is counted: app opens, screens, answers (question id + right/wrong), finished lessons, mock results. */
+   What is counted: app opens, screens, answers (question id + right/wrong), finished lessons, mock results.
+   A report on a question (question id + reason) is sent when the user taps it, also with stats switched off: they asked for it. */
 (function(){
 "use strict";
 var SITE = "klaar";  /* the GoatCounter code, e.g. "klaar" for https://klaar.goatcounter.com */
 var LIVE = "yazan-hammad0.github.io";
 function off(){ try{ return localStorage.getItem("klaarStats") === "off"; }catch(e){ return false; } }
 function slug(s){ return String(s || "").toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
-function send(path, title){
-  if (!SITE || location.hostname !== LIVE || off()) return;
+function send(path, title, asked){
+  if (!SITE || location.hostname !== LIVE || (off() && !asked)) return;
   try{
     var u = "https://" + SITE + ".goatcounter.com/count?e=true&p=" + encodeURIComponent(path) + "&t=" + encodeURIComponent(title || path) +
       "&s=" + encodeURIComponent((screen.width || 0) + "," + (screen.height || 0)) + "&rnd=" + Math.random().toString(36).slice(2);
@@ -24,6 +25,7 @@ window.KLAAR_STATS = {
   answer: function(q, ok){ if (!q) return;
     send("q/" + q.track + "/" + q.id + "/" + (ok ? "right" : "wrong"), (ok ? "Right: " : "Wrong: ") + (q.topic ? q.topic + " | " : "") + String(q.q || "").slice(0, 80));
     send("topic/" + q.track + "/" + slug(q.topic) + "/" + (ok ? "right" : "wrong"), (ok ? "Right: " : "Wrong: ") + q.track + " | " + q.topic); },
+  report: function(q, why){ if (q) send("report/" + q.track + "/" + q.id + "/" + slug(why), "Report (" + slug(why) + "): " + (q.topic ? q.topic + " | " : "") + String(q.q || "").slice(0, 80), true); },
   lesson: function(track, topic){ send("lesson/" + track + "/" + slug(topic), "Lesson finished: " + topic); },
   mock: function(track, id, s, n, ok){ send("mock/" + track + "/" + slug(id) + "/" + (ok ? "pass" : "fail"), "Mock " + id + ": " + (ok ? "pass" : "fail") + " (" + s + "/" + n + ")"); }
 };
