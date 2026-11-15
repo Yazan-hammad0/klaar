@@ -489,7 +489,7 @@ function teachFirst(){ return prof().style !== "test"; }
 function lessonKey(t, topic){ var a = window.LESSON_ALIAS && LESSON_ALIAS[t]; return (a && a[topic]) || topic; }
 function topicLesson(t, topic){ return window.LESSONS && LESSONS[t] && LESSONS[t][lessonKey(t, topic)]; }
 function needsLesson(q){ var tr = S.t[q.track]; return teachFirst() && !!topicLesson(q.track, q.topic) && !(tr.primers || {})[lessonKey(q.track, q.topic)]; }
-var lesson = null, focus = null, UNIT_MAX = 10, MISTAKES = "Your mistakes";
+var lesson = null, focus = null, practiceMode = null, UNIT_MAX = 10, MISTAKES = "Your mistakes";
 function inFocus(q){ return focus.set ? !!focus.set[q.id] : (focus.part ? q.track === "civic" && partOf(q) === focus.part : lessonKey(q.track, q.topic) === focus.topic); }
 /* inburgering exam parts: practise just one of them today. Every civic question belongs to one part, by its exam section,
    and for the basics (and AI questions) by its topic. */
@@ -541,6 +541,10 @@ function pickNext(t){
     focus.n = focus.asked;
     return null;   /* the unit ran out: end it with the "topic done" card, never an off-topic question */
   }
+  if (practiceMode === "mix" && teachFirst() && !focus){   /* a mix only asks about lessons you have done; with none done yet, it starts the next lesson */
+    var dn = tr.primers || {}, lp = p.filter(function(q){ return !topicLesson(t, q.topic) || dn[lessonKey(t, q.topic)]; });
+    if (lp.length) p = lp;
+  }
   if (teachFirst() && !focus){
     var nt = nextLessonTopic(t, p);
     if (nt){ var lq = p.filter(function(x){ return lessonKey(t, x.topic) === nt && !tr.seen[x.id]; }); return lq[Math.floor(Math.random() * lq.length)]; }
@@ -586,8 +590,9 @@ function renderUnitDone(){
   v.innerHTML = feedHead() + '<article class="qcard enter milestone unit-done"><div class="eyebrow"><span>' + esc(F.topic) + '</span></div><div class="m-big tabular">' + F.ok + '<small>/' + F.n + '</small></div><div class="m-cap">' + (F.set ? "Mistakes done" : (F.drill ? "Drill done" : "Topic done")) + '</div>' +
     '<p class="m-cheer">' + esc(cheer) + '</p><p class="unit-next">' + esc(pace) + '</p>' +
     '<div class="unit-plan"><b>Next: ' + esc(P.next.title) + '</b><span>' + esc(P.next.why) + '</span></div>' +
-    '<div class="fb-actions"><button class="btn pop" data-act="u-next">' + (P.next.kind === "mock" ? "Go to exams" : "Start") + '</button></div></article>';
+    '<div class="fb-actions"><button class="btn ghost" data-act="u-pick">Choose something else</button><button class="btn pop" data-act="u-next">' + (P.next.kind === "mock" ? "Go to exams" : "Start") + '</button></div></article>';
   $('[data-act="u-next"]', v).addEventListener("click", function(){ focus = null; startNext(t, P.next); });
+  $('[data-act="u-pick"]', v).addEventListener("click", function(){ focus = null; cur = null; practiceMode = null; showPractice(); scrollTop0(); });
   scrollTop0();
 }
 function ringSvg(done, goal){
@@ -1065,7 +1070,7 @@ function renderProgress(pre){
     html += '<button class="btn pop" data-act="gen"' + (ai[t] === "busy" ? " disabled" : "") + '>' + (ai[t] === "busy" ? "Writing questions…" : "Write 8 new questions now") + '</button></div>';
   }
 
-  html += t === "drive" ?
+  if (false) html += t === "drive" ?
     '<div class="also"><h3>Staying in the Netherlands?</h3><p>Klaar also prepares you for the inburgering exam: Dutch society (KNM) and Dutch at A2, with listening you can play back. Your driving progress is kept.</p><button class="btn ghost" data-act="other-goal">Try inburgering practice</button></div>' :
     '<div class="also"><h3>Need a Dutch driving licence too?</h3><p>Klaar has a full plan for the CBR theory exam, in English. Your inburgering progress is kept.</p><button class="btn ghost" data-act="other-goal">Go to driving theory</button></div>';
   v.innerHTML = html;
@@ -1237,7 +1242,7 @@ function startNext(t, n){
   if (n.kind === "mock"){ setView("exams"); return; }
   if (n.kind === "mistakes"){ practiseMistakes(t); return; }
   if (n.kind === "drill" || n.kind === "lesson"){ practiseTopic(t, n.topic); return; }
-  cur = null; focus = null; setView("feed");
+  cur = null; focus = null; practiceMode = "mix"; setView("feed");
 }
 function mockLine(t){
   var m = (S.t[t].mocks || {})[t === "drive" ? "full" : "knm"] || [], l = m[m.length - 1];
@@ -1329,11 +1334,7 @@ function driveHomeHtml(t, P){
     '<div class="rc-route"><div class="rc-route-h"><span>' + (lic().from === "eu" ? "You can usually swap your licence" : (R.licence ? (R.by ? "Licence by " : "Licence around ") + monthName(R.licence, true) : "Your route to a licence")) + '</span><button class="link" data-act="your-plan">Your plan ›</button></div>' +
     '<div class="rc-road"><i style="width:' + Math.round(R.done * 100) + '%"></i></div><ol class="rc-stops">' +
     R.stops.map(function(s, i){ return '<li class="' + (i < R.at ? "done" : (i === R.at ? "now" : "")) + '"><b>' + s.name + '</b><span>' + esc(s.when) + '</span></li>'; }).join("") + '</ol></div></section>';
-  var n = P.next, cap = n.kind === "drill" || n.kind === "mistakes" ? "Fix this first" : (P.seen ? "Next up" : "Start here");
-  html += '<section class="nx" aria-label="Next up"><span class="nx-cap">' + cap + '</span><h3 class="nx-t">' + esc(n.kind === "drill" ? n.topic : n.title) + '</h3><p class="nx-s">' + esc(n.why) + '</p>' +
-    '<button class="btn pop" data-act="plan-go">' + (n.kind === "mock" ? "Go to exams" : "Start") + '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></button></section>';
-  html += tilesHtml(t, P.topics);
-  return html;
+  return nextHtml(P) + html;
 }
 function tilesHtml(t, ts){
   var rank = {weak:0, going:1, "new":2, strong:3};
@@ -1541,18 +1542,15 @@ function checklistHtml(){
   return html + '</ul></section>';
 }
 function civicHomeHtml(t, P){
-  var C = civ(), html = civicCountdownHtml();
-  if (C.why && C.goal && citizenDates() && !civEdit){
-    var n = P.next, cap = n.kind === "drill" || n.kind === "mistakes" ? "Fix this first" : (P.seen ? "Next up" : "Start here");
-    html += '<section class="nx" aria-label="Next up"><span class="nx-cap">' + cap + '</span><h3 class="nx-t">' + esc(n.kind === "drill" ? n.topic : n.title) + '</h3><p class="nx-s">' + esc(n.why) + '</p>' +
-      '<button class="btn pop" data-act="plan-go">' + (n.kind === "mock" ? "Go to exams" : "Start") + '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></button></section>';
-    html += '<section class="parts" aria-label="Practise one part"><h2 class="parts-h">Or practise one exam part</h2><div class="parts-g">' + PARTS.map(function(x){
-      return '<button class="part" data-part="' + x[0] + '"><b>' + x[1] + '</b><span>' + x[2] + '</span></button>'; }).join("") + '</div></section>';
-    html += stampsHtml() + checklistHtml();
-    var ms = mistakes(t).length;
-    if (ms) html += '<button class="link tl-miss" data-act="mistakes">Fix your ' + ms + (ms === 1 ? " mistake" : " mistakes") + ' ›</button>';
-  }
-  return html;
+  var C = civ();
+  if (!(C.why && C.goal && citizenDates() && !civEdit)) return civicCountdownHtml();
+  return nextHtml(P) + civicCountdownHtml() + stampsHtml() + checklistHtml();
+}
+/* Today's one main action */
+function nextHtml(P){
+  var n = P.next, cap = n.kind === "drill" || n.kind === "mistakes" ? "Fix this first" : (P.seen ? "Next up" : "Start here");
+  return '<section class="nx" aria-label="Next up"><span class="nx-cap">' + cap + '</span><h3 class="nx-t">' + esc(n.kind === "drill" ? n.topic : n.title) + '</h3><p class="nx-s">' + esc(n.why) + '</p>' +
+    '<button class="btn pop" data-act="plan-go">' + (n.kind === "mock" ? "Go to exams" : "Start") + '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></button></section>';
 }
 function wireCivic(v){
   $$("[data-civ]", v).forEach(function(b){ b.addEventListener("click", function(){
@@ -1755,10 +1753,10 @@ function renderHome(){
   var nm = String(prof().name || "").trim();
   var line = today === 0 ? "Nothing yet today. Your goal is " + S.goal + " right answers." : (today < S.goal ? today + " of " + S.goal + " right today." : "Daily goal done. Anything now is bonus.");
   if (st > 1) line += " " + st + "-day streak.";
-  var t = S.track, html = newsHtml();
+  var t = S.track, html = '<h1 class="td-h">' + hi + (nm ? ", " + esc(nm.split(/\s+/)[0]) : "") + '</h1>';
   if (t === "drive") html += driveHomeHtml(t, plan(t));
   else html += civicHomeHtml(t, plan(t));
-  if (window.KLAAR_GLOSSARY) html += '<button class="row gl-open" data-act="glossary"><span class="badge">Aa</span><span class="row-main"><span class="row-title">Words to know</span><span class="row-sub">' + KLAAR_GLOSSARY.count(t) + ' terms, with the logic behind them</span></span><span class="nu-go">›</span></button>';
+  html += newsHtml();
   renderProgress(html);
   wirePlan(v, t);
   var mk = $('[data-act="mistakes"]', v); if (mk) mk.addEventListener("click", function(){ practiseMistakes(t); });
@@ -1774,11 +1772,113 @@ function renderHome(){
   wireNews(v);
 }
 
+
+/* ---------------- Practice: choose what to practise, then questions ---------------- */
+function showPractice(){
+  if (lesson && lesson.track === S.track){ renderFeed(); return; }
+  if (focus && focus.track === S.track){ if (cur && cur.q.track === S.track) renderFeed(); else nextQuestion(); return; }
+  if (practiceMode === "mix"){ if (!cur || cur.q.track !== S.track) nextQuestion(); else renderFeed(); return; }
+  renderPicker();
+}
+function lessonQs(t, k){ return pool(t).filter(function(q){ return lessonKey(t, q.topic) === k && (q.lvl || 1) <= levelCap(t); }).length; }
+function renderPicker(){
+  var t = S.track, tr = S.t[t], done = tr.primers || {}, ms = mistakes(t).length, v = $("#v-feed");
+  var order = ((window.LESSON_ORDER && LESSON_ORDER[t]) || []).filter(function(k){ return topicLesson(t, k) && lessonQs(t, k); });
+  var html = '<div class="pk"><h1 class="td-h">Practice</h1><p class="pk-sub">Pick what you want today. Questions only come from lessons you have done.</p>';
+  if (ms) html += '<button class="pk-row pk-main" data-pk="mistakes"><span><b>Fix your mistakes</b><small>' + ms + (ms === 1 ? " question" : " questions") + ' you got wrong</small></span><i aria-hidden="true">›</i></button>';
+  html += '<button class="pk-row' + (ms ? "" : " pk-main") + '" data-pk="mix"><span><b>A mix of what you have learned</b><small>' + UNIT_MAX + ' questions, weakest topics first</small></span><i aria-hidden="true">›</i></button>';
+  if (t === "civic"){
+    html += '<h2 class="pk-h">One exam part</h2>' + PARTS.map(function(x){
+      return '<button class="pk-row" data-part="' + x[0] + '"><span><b>' + esc(x[1]) + '</b><small>' + esc(x[2]) + '</small></span><i aria-hidden="true">›</i></button>'; }).join("");
+  } else {
+    html += '<h2 class="pk-h">One topic</h2>' + order.map(function(k){
+      var n = lessonQs(t, k);
+      return '<button class="pk-row" data-pk-topic="' + esc(k) + '"><span><b>' + esc(k) + '</b><small>' + (done[k] ? Math.min(UNIT_MAX, n) + " questions" : "Starts with the lesson") + '</small></span><i aria-hidden="true">›</i></button>'; }).join("");
+  }
+  v.innerHTML = feedHead() + html + '</div>';
+  $$("[data-pk]", v).forEach(function(b){ b.addEventListener("click", function(){
+    var k = b.getAttribute("data-pk");
+    if (k === "mistakes"){ practiseMistakes(t); return; }
+    practiceMode = "mix"; cur = null; focus = null; lastId = null; nextQuestion();
+  }); });
+  $$("[data-pk-topic]", v).forEach(function(b){ b.addEventListener("click", function(){ practiseTopic(t, b.getAttribute("data-pk-topic")); }); });
+  $$("[data-part]", v).forEach(function(b){ b.addEventListener("click", function(){ practisePart(b.getAttribute("data-part")); }); });
+}
+
+/* ---------------- Learn: the lessons in order, each followed by questions on only what it taught ---------------- */
+function renderLearn(){
+  var t = S.track, tr = S.t[t], done = tr.primers || {}, v = $("#v-learn");
+  var order = ((window.LESSON_ORDER && LESSON_ORDER[t]) || []).filter(function(k){ return topicLesson(t, k); });
+  var nextK = null; order.some(function(k){ if (!done[k]){ nextK = k; return true; } return false; });
+  function row(k, i){
+    var st = done[k] ? "done" : (k === nextK ? "now" : ""), n = lessonQs(t, k), steps = topicLesson(t, k).length;
+    return '<li><button class="ln ' + st + '" data-ln="' + esc(k) + '"><span class="ln-dot">' + (done[k] ? '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-6.5"/></svg>' : (i + 1)) + '</span>' +
+      '<span class="ln-main"><b>' + esc(k) + '</b><small>' + steps + (steps === 1 ? " step" : " steps") + (n ? ", " + n + (n === 1 ? " question" : " questions") : "") + '</small></span>' +
+      '<span class="ln-st">' + (done[k] ? "Done" : (st === "now" ? "Next" : "")) + '</span></button></li>';
+  }
+  var html = '<h1 class="td-h">Learn</h1><p class="pk-sub">The lessons in order. Each one ends with questions on only what it taught.</p>';
+  if (t === "civic"){
+    var i = 0;
+    PARTS.forEach(function(x){
+      var ks = order.filter(function(k){ return (TOPIC_PART[k] || "knm") === x[0]; });
+      if (!ks.length) return;
+      html += '<h2 class="pk-h">' + esc(x[1]) + '</h2><ol class="ln-path">' + ks.map(function(k){ return row(k, i++); }).join("") + '</ol>';
+    });
+  } else html += '<ol class="ln-path">' + order.map(row).join("") + '</ol>';
+  if (window.KLAAR_GLOSSARY) html += '<button class="row gl-open" data-act="glossary"><span class="badge">Aa</span><span class="row-main"><span class="row-title">Words to know</span><span class="row-sub">' + KLAAR_GLOSSARY.count(t) + ' terms, with the logic behind them</span></span><span class="nu-go">›</span></button>';
+  v.innerHTML = html;
+  $$("[data-ln]", v).forEach(function(b){ b.addEventListener("click", function(){
+    var k = b.getAttribute("data-ln");
+    if (!done[k]){ practiseTopic(t, k); return; }
+    var n = lessonQs(t, k);
+    openSheet('<div class="tsh"><h2>' + esc(k) + '</h2><p>You have done this lesson.' + (n ? " Practise its questions, or read it again." : "") + '</p>' +
+      (n ? '<button class="btn pop" data-act="ln-go">Practise ' + Math.min(UNIT_MAX, n) + ' questions</button>' : "") +
+      '<button class="btn ghost" data-act="ln-read">Read the lesson again</button></div>', true);
+    var g = $('[data-act="ln-go"]'); if (g) g.addEventListener("click", function(){ closeSheet(); practiseTopic(t, k); });
+    $('[data-act="ln-read"]').addEventListener("click", function(){ closeSheet(); practiseTopic(t, k, true); });
+  }); });
+  var gl = $('[data-act="glossary"]', v); if (gl) gl.addEventListener("click", function(){ setView("glossary"); });
+}
+
+/* ---------------- the mode switch: hold to see your mode, double-tap to switch ---------------- */
+(function(){
+  var b = $("#mode-sw"); if (!b) return;
+  var holdT = null, held = false, lastUp = 0, single = null, tipT = null;
+  function other(){ return S.track === "drive" ? "civic" : "drive"; }
+  function tip(ms){
+    var on = S.track === "drive" ? "Driving licence" : "Inburgering", to = other() === "drive" ? "driving licence" : "inburgering";
+    $("#ms-tip-a").textContent = "You're on " + on; $("#ms-tip-b").textContent = "Double-tap to switch to " + to;
+    var el = $("#ms-tip"); el.classList.add("on"); clearTimeout(tipT); if (ms) tipT = setTimeout(function(){ el.classList.remove("on"); }, ms);
+  }
+  function hide(){ clearTimeout(tipT); $("#ms-tip").classList.remove("on"); }
+  function go(){
+    hide();
+    var o = other(), w = $("#ms-wipe");
+    function flip(){ S.prof = S.prof || {}; S.prof.goals = [o]; setTrack(o); setView("home"); }
+    if (reduced()){ flip(); setTimeout(function(){ tip(1600); }, 50); return; }
+    w.className = "ms-wipe to-" + o; void w.offsetWidth; w.classList.add("go");
+    setTimeout(flip, 340);
+    setTimeout(function(){ w.className = "ms-wipe"; tip(1600); }, 760);
+  }
+  b.addEventListener("pointerdown", function(){ held = false; clearTimeout(holdT); holdT = setTimeout(function(){ held = true; clearTimeout(single); tip(0); }, 420); });
+  ["pointerleave", "pointercancel"].forEach(function(ev){ b.addEventListener(ev, function(){ clearTimeout(holdT); if (held) setTimeout(hide, 900); }); });
+  b.addEventListener("pointerup", function(){
+    clearTimeout(holdT);
+    if (held){ setTimeout(hide, 900); return; }
+    var now = Date.now();
+    if (now - lastUp < 330){ lastUp = 0; clearTimeout(single); go(); return; }
+    lastUp = now; clearTimeout(single); single = setTimeout(function(){ tip(1800); }, 340);
+  });
+  b.addEventListener("keydown", function(e){ if (e.key === "Enter" || e.key === " "){ e.preventDefault(); go(); } });
+  b.addEventListener("contextmenu", function(e){ e.preventDefault(); });
+})();
 /* ---------------- shell ---------------- */
 var view = S.view = "home";
 function applyTrack(){
   document.body.setAttribute("data-track", S.track);
   $("#brand-sub").textContent = SUBS[S.track];
+  var mn = $("#ms-name"); if (mn) mn.textContent = S.track === "drive" ? "Driving" : "Inburgering";
+  var ms = $("#mode-sw"); if (ms) ms.setAttribute("aria-label", "Mode: " + (S.track === "drive" ? "driving licence" : "inburgering") + ". Double-tap to switch to " + (S.track === "drive" ? "inburgering" : "driving licence") + ".");
   renderAvatar();
 }
 function setTrack(t){
@@ -1786,7 +1886,7 @@ function setTrack(t){
   if (run && !confirmLeave()) return;
   stopSound();
   smooth(function(){
-    S.track = t; save(); applyTrack(); cur = null; lesson = null; focus = null; lastId = null; stopTimer(); run = null;
+    S.track = t; save(); applyTrack(); cur = null; lesson = null; focus = null; lastId = null; practiceMode = null; stopTimer(); run = null;
     renderAll(true);
   });
 }
@@ -1798,6 +1898,7 @@ function smooth(fn){
   if (document.startViewTransition && !reduced() && !document.hidden){
     try {
       var vt = document.startViewTransition(run);
+      ["ready", "finished", "updateCallbackDone"].forEach(function(k){ if (vt[k] && vt[k].catch) vt[k].catch(function(){}); });   /* a skipped transition is fine, not an error */
       /* safety net: if the browser never gets to the transition, switch at once anyway */
       setTimeout(function(){ if (!done){ try { vt.skipTransition(); } catch (e) {} run(); } }, 400);
       return;
@@ -1809,17 +1910,18 @@ function smooth(fn){
 function confirmLeave(){ return true; }
 function setView(v){
   if (v === "progress") v = "home";
-  var ORDER = ["home", "feed", "exams"], changed = v !== view, dir = ORDER.indexOf(v) >= ORDER.indexOf(view) ? 1 : -1;
+  var ORDER = ["home", "learn", "feed", "exams"], changed = v !== view, dir = ORDER.indexOf(v) >= ORDER.indexOf(view) ? 1 : -1;
   if ((v === "profile" || v === "glossary") && view !== v) backTo = view === "profile" || view === "glossary" ? "home" : view;
   if (changed && window.KLAAR_STATS) KLAAR_STATS.view(v);
   view = v; S.view = v; save();
   document.body.setAttribute("data-view", v);
-  $("#v-home").hidden = v !== "home"; $("#v-feed").hidden = v !== "feed"; $("#v-exams").hidden = v !== "exams"; $("#v-glossary").hidden = v !== "glossary"; $("#v-profile").hidden = v !== "profile";
+  $("#v-home").hidden = v !== "home"; $("#v-learn").hidden = v !== "learn"; $("#v-feed").hidden = v !== "feed"; $("#v-exams").hidden = v !== "exams"; $("#v-glossary").hidden = v !== "glossary"; $("#v-profile").hidden = v !== "profile";
   $$(".tab").forEach(function(b){ b.setAttribute("aria-selected", String(b.getAttribute("data-view") === v)); });
   var flip = window.I18N && I18N.rtl() ? -1 : 1, ind = $(".tab-ind"); if (ind){ ind.style.transform = "translateX(" + (flip * Math.max(0, ORDER.indexOf(v)) * 100) + "%)"; ind.style.opacity = ORDER.indexOf(v) < 0 ? "0" : ""; }
   var pb = $("#prof-btn"); if (pb) pb.setAttribute("aria-pressed", String(v === "profile"));
   if (changed){ var sec = $("#v-" + v); sec.style.setProperty("--dir", dir * flip); sec.classList.remove("v-in"); void sec.offsetWidth; sec.classList.add("v-in"); }
-  if (v === "feed"){ if (!cur || cur.q.track !== S.track) nextQuestion(); else renderFeed(); }
+  if (v === "feed") showPractice();
+  if (v === "learn") renderLearn();
   if (v === "exams" && !run) renderExams();
   if (v === "glossary" && window.KLAAR_GLOSSARY) KLAAR_GLOSSARY.render($("#v-glossary"), S.track, function(){ setView(backTo); });
   if (v === "home"){ homeSub = null; renderHome(); }
@@ -1827,11 +1929,16 @@ function setView(v){
   scrollTop0();
 }
 function renderAll(){
-  if (view === "feed"){ if (!cur || cur.q.track !== S.track) nextQuestion(); else renderFeed(); }
+  if (view === "feed") showPractice();
   else setView(view);
 }
 $("#prof-btn").addEventListener("click", function(){ setView(view === "profile" ? backTo : "profile"); });
-$$(".tab").forEach(function(b){ b.addEventListener("click", function(){ if (b.getAttribute("data-view") === "exams" && view === "exams" && run) return; setView(b.getAttribute("data-view")); }); });
+$$(".tab").forEach(function(b){ b.addEventListener("click", function(){
+  var to = b.getAttribute("data-view");
+  if (to === "exams" && view === "exams" && run) return;
+  if (to === "feed" && view === "feed" && !lesson){ cur = null; focus = null; practiceMode = null; }   /* tapping Practice again goes back to the choices */
+  setView(to);
+}); });
 
 function profileLine(){
   var pr = prof(); if (!pr.at) return "Not set yet.";

@@ -26,7 +26,7 @@ No framework and no build step. GitHub Pages serves this folder as-is.
 
 | File | What it holds |
 |---|---|
-| `index.html` | Page markup: header (current goal, profile button), three tabs (Home, Feed, Exams), menu bar |
+| `index.html` | Page markup: header (current goal, profile button), five tabs (Today, Learn, Practice, Exams, and the car/house mode switch) |
 | `css/app.css` | All styles, light and dark |
 | `js/content.js` | Question banks, road-sign drawings, glossaries. `EXTRA` holds the sourced questions added in Nov 2026, one question per line; the block right under it adds more, each checked on its page of the RVV booklet |
 | `js/lessons.js` | Topic lessons: short steps with an animated scene, the rule and why. Shown once before a topic's first questions. Driving: Priority, Signs, Road markings, Speed limits, Distances, Lane use, Stopping & parking, Lights & visibility, Railway crossings, Motorway, Seatbelts, Mobile phones, Alcohol limit, Vehicle condition, Safety, Hazard perception. Inburgering: Dutch (Listening: times and numbers, Reading, Grammar: word order, niet/geen, de/het) and KNM (Administration, Healthcare, Work life). Dutch steps can have `say` phrases you tap to hear; `LESSON_ALIAS` lets exam sections share a skill lesson |
