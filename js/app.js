@@ -64,7 +64,10 @@ function reindex(){
   INDEX = {};
   ["drive", "civic"].forEach(function(t){ STATIC[t].concat(GEN[t]).forEach(function(q){ INDEX[q.id] = q; }); });
 }
-function pool(t){ return STATIC[t].concat(GEN[t]); }
+/* practice only asks what a lesson taught: questions in js/untaught.js wait until their lesson covers them. Mock exams use every question. */
+function held(q){ var u = window.UNTAUGHT && UNTAUGHT[q.track]; return !!(u && u[q.id]); }
+function allPool(t){ return STATIC[t].concat(GEN[t]); }
+function pool(t){ return allPool(t).filter(function(q){ return !held(q); }); }
 
 /* ---------------- state ---------------- */
 function freshTrack(){ return {xp:0, ans:0, ok:0, level:1, recent:[], topics:{}, seen:{}, primers:{}, wrong:[], mocks:{}, combo:0, aiOk:false, days:{}, right:{}, last:{}, drill:{}}; }
@@ -518,7 +521,7 @@ function pickNext(t){
   for (var i = 0; i < tr.wrong.length; i++){
     if (tr.wrong[i].due <= tr.ans && !(inUnit && INDEX[tr.wrong[i].id] && !inFocus(INDEX[tr.wrong[i].id]))){   /* other topics' retries wait until the unit is done */
       var w = tr.wrong.splice(i, 1)[0];
-      if (INDEX[w.id] && w.id !== lastId){ if (inUnit && focus.ids) focus.ids[w.id] = 1; return INDEX[w.id]; }
+      if (INDEX[w.id] && w.id !== lastId && !held(INDEX[w.id])){ if (inUnit && focus.ids) focus.ids[w.id] = 1; return INDEX[w.id]; }
       i--;
     }
   }
@@ -683,7 +686,7 @@ function renderFeed(entering){
   }
   if (cur.done){
     var ok = cur.ok;
-    html2 += '<div class="fb' + (cur.fresh ? " in" : "") + '"><p class="verdict ' + (ok ? "ok" : "no") + '">' + (ok ? "Correct" : "Not quite") + '</p>';
+    html2 += '<div class="fb' + (cur.fresh ? " in" : "") + '"><p class="verdict ' + (ok ? "ok" : "no") + '">' + (ok ? "Correct" : "Not quite") + '</p>' + (ok && cur.cheer ? '<p class="cheer-l">' + esc(cur.cheer) + '</p>' : "");
     if (!ok && q.kind === "order") html2 += '<p>Yours: ' + esc(orderText(q, cur.sel)) + '</p>';
     if (!ok && q.kind === "spot") html2 += '<p>Yours: ' + esc(spotName(q, cur.sel)) + '</p>';
     if (!ok) html2 += '<p><b>Answer: ' + esc(correctText(q)) + '</b></p>';
@@ -703,6 +706,17 @@ function renderFeed(entering){
   v.innerHTML = html2;
   if (keep){ var nv = $("#qcard .visual", v); if (nv) nv.parentNode.replaceChild(keep, nv); }
   wireFeed(v);
+}
+/* a short word of encouragement after a right answer: what you just did, never the same line twice in a row */
+var RIGHT_LINES = ["Nice one.", "You knew that.", "Spot on.", "That's how it's done.", "Good thinking.", "Exactly right.", "You've got this.", "Clear thinking.", "Sharp."];
+var lastCheer = -1;
+function cheerLine(q){
+  var tr = S.t[q.track], c = tr.combo || 0;
+  if (c >= 3 && c % 5 === 0) return c + " in a row. You're on a roll.";
+  if (c === 3) return "Three in a row. Keep going.";
+  if ((tr.right || {})[dayKey()] === 1) return "First one today. Good start.";
+  var i; do { i = Math.floor(Math.random() * RIGHT_LINES.length); } while (i === lastCheer && RIGHT_LINES.length > 1);
+  lastCheer = i; return RIGHT_LINES[i];
 }
 function burst(btn){
   if (!btn || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -724,6 +738,7 @@ function answer(a, btnRect){
   if (window.KLAAR_STATS) KLAAR_STATS.answer(q, ok);
   var leveled = record(q, ok, false);
   if (focus && focus.track === q.track && inFocus(q)){ focus.asked++; if (ok) focus.ok++; }
+  if (ok) cur.cheer = cheerLine(q);
   renderFeed(); cur.fresh = false;
   var card = $("#qcard");
   if (card){ card.classList.add(ok ? "hit" : "miss"); }
@@ -924,7 +939,7 @@ function renderExams(){
   $$(".row", v).forEach(function(b){ b.addEventListener("click", function(){ startExam(b.getAttribute("data-m")); }); });
 }
 function examPool(t, m){
-  return pool(t).filter(function(q){ return m.filter ? m.filter(q) : (m.sec ? q.sec === m.sec : true); });
+  return allPool(t).filter(function(q){ return m.filter ? m.filter(q) : (m.sec ? q.sec === m.sec : true); });
 }
 function startExam(id){
   var t = S.track, m = modes(t).filter(function(x){ return x.id === id; })[0];
