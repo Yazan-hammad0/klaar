@@ -1032,7 +1032,7 @@ function renderProgress(pre){
     html += '<button class="btn pop" data-act="gen"' + (ai[t] === "busy" ? " disabled" : "") + '>' + (ai[t] === "busy" ? "Writing questions…" : "Write 8 new questions now") + '</button></div>';
   }
 
-  html += '<details class="home-road"' + (homeOpen.road ? " open" : "") + ' data-fold="road"><summary>' + (t === "drive" ? "Your road to a licence" : "Your road to inburgering and citizenship") + '</summary>' + roadmapHtml(t).replace(/^<div class="label">[^<]*<\/div>/, "") + '</details>';
+  if (t !== "drive") html += '<details class="home-road"' + (homeOpen.road ? " open" : "") + ' data-fold="road"><summary>Your road to inburgering and citizenship</summary>' + roadmapHtml(t).replace(/^<div class="label">[^<]*<\/div>/, "") + '</details>';
   html += t === "drive" ?
     '<div class="also"><h3>Staying in the Netherlands?</h3><p>Klaar also prepares you for the inburgering exam: Dutch society (KNM) and Dutch at A2, with listening you can play back. Your driving progress is kept.</p><button class="btn ghost" data-act="other-goal">Try inburgering practice</button></div>' :
     '<div class="also"><h3>Need a Dutch driving licence too?</h3><p>Klaar has a full plan for the CBR theory exam, in English. Your inburgering progress is kept.</p><button class="btn ghost" data-act="other-goal">Go to driving theory</button></div>';
@@ -1254,18 +1254,18 @@ function dayMonth(d){ return d.toLocaleDateString(loc(), {day:"numeric", month:"
 /* the road from theory to licence. Lessons: most people need about 40 hours, so about 4 months at 2 or 3 a week.
    After the practical exam you apply at your town hall, and the licence is ready about 5 working days later. */
 function licenceRoute(t, P){
-  var pl = S.plan || {}, ex = P.exam, now = new Date();
-  var theory = ex ? addDays(now, ex.n) : null;
-  var practical = theory ? addDays(theory, 120) : null, licence = practical ? addDays(practical, 14) : null;
+  var pl = S.plan || {}, ex = P.exam, now = new Date(), D = licDates();
+  var theory = ex ? addDays(now, ex.n) : (D ? D.theory : null);
+  var practical = D ? D.practical : (theory ? addDays(theory, 120) : null), licence = D ? D.licence : (practical ? addDays(practical, 14) : null);
   var at = pl["d-practical"] ? 3 : (pl["d-lessons"] ? 2 : (pl["d-theory"] ? 1 : 0));
   var done = at === 0 ? P.ready / 100 * 0.22 : at * 0.25 + 0.05;
   var stops = [
     {name:"Theory", when:pl["d-theory"] ? "Passed" : (theory ? dayMonth(theory) : "Add a date")},
-    {name:"Lessons", when:pl["d-lessons"] ? "Done" : (theory ? "4 months" : "After theory")},
+    {name:"Lessons", when:pl["d-lessons"] ? "Done" : (D ? "Until " + monthName(D.practical) : (theory ? "4 months" : "After theory"))},
     {name:"Practical", when:pl["d-practical"] ? "Passed" : (practical ? monthName(practical) : "After lessons")},
     {name:"Licence", when:licence ? monthName(licence) : "A week later"}
   ];
-  return {stops:stops, at:at, done:Math.min(1, done), licence:licence};
+  return {stops:stops, at:at, done:Math.min(1, done), licence:licence, by:!!D};
 }
 function driveHomeHtml(t, P){
   var st = readyState(t, P.ready), ex = P.exam, today = rightToday(), sk = streak();
@@ -1280,7 +1280,7 @@ function driveHomeHtml(t, P){
     '<button class="link rc-date" data-act="plan-date-edit">' + (ex && ex.exact ? "Change date" : "Add exam date") + '</button></div></div>' +
     '<div class="plan-date" hidden id="plan-date"><label for="plan-date-in">Theory exam date</label><div class="hero-row"><input type="date" class="inp" id="plan-date-in" value="' + esc((((prof().exam || {})[t]) || {}).date || "") + '"><button class="btn" data-act="plan-date-ok">Save</button></div></div>' +
     (P.raise ? '<button class="rc-raise" data-act="plan-raise" data-n="' + P.raise + '">You need about ' + P.pace + ' a day to be ready. <b>Make my goal ' + P.raise + '</b></button>' : "") +
-    '<div class="rc-route"><div class="rc-route-h"><span>' + (R.licence ? "Licence around " + monthName(R.licence, true) : "Your route to a licence") + '</span><button class="link" data-act="your-plan">Your plan ›</button></div>' +
+    '<div class="rc-route"><div class="rc-route-h"><span>' + (lic().from === "eu" ? "You can usually swap your licence" : (R.licence ? (R.by ? "Licence by " : "Licence around ") + monthName(R.licence, true) : "Your route to a licence")) + '</span><button class="link" data-act="your-plan">Your plan ›</button></div>' +
     '<div class="rc-road"><i style="width:' + Math.round(R.done * 100) + '%"></i></div><ol class="rc-stops">' +
     R.stops.map(function(s, i){ return '<li class="' + (i < R.at ? "done" : (i === R.at ? "now" : "")) + '"><b>' + s.name + '</b><span>' + esc(s.when) + '</span></li>'; }).join("") + '</ol></div></section>';
   var n = P.next, cap = n.kind === "drill" || n.kind === "mistakes" ? "Fix this first" : (P.seen ? "Next up" : "Start here");
@@ -1322,6 +1322,70 @@ function animateRing(v, t){
   paint(from);
   function tick(ts){ if (t0 == null) t0 = ts; var k = Math.min(1, (ts - t0 - 200) / dur), e = k < 0 ? 0 : 1 - Math.pow(1 - k, 3); paint(from + (to - from) * e); if (k < 1) requestAnimationFrame(tick); }
   requestAnimationFrame(tick);
+}
+
+/* ---------------- your licence plan: is your date realistic, what it takes, and where to go (the official sites) ---------------- */
+var homeSub = null;
+var LIC_PLANS = {
+  3: {theory:3, practical:11, licence:12, word:"Very tight", cls:"weak", say:"Possible, but only with an intensive course and an early practical exam date. Waiting times for the practical exam can be several weeks, so ask your driving school to book it as soon as you start."},
+  6: {theory:5, practical:22, licence:24, word:"Realistic", cls:"going", say:"Pass the theory exam in about 5 weeks, then take 2 or 3 lessons a week. Your driving school books the practical exam when you are nearly ready."},
+  12: {theory:8, practical:44, licence:46, word:"Comfortable", cls:"strong", say:"Plenty of time. Take the theory exam first, then spread your lessons and book the practical exam when your instructor says you are ready."}
+};
+function lic(){ return prof().lic || {}; }
+function licDates(){
+  var L = lic(), pl = LIC_PLANS[L.by]; if (!pl || !L.at) return null;
+  var a = new Date(L.at);
+  return {theory:addDays(a, pl.theory * 7), practical:addDays(a, pl.practical * 7), licence:addDays(a, pl.licence * 7), plan:pl};
+}
+var OFFICIAL = [
+  ["Book your theory exam", "mijn.cbr.nl, log in with DigiD", "https://mijn.cbr.nl"],
+  ["The CBR in English", "Exams, prices and waiting times", "https://www.cbr.nl/en"],
+  ["Driving licence rules", "government.nl", "https://www.government.nl/topics/driving-licence"],
+  ["Swap a foreign licence", "rdw.nl", "https://www.rdw.nl/en"]
+];
+function renderLicencePlan(){
+  var v = $("#v-home"), t = "drive", L = lic(), D = licDates(), P = plan(t), ex = P.exam;
+  function opt(key, val, label){ var on = String(L[key]) === String(val); return '<button class="lp-opt' + (on ? " on" : "") + '" data-lic="' + key + '" data-val="' + val + '" aria-pressed="' + on + '">' + label + '</button>'; }
+  var html = '<div class="run-top"><button class="link" data-act="lp-back">&larr; Home</button><b>Your licence plan</b><span></span></div>';
+  html += '<section class="lp-card"><h3>Do you have a driving licence from another country?</h3><div class="lp-opts">' +
+    opt("from", "none", "No") + opt("from", "eu", "Yes, from the EU, EEA or Switzerland") + opt("from", "other", "Yes, from another country") + '</div>';
+  if (L.from === "eu") html += '<p class="lp-say ts-strong">You can usually swap it for a Dutch licence at your town hall. No exams. Check the rules for your licence first.</p><a class="lp-link" href="https://www.rdw.nl/en" target="_blank" rel="noopener">Swapping a licence on rdw.nl ›</a>';
+  if (L.from === "other") html += '<p class="lp-say ts-going">You can drive on it for up to 185 days after you register here. Some licences can be swapped for a Dutch one, depending on the country and your situation. If yours cannot, you take the theory and practical exams.</p><a class="lp-link" href="https://www.rdw.nl/en" target="_blank" rel="noopener">Check on rdw.nl ›</a>';
+  html += '</section>';
+  if (L.from && L.from !== "eu"){
+    html += '<section class="lp-card"><h3>When do you want your licence?</h3><div class="lp-opts row3">' + opt("by", 3, "Within 3 months") + opt("by", 6, "Within 6 months") + opt("by", 12, "Within a year") + '</div>';
+    if (D){
+      html += '<p class="lp-say ts-' + D.plan.cls + '"><b>' + D.plan.word + '.</b> ' + esc(D.plan.say) + '</p>';
+      var left = P.left, needDays = Math.ceil(left / Math.max(1, S.goal)), theoryIn = Math.ceil((D.theory - new Date()) / 86400000);
+      if (ex && ex.exact && ex.n > theoryIn + 3) html += '<p class="lp-note">Your theory exam is in ' + ex.n + ' days. This plan needs it within about ' + Math.max(1, theoryIn) + ' days.</p>';
+      else if (left && needDays > theoryIn) html += '<p class="lp-note">At ' + S.goal + ' a day you need ' + needDays + ' days to see every question. Raise your daily goal in your profile to be ready in time.</p>';
+      var pl = S.plan || {};
+      function step(key, name, when, txt){ var on = !!pl[key]; return '<li class="' + (on ? "done" : "") + '"><b>' + name + '</b><span>' + when + '</span><p>' + txt + '</p>' +
+        (key ? '<button class="rd-btn' + (on ? " on" : "") + '" data-plan="' + key + '" aria-pressed="' + on + '">' + (on ? "Done ✓" : "Done") + '</button>' : "") + '</li>'; }
+      html += '<ol class="lp-route">' +
+        step("d-theory", "Theory exam", pl["d-theory"] ? "Passed" : "By " + fmtDate(ex && ex.exact ? addDays(new Date(), ex.n) : D.theory), "Book it on mijn.cbr.nl with your DigiD. Klaar gets you ready for it.") +
+        step("d-lessons", "Driving lessons", pl["d-lessons"] ? "Done" : "Until " + monthName(D.practical, true), "Most people need about 40 hours. Many driving schools teach in English.") +
+        step("d-practical", "Practical exam", pl["d-practical"] ? "Passed" : "Around " + fmtDate(D.practical), "Your driving school books it with the CBR. Pass it within 1.5 years of your theory exam.") +
+        step("", "Your licence", "By " + fmtDate(D.licence), "Apply at your town hall after you pass. It is usually ready about 5 working days later.") + '</ol>';
+    }
+    html += '</section>';
+    html += '<section class="lp-card"><h3>What it takes</h3><ul class="lp-list">' +
+      '<li>You must be 18 to drive alone. With 2toDrive you can drive with a coach from 17.</li>' +
+      '<li>A DigiD to book your theory exam.</li>' +
+      '<li>A driving school. Ask if they teach in English.</li>' +
+      '<li>Your theory pass is valid for 1.5 years.</li></ul></section>';
+  }
+  html += '<section class="lp-card"><h3>The official places</h3><div class="lp-links">' + OFFICIAL.map(function(o){ return '<a class="lp-off" href="' + o[2] + '" target="_blank" rel="noopener"><b>' + o[0] + '</b><span>' + o[1] + '</span><i aria-hidden="true">›</i></a>'; }).join("") + '</div></section>';
+  html += '<p class="lp-disc">Klaar is an independent practice app. It is not the CBR, the RDW or your town hall. Book exams and apply only on their official sites. Rules and waiting times change, so check there first.</p>';
+  v.innerHTML = html;
+  $('[data-act="lp-back"]', v).addEventListener("click", function(){ homeSub = null; renderHome(); scrollTop0(); });
+  $$("[data-lic]", v).forEach(function(b){ b.addEventListener("click", function(){
+    var k = b.getAttribute("data-lic"), val = b.getAttribute("data-val");
+    S.prof = S.prof || {}; S.prof.lic = Object.assign({}, S.prof.lic || {});
+    S.prof.lic[k] = k === "by" ? +val : val; if (k === "by") S.prof.lic.at = Date.now();
+    save(); renderLicencePlan();
+  }); });
+  $$("[data-plan]", v).forEach(function(c){ c.addEventListener("click", function(){ var k = c.getAttribute("data-plan"); S.plan[k] = !S.plan[k]; save(); renderLicencePlan(); }); });
 }
 
 /* ---------------- where you are (journey), milestone cards, share ---------------- */
@@ -1417,6 +1481,7 @@ var TRACK_ICON = {
 var HOME_SUB = {drive: "Driving theory (CBR)", civic: "KNM and Dutch A2"};
 function trackFrac(t){ var j = journey(t), n = j.steps.length; if (j.at >= n) return 1; return (j.at + (j.steps[j.at].p || 0)) / n; }
 function renderHome(){
+  if (homeSub === "plan" && S.track === "drive") return renderLicencePlan();
   var v = $("#v-home"), today = rightToday(), st = streak(), hr = new Date().getHours();
   var hi = hr < 12 ? "Good morning" : (hr < 18 ? "Good afternoon" : "Good evening");
   var nm = String(prof().name || "").trim();
@@ -1438,7 +1503,7 @@ function renderHome(){
   var gl = $('[data-act="glossary"]', v); if (gl) gl.addEventListener("click", function(){ setView("glossary"); });
   $$("details[data-fold]", v).forEach(function(d){ d.addEventListener("toggle", function(){ homeOpen[d.getAttribute("data-fold")] = d.open; }); });
   $$("[data-tile]", v).forEach(function(b){ b.addEventListener("click", function(){ topicSheet(t, b.getAttribute("data-tile")); }); });
-  var yp = $('[data-act="your-plan"]', v); if (yp) yp.addEventListener("click", function(){ var d = $(".home-road", v); if (d){ d.open = true; d.scrollIntoView({behavior:"smooth", block:"start"}); } });
+  var yp = $('[data-act="your-plan"]', v); if (yp) yp.addEventListener("click", function(){ homeSub = "plan"; renderLicencePlan(); scrollTop0(); });
   animateRing(v, t);
 }
 
@@ -1490,7 +1555,7 @@ function setView(v){
   if (v === "feed"){ if (!cur || cur.q.track !== S.track) nextQuestion(); else renderFeed(); }
   if (v === "exams" && !run) renderExams();
   if (v === "glossary" && window.KLAAR_GLOSSARY) KLAAR_GLOSSARY.render($("#v-glossary"), S.track, function(){ setView(backTo); });
-  if (v === "home") renderHome();
+  if (v === "home"){ homeSub = null; renderHome(); }
   if (v === "profile") renderProfile();
   scrollTop0();
 }
