@@ -6,16 +6,6 @@
 window.UNTAUGHT = {
   drive: {
     /* Priority */
-    "d20": "Turning: give way to traffic going straight on, oncoming included",
-    "d21": "Turning: give way to cyclists going straight on beside you",
-    "d22": "Turning: let pedestrians cross the street you turn into",
-    "x-d-85nudc": "Turning left: give way to an oncoming right turn",
-    "x-d-18lczxv": "Turning: order with a tram and a turning car",
-    "x-d-1lkbsxo": "Turning left: give way to an oncoming right turn",
-    "x-d-17ziao7": "Turning: give way to cyclists going straight on beside you",
-    "x-d-1u561sj": "Turning: give way to traffic going straight on, oncoming included",
-    "x-d-1kqmofo": "Turning: give way to traffic going straight on beside you",
-    "x-d-1doaich": "Turning: give way to traffic going straight on, oncoming included",
     "d26": "Pedestrians: always let a person with a white cane or guide dog cross",
     "x-d-5hum4h": "Pedestrians: give way at a zebra to people waiting to cross",
     "x-d-1weu7br": "Pedestrians: no priority on a red pedestrian light",

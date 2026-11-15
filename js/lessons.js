@@ -34,6 +34,7 @@ var SRC = {
   cbr: "https://www.cbr.nl/nl/rijbewijs-halen/auto/theorie-examen-auto/onderwerpen-in-het-theorie-examen.htm",
   anwbDistance: "https://www.anwb.nl/verkeer/veiligheid/verkeersregels/afstand-houden",
   anwbSpeed: "https://www.anwb.nl/verzekeringen/autoverzekering/veilig-rijden/rijtips-snelheid",
+  rvv18: "https://wetten.overheid.nl/jci1.3:c:BWBR0004825&artikel=18",
   rvv23: "https://wetten.overheid.nl/jci1.3:c:BWBR0004825&artikel=23",
   rvv24: "https://wetten.overheid.nl/jci1.3:c:BWBR0004825&artikel=24",
   rvv54: "https://wetten.overheid.nl/jci1.3:c:BWBR0004825&artikel=54",
@@ -173,6 +174,17 @@ var SCENES = {
       you([[0, 115, 205], [50, 115, -25], [100, 115, -25]], {badge:"1", still:[0, 115, 112]})
     ]);
   },
+  /* turning right: the cyclist beside you and the person walking along your road go straight on, so they go first */
+  turnStraight: function(){ return svg("ts", crossroads(), "", [
+    {shape:"bike", badge:"1", path:[[0, 127, 215, 0], [50, 127, -25, 0], [100, 127, -25, 0]], still:[0, 127, 52, 0]},
+    {shape:"person", path:[[0, 146, 160], [50, 146, 52], [100, 146, -20]], still:[0, 146, 100]},
+    you([[0, 115, 215, 0], [20, 115, 150, 0], [55, 115, 150, 0], [64, 117, 126, 20], [74, 140, 115, 90], [95, 225, 115, 90], [100, 225, 115, 90]], {badge:"2", still:[0, 115, 152]})
+  ]); },
+  /* turning left: the oncoming car turning right goes first */
+  leftWaits: function(){ return svg("lw", crossroads(), "", [
+    {shape:"car", color:"c-red", badge:"1", path:[[0, 85, -25, 180], [30, 85, 55, 180], [42, 72, 80, 225], [52, 50, 85, 270], [72, -30, 85, 270], [100, -30, 85, 270]], still:[0, 85, 50, 180]},
+    you([[0, 115, 215, 0], [20, 115, 150, 0], [55, 115, 150, 0], [65, 115, 108, 0], [75, 98, 87, -90], [95, -30, 85, -90], [100, -30, 85, -90]], {badge:"2", still:[0, 115, 152]})
+  ]); },
   driveway: function(){ return svg("dw", drivewayRoad(), "", [
     {shape:"car", color:"c-red", badge:"1", path:[[0, -25, 105, 90], [48, 225, 105, 90], [100, 225, 105, 90]], still:[0, 100, 105, 90]},
     you([[0, 45, 205], [15, 45, 145], [52, 45, 145], [62, 45, 120], [72, 70, 105, 90], [100, 230, 105, 90]], {badge:"2", still:[0, 45, 145]})
@@ -539,6 +551,12 @@ window.LESSONS = {
       {scene:"signsWin", h:"Signs and markings beat the rule",
        t:"A yellow diamond means you are on a priority road. Shark teeth (haaientanden) or a give-way sign mean you give way, even to traffic from your left. Traffic lights and police beat signs.",
        why:"Signs are put where the simple rule isn't safe enough, so they always win.", src:SRC.gov(43)},
+      {scene:"turnStraight", h:"Turning? Traffic going straight on goes first",
+       t:"When you turn left or right, let everyone on your road who goes straight on go first: oncoming traffic, and cyclists, mopeds and people walking beside you or just behind you. That includes a cycle path along your road, and people on foot crossing the street you turn into.",
+       why:"You are the one leaving your line, so you cut across people who simply keep going.", src:SRC.rvv18},
+      {scene:"leftWaits", h:"Turning left? Wait for an oncoming car turning right",
+       t:"If you turn left and an oncoming driver turns right at the same junction, they go first. Your left turn crosses their path, their right turn doesn't cross yours.",
+       why:"You both head for the same street, so one fixed rule stops you both waiting for each other.", src:SRC.gov(26)},
       {scene:"driveway", h:"Special manoeuvres: you give way to everyone",
        t:"Coming out of a driveway or parking place, reversing, a U-turn or changing lanes is a special manoeuvre (bijzondere manoeuvre). You let all other traffic go first, from every direction.",
        why:"You are joining or crossing traffic that is already moving, so it goes first.", src:SRC.anwbPriority}
