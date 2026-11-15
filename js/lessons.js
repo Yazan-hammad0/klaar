@@ -35,6 +35,7 @@ var SRC = {
   anwbDistance: "https://www.anwb.nl/verkeer/veiligheid/verkeersregels/afstand-houden",
   anwbSpeed: "https://www.anwb.nl/verzekeringen/autoverzekering/veilig-rijden/rijtips-snelheid",
   rvv23: "https://wetten.overheid.nl/jci1.3:c:BWBR0004825&artikel=23",
+  rvv24: "https://wetten.overheid.nl/jci1.3:c:BWBR0004825&artikel=24",
   rvv54: "https://wetten.overheid.nl/jci1.3:c:BWBR0004825&artikel=54",
   rvv20: "https://wetten.overheid.nl/jci1.3:c:BWBR0004825&artikel=20",
   rvv21: "https://wetten.overheid.nl/jci1.3:c:BWBR0004825&artikel=21",
@@ -226,6 +227,44 @@ var SCENES = {
     {shape:"truck", color:"c-tractor", steady:true, path:[[0, 120, 178], [100, 120, 140]], still:[0, 120, 160]},
     you([[0, 120, 232], [8, 120, 215], [16, 96, 195, -20], [24, 80, 170, 0], [34, 80, 140, 0], [42, 98, 118, 22], [50, 120, 102, 0], [100, 120, -40, 0]], {still:[0, 80, 150]})
   ]); },
+  /* an open peak-hour lane on the right behind a solid line: you cross into it */
+  peakOpen: function(){
+    function mx(x, cls){ return '<rect class="mp-mx" x="' + (x - 13) + '" y="6" width="26" height="22" rx="3"/><path class="' + cls + '" d="M' + x + ' 24V11M' + (x - 5) + ' 16L' + x + ' 11L' + (x + 5) + ' 16"/>'; }
+    return svg("po", '<rect class="sc-road" x="50" y="0" width="134" height="200"/><path class="sc-dash" d="M96 0V200"/><path class="sc-solid" d="M52 0V200M140 0V200"/>',
+      mx(73, "mp-mx-a") + mx(118, "mp-mx-a") + mx(162, "mp-mx-g"), [
+      {shape:"car", color:"c-parked", steady:true, path:[[0, 73, 230], [100, 73, -40]], still:[0, 73, 60]},
+      you([[0, 118, 220, 0], [30, 118, 150, 0], [42, 140, 122, 25], [55, 162, 95, 0], [100, 162, -30, 0]], {still:[0, 140, 122, 25]})
+    ]);
+  },
+  /* a cycle lane behind a solid line: the cyclist crosses into it, you drive past without stopping */
+  cycleLane: function(){
+    return svg("cl", road() + '<rect class="sc-cyclelane" x="140" y="0" width="16" height="200"/><path class="sc-solid" d="M140 0V200"/>', '<rect class="sc-nozone" x="140" y="70" width="16" height="60"/>', [
+      {shape:"bike", path:[[0, 128, 215, 0], [25, 128, 160, 0], [40, 148, 130, 20], [55, 148, 100, 0], [100, 148, -20, 0]], still:[0, 148, 110, 0]},
+      you([[0, 120, 230], [30, 120, 230], [100, 120, -40]], {steady:true, still:[0, 120, 160]})
+    ]);
+  },
+  /* solid yellow on the left kerb, broken yellow on the right: you stop briefly at the broken line */
+  yellowKerb: function(){
+    return svg("yk", road() + '<rect class="sc-drive" x="44" y="0" width="16" height="200"/><rect class="sc-drive" x="140" y="0" width="16" height="200"/>',
+      '<path class="mp-kerb-yellow" d="M62 0V200"/><path class="mp-kerb-yellowdash" d="M138 0V200"/>' +
+      '<text class="sc-mark" transform="translate(28 100) rotate(-90)">No stopping</text><text class="sc-mark" transform="translate(176 100) rotate(90)">No parking</text>', [
+      you([[0, 126, 230], [30, 126, 100], [65, 126, 100], [100, 126, -40]], {still:[0, 126, 100]})
+    ]);
+  },
+  /* a left-turn lane with a stop line: stop behind the line, then turn left as the arrow says */
+  laneArrow: function(){
+    return svg("la", crossroads(), '<path class="sc-solid" style="stroke-width:3" d="M115 196V186Q115 179 109 179"/><path class="sc-zebra" d="M109 173L100 179L109 185Z"/><path class="sc-solid" style="stroke-width:3.5" d="M101 134H129"/>', [
+      you([[0, 115, 230], [25, 115, 148], [50, 115, 148], [62, 115, 112, 0], [72, 95, 87, -90], [100, -30, 85, -90]], {still:[0, 115, 148], lx:-26, ly:4})
+    ]);
+  },
+  /* a lane marked BUS: a bus uses it, you stay in your own lane */
+  busLane: function(){
+    return svg("bl", road() + '<rect class="sc-road" x="140" y="0" width="26" height="200"/><path class="sc-solid" d="M140 0V200"/>',
+      '<text class="sc-mark" transform="translate(157 165) rotate(-90)">BUS</text><text class="sc-mark" transform="translate(157 35) rotate(-90)">BUS</text>', [
+      {shape:"truck", color:"c-bus", steady:true, path:[[0, 153, 240], [100, 153, -50]], still:[0, 153, 95]},
+      you([[0, 120, 230], [100, 120, -40]], {steady:true, still:[0, 120, 150]})
+    ]);
+  },
 
   /* seconds and metres */
   secondsAway: function(){
@@ -608,8 +647,24 @@ window.LESSONS = {
     ],
     "Road markings": [
       {scene:"overtake", h:"Solid line: don't cross it. Broken line: you may, when safe",
-       t:"A solid line in the middle of the road may not be crossed, so finish overtaking before it starts. Where the line is broken you may cross it if it is safe.",
-       why:"Solid lines are painted where you can't see far enough ahead to overtake safely.", src:SRC.gov(46)},
+       t:"A solid line that is not along the edge of the road may not be crossed. That goes for a centre line and for a line between two lanes going the same way, so you can't change lanes across it either. A broken line you may cross when it is safe. With a double line, the line on your side counts: broken on your side means you may cross.",
+       why:"Solid lines are painted where crossing is not safe, for example where you can't see far enough ahead to overtake.", src:SRC.gov(46)},
+      {scene:"peakOpen", h:"When you may cross a solid line",
+       t:"You may cross it to get into or out of an open peak-hour lane (spitsstrook), the hard shoulder or an emergency bay beside your lane. The hard shoulder is still for emergencies only. Cyclists and moped riders may cross the solid line next to their cycle lane to use it.",
+       why:"The line keeps traffic in its lane, not out of a lane that is meant to be used.", src:SRC.gov(46)},
+      {scene:"cycleLane", h:"A cycle lane is not a place to stop",
+       t:"You may not stop on a cycle lane (fietsstrook) or cycle track, not even for a moment to let someone out. Find a place beside the road where stopping is allowed.",
+       why:"A car on the cycle lane pushes cyclists out into the traffic.", src:SRC.gov(29)},
+      /* the English booklet (page 29) calls both yellow lines 'continuous'; the Dutch text of art. 24 says broken (onderbroken), so cite that */
+      {scene:"yellowKerb", h:"Yellow line at the kerb: solid means no stopping, broken means no parking",
+       t:"Along a solid yellow line you may not stop at all. Along a broken yellow line you may not park, but you may stop briefly to let someone in or out, or to load and unload.",
+       why:"The solid line keeps the kerb completely clear. The broken line only stops cars being left there.", src:SRC.rvv24},
+      {scene:"laneArrow", h:"Follow your lane arrow, and stop behind the stop line",
+       t:"At a junction you must go the way the arrow in your lane points. In a left-turn lane you turn left, even if you wanted to go straight on. At a STOP sign you stop behind the stop line.",
+       why:"Drivers around you plan their moves on the lane you chose, so a late swerve takes them by surprise.", src:SRC.gov(46)},
+      {scene:"busLane", h:"BUS and LIJNBUS lanes: not for your car",
+       t:"A lane with BUS painted on the road is for scheduled buses, coaches and trams. LIJNBUS is stricter: only scheduled buses and trams.",
+       why:"Public transport keeps its own lane so it can run on time through traffic jams.", src:SRC.gov(46)},
       {scene:"blueZone", h:"Blue line: park with a parking disc",
        t:"In a disc zone (blauwe zone) you may park only in spaces with a blue line or marked bays, with a parking disc showing your arrival time. You may round the time up to the next half hour.",
        why:"It gives everyone free short-term parking without a meter.", src:SRC.gov(30)}
