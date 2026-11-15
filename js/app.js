@@ -30,9 +30,11 @@ function fmtDate(d){ return d.toLocaleDateString(loc(), {day:"numeric", month:"s
 function hashId(s){ var h = 5381; s = String(s); for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
 
 /* ---------------- question bank ---------------- */
+/* multi: several answers are right (cs). spot: tap the right place in the picture (map.spots, c). order: see orderItems. */
+function driveKind(q){ return q.kind === "order" || q.kind === "multi" || q.kind === "spot" ? q.kind : (q.hz ? "hazard" : (q.num ? "num" : "mc")); }
 var STATIC = {drive: [], civic: []};
 DRIVE.QUESTIONS.forEach(function(q, i){
-  STATIC.drive.push({id:"d" + i, track:"drive", topic:q.t, kind:q.kind === "order" ? "order" : (q.hz ? "hazard" : (q.num ? "num" : "mc")), q:q.q, o:q.o, c:q.c, a:q.a, ans:q.ans, e:q.e, sign:q.sign, view:q.view, map:q.map, src:q.source, lvl:1});
+  STATIC.drive.push({id:"d" + i, track:"drive", topic:q.t, kind:driveKind(q), q:q.q, o:q.o, c:q.c, cs:q.cs, a:q.a, ans:q.ans, e:q.e, sign:q.sign, view:q.view, map:q.map, src:q.source, lvl:1});
 });
 CIVIC.QUESTIONS.forEach(function(q, i){
   STATIC.civic.push({id:"c" + i, track:"civic", topic:q.t, kind:"mc", q:q.q, o:q.o, c:q.c, e:q.e, icon:q.icon, sec:"basics", lvl:1});
@@ -44,7 +46,7 @@ CIVIC.STAGES.forEach(function(s){
 });
 var XB = (typeof EXTRA !== "undefined" && EXTRA) ? EXTRA : {drive: [], civic: []};
 (XB.drive || []).forEach(function(q){
-  STATIC.drive.push({id:"x-d-" + hashId(q.q), track:"drive", topic:q.t, kind:q.kind === "order" ? "order" : (q.hz ? "hazard" : (q.num ? "num" : "mc")), q:q.q, o:q.o, c:q.c, a:q.a, ans:q.ans, e:q.e, sign:q.sign, view:q.view, map:q.map, src:q.source, lvl:1});
+  STATIC.drive.push({id:"x-d-" + hashId(q.q), track:"drive", topic:q.t, kind:driveKind(q), q:q.q, o:q.o, c:q.c, cs:q.cs, a:q.a, ans:q.ans, e:q.e, sign:q.sign, view:q.view, map:q.map, src:q.source, lvl:1});
 });
 (XB.civic || []).forEach(function(q){
   var sec = SEC_LVL[q.sec] ? q.sec : "knm";
@@ -371,7 +373,45 @@ function bodyHtml(q){
   if (!run && helpEN(q) && q.kind !== "hazard") h += '<p class="en-pre">' + esc(q.en) + '</p>';
   return h;
 }
-function correctText(q){ return q.kind === "order" ? orderText(q, q.ans) : (q.o ? q.o[q.c] : q.a[0]); }
+function correctText(q){ return q.kind === "order" ? orderText(q, q.ans) : (q.kind === "multi" ? multiText(q, q.cs) : (q.kind === "spot" ? spotName(q, q.c) : (q.o ? q.o[q.c] : q.a[0]))); }
+/* multi questions (the CBR multiple-response question): tick every right answer, then check */
+function multiText(q, a){ return (a || []).slice().sort(function(x, y){ return x - y; }).map(function(i){ return q.o[i]; }).join("; "); }
+function multiHtml(q, order, picked, done){
+  var h = (done ? "" : '<p class="ord-help">More than one answer can be right. Tick every right answer.</p>') + '<div class="opts">';
+  order.forEach(function(orig){
+    var on = picked.indexOf(orig) >= 0, good = q.cs.indexOf(orig) >= 0, cls = "opt multi" + (done ? (good ? " right" : (on ? " wrong" : "")) : (on ? " sel" : ""));
+    h += '<button class="' + cls + '" data-m="' + orig + '" role="checkbox" aria-checked="' + on + '"' + (done ? " disabled" : "") + '><span class="k">' + (on ? (done && !good ? "&#10005;" : "&#10003;") : "") + '</span><span>' + mark(q.track, q.o[orig]) + (done && good && !on ? ' <i class="missed">You missed this one</i>' : "") + '</span></button>';
+  });
+  return h + '</div>';
+}
+function wireMulti(root, pick, onChange){
+  $$("[data-m]", root).forEach(function(b){
+    b.addEventListener("click", function(){
+      var i = +b.getAttribute("data-m"), at = pick.indexOf(i);
+      if (at >= 0) pick.splice(at, 1); else pick.push(i);
+      b.classList.toggle("sel", at < 0); b.setAttribute("aria-checked", String(at < 0)); b.querySelector(".k").innerHTML = at < 0 ? "&#10003;" : "";
+      onChange();
+    });
+  });
+}
+/* spot questions (the CBR single-drag question): tap the right place, on the picture or on the letters under it */
+function spots(q){ return (q.map && q.map.spots) || []; }
+function spotName(q, i){ var s = spots(q)[i]; return String.fromCharCode(65 + i) + (s && s[2] ? ", " + s[2] : ""); }
+function spotHtml(q, done){
+  return (done ? "" : '<p class="ord-help">Tap the right place: in the picture, or a letter below.</p>') +
+    '<div class="spot-row">' + spots(q).map(function(_, i){ return '<button class="spot-b" data-spot="' + i + '" aria-label="Place ' + String.fromCharCode(65 + i) + '"' + (done ? " disabled" : "") + '>' + String.fromCharCode(65 + i) + '</button>'; }).join("") + '</div>';
+}
+function paintSpot(root, q, sel, done){
+  $$("[data-spot]", root).forEach(function(el){
+    var i = +el.getAttribute("data-spot");
+    el.classList.remove("set", "right", "wrong");
+    if (done){ if (i === q.c) el.classList.add("right"); else if (i === sel) el.classList.add("wrong"); }
+    else if (i === sel) el.classList.add("set");
+  });
+}
+function wireSpot(root, onPick){
+  $$("[data-spot]", root).forEach(function(el){ el.addEventListener("click", function(){ onPick(+el.getAttribute("data-spot")); }); });
+}
 /* order questions (the CBR drag question): put 1, 2, 3 on the road users in the order they may go */
 function orderItems(q){ return ((q.map && q.map.items) || []).filter(function(it){ return it.id; }); }
 function orderName(q, id){ var it = orderItems(q).filter(function(x){ return x.id === id; })[0]; return it ? it.name : id; }
@@ -402,6 +442,7 @@ function wireOrder(root, q, pick, onChange, locked){
 }
 function isRight(q, a){
   if (q.kind === "order") return Array.isArray(a) && a.length === q.ans.length && a.every(function(x, i){ return x === q.ans[i]; });
+  if (q.kind === "multi") return Array.isArray(a) && a.length === q.cs.length && q.cs.every(function(x){ return a.indexOf(x) >= 0; });
   if (q.kind === "num") return q.a.some(function(x){ return normNum(x) === normNum(a) && normNum(a) !== ""; });
   if (q.kind === "type") return q.a.some(function(x){ return normTxt(x) === normTxt(a); });
   return a === q.c;
@@ -510,7 +551,7 @@ function nextQuestion(){
   if (needsLesson(q)){ startLesson(q); return; }
   waitingForQuestions = false;
   lastId = q.id;
-  cur = {q:q, done:false, sel:null, order:q.kind === "mc" ? shuffle(q.o.map(function(_, i){ return i; })) : (q.o ? q.o.map(function(_, i){ return i; }) : null), input:"", pick:[]};
+  cur = {q:q, done:false, sel:null, order:q.kind === "mc" || q.kind === "multi" ? shuffle(q.o.map(function(_, i){ return i; })) : (q.o ? q.o.map(function(_, i){ return i; }) : null), input:"", pick:[]};
   renderFeed(true);
   scrollTop0();
 }
@@ -600,6 +641,11 @@ function renderFeed(entering){
   if (q.kind === "order"){
     html2 += orderHtml(q, cur.done);
     if (!cur.done) html2 += '<div class="ord-act"><button class="btn ghost" data-act="ord-clear">Clear</button><button class="btn" data-act="ord-check" disabled>Check</button></div>';
+  } else if (q.kind === "multi"){
+    html2 += multiHtml(q, cur.order, cur.done ? cur.sel : cur.pick, cur.done);
+    if (!cur.done) html2 += '<div class="ord-act"><button class="btn" data-act="multi-check" disabled>Check</button></div>';
+  } else if (q.kind === "spot"){
+    html2 += spotHtml(q, cur.done);
   } else if (q.kind === "num" || q.kind === "type"){
     html2 += '<div class="inrow"><input class="inp" id="feed-inp" ' + (q.kind === "num" ? 'inputmode="decimal" placeholder="Type a number"' : 'autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="Type je antwoord"') + ' aria-label="Your answer" value="' + esc(cur.input) + '"' + (cur.done ? " disabled" : "") + '>' +
       (cur.done ? "" : '<button class="btn" data-act="check">Check</button>') + '</div>';
@@ -616,6 +662,7 @@ function renderFeed(entering){
     var ok = cur.ok;
     html2 += '<div class="fb' + (cur.fresh ? " in" : "") + '"><p class="verdict ' + (ok ? "ok" : "no") + '">' + (ok ? "Correct" : "Not quite") + '</p>';
     if (!ok && q.kind === "order") html2 += '<p>Yours: ' + esc(orderText(q, cur.sel)) + '</p>';
+    if (!ok && q.kind === "spot") html2 += '<p>Yours: ' + esc(spotName(q, cur.sel)) + '</p>';
     if (!ok) html2 += '<p><b>Answer: ' + esc(correctText(q)) + '</b></p>';
     if (q.en) html2 += '<p class="en">' + esc(q.en) + '</p>';
     if (q.audio) html2 += '<p class="en">Audio: ' + esc(q.audio) + '</p>';
@@ -656,7 +703,7 @@ function answer(a, btnRect){
   renderFeed(); cur.fresh = false;
   var card = $("#qcard");
   if (card){ card.classList.add(ok ? "hit" : "miss"); }
-  if (ok) burst($(".opt.right") || $(".inp"));
+  if (ok) burst($(".opt.right") || $(".spot-b.right") || $(".inp"));
   var fbx = $("#v-feed .fb");
   if (fbx){ var r = fbx.getBoundingClientRect(), tbh = ($(".tabbar") || {offsetHeight:0}).offsetHeight, want = r.top + 150 - ($(".tabbar") ? $(".tabbar").getBoundingClientRect().top : window.innerHeight - tbh);
     if (want > 0) scroller().scrollBy({top: want, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"}); }
@@ -676,7 +723,17 @@ function wireFeed(v){
       $('[data-act="ord-clear"]', v).addEventListener("click", function(){ cur.pick.length = 0; paintOrder(oc, oq, cur.pick, false); upd(); });
     }
   }
-  $$(".opt", v).forEach(function(b){ b.addEventListener("click", function(){ answer(+b.getAttribute("data-o")); }); });
+  if (cur && cur.q.kind === "multi" && !cur.done){
+    var mk = $('[data-act="multi-check"]', v), mupd = function(){ mk.disabled = !cur.pick.length; };
+    wireMulti(v, cur.pick, mupd); mupd();
+    mk.addEventListener("click", function(){ if (cur.pick.length) answer(cur.pick.slice()); });
+  }
+  if (cur && cur.q.kind === "spot"){
+    var sc = $("#qcard", v), sq = cur.q;
+    paintSpot(sc, sq, cur.sel, cur.done);
+    if (!cur.done) wireSpot(sc, function(i){ if (cur && cur.q === sq && !cur.done) answer(i); });
+  }
+  $$(".opt[data-o]", v).forEach(function(b){ b.addEventListener("click", function(){ answer(+b.getAttribute("data-o")); }); });
   var inp = $("#feed-inp", v);
   if (inp){
     inp.addEventListener("input", function(){ cur.input = inp.value; });
@@ -836,7 +893,7 @@ function startExam(id){
   var qs = shuffle(examPool(t, m)).slice(0, m.n);
   if (m.sec && m.sec !== "knm") qs.sort(function(a, b){ return (a.p || a.audio || "").localeCompare(b.p || b.audio || ""); });
   run = {t:t, m:m, qs:qs, i:0, ans:qs.map(function(){ return null; }),
-    order:qs.map(function(q){ return q.kind === "mc" ? shuffle(q.o.map(function(_, k){ return k; })) : (q.o ? q.o.map(function(_, k){ return k; }) : null); }),
+    order:qs.map(function(q){ return q.kind === "mc" || q.kind === "multi" ? shuffle(q.o.map(function(_, k){ return k; })) : (q.o ? q.o.map(function(_, k){ return k; }) : null); }),
     end:m.mins ? Date.now() + m.mins * 60000 : 0};
   stopTimer();
   if (run.end) tick = setInterval(updTimer, 1000);
@@ -849,7 +906,7 @@ function updTimer(){
   if (el){ el.textContent = fmt(left); el.classList.toggle("low", left < 60000); }
   if (left <= 0) finishExam(true);
 }
-function answered(k){ var a = run.ans[k]; if (Array.isArray(a)) return a.length === orderItems(run.qs[k]).length; return a !== null && a !== ""; }
+function answered(k){ var a = run.ans[k]; if (Array.isArray(a)) return run.qs[k].kind === "multi" ? a.length > 0 : a.length === orderItems(run.qs[k]).length; return a !== null && a !== ""; }
 function renderRun(){
   var q = run.qs[run.i], n = run.qs.length, last = run.i === n - 1, v = $("#v-exams");
   var html = '<div class="run-top"><button class="link" data-act="quit">&larr; Stop</button>' + (run.end ? '<span class="timer" id="x-timer">' + fmt(run.end - Date.now()) + '</span>' : '<b>' + esc(run.m.title) + '</b>') + '<span class="count">' + (run.i + 1) + ' / ' + n + '</span></div>';
@@ -857,6 +914,10 @@ function renderRun(){
   html += '<article class="qcard' + (q.kind === "hazard" ? " hz" : "") + '">' + bodyHtml(q);
   if (q.kind === "order"){
     html += orderHtml(q, false) + '<div class="ord-act"><button class="btn ghost" data-act="ord-clear">Clear</button></div>';
+  } else if (q.kind === "multi"){
+    html += multiHtml(q, run.order[run.i], Array.isArray(run.ans[run.i]) ? run.ans[run.i] : (run.ans[run.i] = []), false);
+  } else if (q.kind === "spot"){
+    html += spotHtml(q, false);
   } else if (q.kind === "num" || q.kind === "type"){
     html += '<input class="inp" id="x-inp" style="width:100%" ' + (q.kind === "num" ? 'inputmode="decimal" placeholder="Type a number"' : 'autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="Type je antwoord"') + ' aria-label="Your answer" value="' + esc(run.ans[run.i] || "") + '">';
   } else {
@@ -873,7 +934,13 @@ function renderRun(){
   $('[data-act="quit"]', v).addEventListener("click", renderExams);
   $('[data-act="prev"]', v).addEventListener("click", function(){ if (run.i > 0){ run.i--; renderRun(); } });
   $('[data-act="fwd"]', v).addEventListener("click", function(){ if (run.i < n - 1){ run.i++; renderRun(); scrollTop0(); } else finishExam(false); });
-  $$(".opt", v).forEach(function(b){ b.addEventListener("click", function(){ run.ans[run.i] = +b.getAttribute("data-o"); renderRun(); }); });
+  $$(".opt[data-o]", v).forEach(function(b){ b.addEventListener("click", function(){ run.ans[run.i] = +b.getAttribute("data-o"); renderRun(); }); });
+  if (q.kind === "multi") wireMulti(v, run.ans[run.i], function(){});
+  if (q.kind === "spot"){
+    var xc = $(".qcard", v), xi = run.i;
+    paintSpot(xc, q, run.ans[xi], false);
+    wireSpot(xc, function(i){ run.ans[xi] = run.ans[xi] === i ? null : i; paintSpot(xc, q, run.ans[xi], false); });
+  }
   var inp = $("#x-inp", v);
   if (inp){ inp.addEventListener("input", function(){ run.ans[run.i] = inp.value; }); inp.addEventListener("keydown", function(e){ if (e.key === "Enter") $('[data-act="fwd"]', v).click(); }); }
   if (q.kind === "order"){
@@ -909,7 +976,7 @@ function finishExam(timedOut){
   html += '<div class="label">Mistakes first</div>';
   r.qs.map(function(q, k){ return k; }).sort(function(a, b){ return (isRight(r.qs[a], r.ans[a]) ? 1 : 0) - (isRight(r.qs[b], r.ans[b]) ? 1 : 0); }).forEach(function(k){
     var q = r.qs[k], a = r.ans[k], good = isRight(q, a);
-    var yours = q.kind === "order" ? (Array.isArray(a) && a.length ? orderText(q, a) : "(no answer)") : (q.o ? (a === null ? "(no answer)" : q.o[a]) : (a ? a : "(empty)"));
+    var yours = q.kind === "order" ? (Array.isArray(a) && a.length ? orderText(q, a) : "(no answer)") : q.kind === "multi" ? (Array.isArray(a) && a.length ? multiText(q, a) : "(no answer)") : q.kind === "spot" ? (a === null ? "(no answer)" : spotName(q, a)) : (q.o ? (a === null ? "(no answer)" : q.o[a]) : (a ? a : "(empty)"));
     html += '<div class="rv' + (good ? "" : " bad") + '"><div class="rq">' + esc(q.q) + '</div>' + (q.en ? '<div class="mut">' + esc(q.en) + '</div>' : "") +
       '<div>' + (good ? '<b>&#10003; ' + esc(yours) + '</b>' : 'Yours: ' + esc(yours) + '<br><b>Correct: ' + esc(correctText(q)) + '</b>') + '</div><div class="mut">' + esc(q.e) + '</div></div>';
   });

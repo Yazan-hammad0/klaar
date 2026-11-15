@@ -499,7 +499,38 @@ EXTRA.drive = EXTRA.drive.concat([
    map:{g:"cross", cycle:1, items:[{at:"S", you:1, go:"right", id:"you", name:"You"}, {k:"bike", x:142, y:178, go:"straight", id:"bike", name:"Cyclist beside you"}, {at:"W", go:"straight", id:"car", name:"Car from your left"}]}},
   {t:"Priority", kind:"order", q:"Equal junction, no signs. You turn left. An oncoming car goes straight on, and a car from your right goes straight on. In what order do you go?", ans:["onc", "right", "you"],
    e:"Turning left, you give way to oncoming traffic (Article 18) and to the car from your right (Article 15). The oncoming car is on the right of the car from your right, so it goes before that car. Order: oncoming car, car from your right, you.", source:G(26),
-   map:{g:"cross", items:[{at:"S", you:1, go:"left", id:"you", name:"You"}, {at:"N", go:"straight", id:"onc", name:"Oncoming car"}, {at:"E", go:"straight", id:"right", name:"Car from your right"}]}}
+   map:{g:"cross", items:[{at:"S", you:1, go:"left", id:"you", name:"You"}, {at:"N", go:"straight", id:"onc", name:"Oncoming car"}, {at:"E", go:"straight", id:"right", name:"Car from your right"}]}},
+  /* several answers are right (kind "multi", cs = the right ones) */
+  {t:"Priority", kind:"multi", q:"Equal junction, no signs. You turn right. Who do you let go first?", o:["The cyclist beside you, going straight on", "The moped behind the cyclist, going straight on", "The oncoming car, turning left", "The car from your left"], cs:[0, 1],
+   e:"When you turn, traffic going straight on beside or behind you on the same road goes first: the cyclist and the moped. The oncoming car turning left waits for you, and the car from your left has you on its right.", source:G(26),
+   map:{g:"cross", cycle:1, items:[{at:"S", you:1, go:"right"}, {k:"bike", x:142, y:156, go:"straight", lbl:"Cyclist", lblSide:1}, {k:"bike", x:142, y:186, lbl:"Moped", lblSide:1}, {at:"N", go:"left"}, {at:"W", go:"straight"}]}},
+  {t:"Priority", kind:"multi", q:"Equal junction, no signs. You turn left. Who do you let go first?", o:["The oncoming car, going straight on", "The cyclist from your right", "The car from your left, turning right"], cs:[0, 1],
+   e:"Traffic from the right goes first, so the cyclist. Turning left, you also wait for oncoming traffic that goes straight on. The car from your left does not cross your path, and it would have to wait for you anyway.", source:G(26),
+   map:{g:"cross", items:[{at:"S", you:1, go:"left"}, {at:"N", go:"straight"}, {at:"E", k:"bike", go:"straight"}, {at:"W", go:"right"}]}},
+  {t:"Stopping & parking", kind:"multi", q:"Where may you not stop, not even to let a passenger out?", o:["On a cycle lane", "In a tunnel", "Within 5 m of a zebra crossing", "At a bus stop"], cs:[0, 1, 2],
+   e:"No stopping on a cycle lane, in a tunnel, or on or within 5 m of a zebra crossing. A bus stop is the exception: you may stop there for as long as it takes a passenger to get in or out.", source:G(29)},
+  {t:"Lights & visibility", kind:"multi", q:"Night, an unlit road outside town. You drive with main beam on. When must you switch to dipped beam?", o:["A car comes towards you", "A cyclist comes towards you", "You drive close behind another car", "You come to a sharp bend"], cs:[0, 1, 2],
+   e:"Main beam is not allowed when any road user comes towards you, cyclists included, or when you follow close behind another vehicle. A bend alone is no reason to dip.", source:G(32)},
+  {t:"Motorway", kind:"multi", q:"Which of these are forbidden on a motorway?", o:["Reversing", "Making a U-turn", "Stopping on the hard shoulder with a breakdown", "Overtaking a lorry on the left"], cs:[0, 1],
+   e:"You may never reverse or turn around on a motorway. The hard shoulder is there for emergencies such as a breakdown, and overtaking is done on the left.", source:G(34)},
+  {t:"Safety", kind:"multi", q:"Your car breaks down just after a bend, and traffic behind may not see it in time. Which of these warn other drivers the way the rules ask?", o:["Hazard lights on", "Warning triangle about 30 m before the car", "Warning triangle against the rear bumper", "Main beam left on"], cs:[0, 1],
+   e:"A stopped car that others may not see in time must be marked: with hazard lights, or with a warning triangle about 30 m before the car, facing the traffic that comes towards it.", source:G(37)},
+  /* tap the right place (kind "spot": map.spots = [x, y, name], c = the right one) */
+  {t:"Stopping & parking", kind:"spot", q:"You want to park on the right side of this street. A is 2 m before the junction, B is 10 m before it, C is 3 m past the zebra crossing. Tap the place where you may park.", c:1,
+   e:"No parking on or within 5 m of a junction, so not at A. No stopping on or within 5 m of a zebra crossing, so not at C. B is far enough from both.", source:G(29),
+   map:{g:"cross", zebra:["N"], spots:[[123, 144, "2 m before the junction"], [123, 184, "10 m before the junction"], [123, 36, "3 m past the zebra crossing"]]}},
+  {t:"Lane use", kind:"spot", q:"Motorway with three lanes. There is no other traffic near you. Tap the lane you drive in.", c:2,
+   e:"Keep as far to the right as you can. The middle and left lanes are for overtaking.", source:G(23),
+   map:{g:"lanes3", note:"Motorway", spots:[[63, 110, "the left lane"], [110, 110, "the middle lane"], [157, 110, "the right lane"]]}},
+  {t:"Lane use", kind:"spot", q:"You drive up this road and want to turn left at the junction. Tap where you put your car before the turn.", c:1,
+   e:"To turn left you move as close to the middle of the road as you can, on your own side. Traffic behind you can then pass on your right.", source:G(26),
+   map:{g:"cross", spots:[[82, 152, "the oncoming lane"], [105, 152, "next to the centre line"], [127, 152, "the right side of your lane"]]}},
+  {t:"Railway crossings", kind:"spot", q:"Traffic is queuing on the far side of this level crossing. No train is coming. Tap where you wait.", c:0,
+   e:"Never drive onto a level crossing unless you can cross it completely. Wait before the tracks until there is room for your car on the other side.", source:G(25),
+   map:{g:"rail", sig:"none", items:[{x:120, y:66, r:0}, {x:120, y:30, r:0, c:"c-dark"}], spots:[[120, 152, "before the crossing"], [120, 100, "on the tracks"], [80, 100, "on the tracks, in the other lane"]]}},
+  {t:"Motorway", kind:"spot", q:"These signs show above the motorway. Tap the lane you may drive in.", c:0,
+   e:"A red cross means the lane is closed: you must not use it. Only the lane under the green arrow is open.", source:G(45),
+   map:{g:"lanes3", matrix:[[63, "green"], [110, "x"], [157, "x"]], spots:[[63, 120, "the left lane"], [110, 120, "the middle lane"], [157, 120, "the right lane"]]}}
 ]);
 })();
 var DRIVE = (function(){

@@ -62,6 +62,11 @@ function slot(it){
     '<g class="mp-bdg"><circle r="10.5" cy="' + by + '"/><text y="' + (by + 4) + '"></text></g></g>';
 }
 
+/* spot questions: lettered places to tap. spots:[[x, y, "name shown after answering"], ...] */
+function spot(sp, i){
+  return '<g class="mp-spot" data-spot="' + i + '" transform="translate(' + n(sp[0]) + " " + n(sp[1]) + ')"><circle class="mp-hit" r="19"/><circle class="mp-sp" r="10.5"/><text y="4.3">' + String.fromCharCode(65 + i) + "</text></g>";
+}
+
 /* ---- ground ---- */
 function teeth(dir, dist){
   var s = ""; for (var x = 103; x < 129; x += 6.5) s += '<path class="sc-teeth" d="M' + x + " " + (C + dist) + "L" + (x + 5) + " " + (C + dist) + "L" + (x + 2.5) + " " + (C + dist + 7) + 'Z"/>';
@@ -166,7 +171,7 @@ window.KLAAR_MAP = function(m){
       (b[1] === "warn" ? '<path class="mp-mx-a" d="M' + (x - 5) + ' 12L' + (x + 5) + ' 22M' + (x - 1) + ' 22H' + (x + 5) + 'V16"/>' : b[1] === "x" ? '<path class="mp-mx-x" d="M' + (x - 6) + ' 11L' + (x + 6) + ' 23M' + (x + 6) + ' 11L' + (x - 6) + ' 23"/>' :
        '<path class="' + (b[1] === "green" ? "mp-mx-g" : "mp-mx-a") + '" d="M' + x + ' 24V11M' + (x - 5) + ' 16L' + x + ' 11L' + (x + 5) + ' 16"/>'); });
   if (m.note) extra += '<rect class="mp-note" x="6" y="6" width="' + (m.note.length * 5.6 + 12) + '" height="18" rx="9"/><text class="mp-notet" x="12" y="18.5">' + m.note + "</text>";
-  var items = (m.items || []).map(item).join("") + (m.items || []).map(slot).join("");
+  var items = (m.items || []).map(item).join("") + (m.items || []).map(slot).join("") + (m.spots || []).map(spot).join("");
   return '<svg class="mp" viewBox="0 0 200 200" role="img" aria-hidden="true"><rect class="sc-bg" width="200" height="200"/>' + s + extra + items + "</svg>";
 };
 })();
