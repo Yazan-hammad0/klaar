@@ -1009,18 +1009,21 @@ function finishExam(timedOut){
 }
 
 /* ---------------- PROGRESS ---------------- */
-function renderProgress(pre){
-  var t = S.track, tr = S.t[t], v = $("#v-home"), html = "";
-  if (t === "civic"){
-    var cd = citizenDates();
+/* inburgering's own: how long until you can apply for citizenship */
+function civicHero(){
+  var html = "";
+  var cd = citizenDates();
     if (cd){
       var now = new Date(), days = Math.max(0, Math.ceil((cd.at - now) / 86400000));
       var pct = Math.min(100, Math.max(0, (now - cd.from) / (cd.at - cd.from) * 100));
       html += '<div class="hero"><div class="cap">' + (days ? "Days until you can apply for citizenship" : "You can apply for citizenship") + '</div><div class="big tabular">' + days + '</div><div class="bar"><i style="width:' + pct.toFixed(1) + '%"></i></div><div class="meta"><span>' + fmtDate(cd.from) + '</span><span>' + Math.round(pct) + '% of 5 years</span><span>' + fmtDate(cd.at) + '</span></div><button class="link hero-edit" data-act="arr-edit">Change date</button></div>';
     } else {
-      html += '<div class="hero"><div class="cap">Citizenship countdown</div><p class="hero-q">When did you start living in the Netherlands legally?</p><div class="hero-row"><input type="date" class="inp" id="arr-in" aria-label="Date you started living in the Netherlands"><button class="btn pop" data-act="arr-set">Start</button></div><p class="hero-note">Most people can apply after 5 years of legal residence. Some can apply sooner. Check ind.nl for your situation.</p></div>';
+      html += '<div class="hero"><div class="cap">Citizenship countdown</div><p class="hero-q">When did you start living in the Netherlands legally?</p><div class="hero-row"><input type="date" class="inp" id="arr-in" aria-label="Date you started living in the Netherlands"><button class="btn" data-act="arr-set">Save</button></div><p class="hero-note">Most people can apply after 5 years of legal residence. Some can apply sooner. Check ind.nl for your situation.</p></div>';
     }
-  }
+  return html;
+}
+function renderProgress(pre){
+  var t = S.track, tr = S.t[t], v = $("#v-home"), html = "";
   html = (pre || "") + html;
 
   if (!aiOff && SAMPLE){
@@ -1339,6 +1342,7 @@ function renderHome(){
   var html = '<div class="home-hi"><h2 class="h2">' + hi + (nm ? ', <span translate="no">' + esc(nm) + '</span>' : "") + '</h2></div>';
   var t = S.track;
   html += planHtml(t, line);
+  if (t === "civic") html += civicHero();
 
   html += topicsHtml(t);
   if (window.KLAAR_GLOSSARY) html += '<button class="row gl-open" data-act="glossary"><span class="badge">Aa</span><span class="row-main"><span class="row-title">Words to know</span><span class="row-sub">' + KLAAR_GLOSSARY.count(t) + ' terms, with the logic behind them</span></span><span class="nu-go">›</span></button>';

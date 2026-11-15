@@ -999,3 +999,17 @@ html.shell .top{padding-top:calc(env(safe-area-inset-top,0px) + 12px)}
 .home-road{margin-top:28px}
 .gl-open{margin-top:10px}
 .sign .plan-edit[hidden]{display:none}
+
+/* inburgering has its own look: the plan on a passport cover, the citizenship countdown on a page of paper */
+body[data-track="civic"] .sign::before{inset:7px;border:1.5px solid color-mix(in srgb,var(--pop) 80%,transparent);border-radius:15px}
+body[data-track="civic"] .sign .plan-fig b{color:var(--pop)}
+body[data-track="civic"] .sign .plan-bar u span{background:rgba(0,0,0,.3)}
+body[data-track="civic"] .hero{margin-top:12px;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-top:5px solid var(--accent)}
+body[data-track="civic"] .hero .cap{color:var(--muted)}
+body[data-track="civic"] .hero .big{color:var(--link);font-size:46px;margin-top:4px}
+body[data-track="civic"] .hero .bar{background:var(--line)}
+body[data-track="civic"] .hero .meta{font-family:var(--font-body);font-size:12.5px;color:var(--muted);opacity:1}
+body[data-track="civic"] .hero .hero-q{font-size:17px}
+body[data-track="civic"] .hero .hero-row .inp{background:var(--raise)}
+body[data-track="civic"] .hero .hero-note{color:var(--muted);opacity:1}
+body[data-track="civic"] .hero .hero-edit{color:var(--link);opacity:1}
