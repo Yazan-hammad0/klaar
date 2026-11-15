@@ -868,3 +868,98 @@ input,textarea{caret-color:var(--accent)}
 .h2,.les-h,.gl-head h3,.m-cheer{text-wrap:balance}
 .pr-t,.fb .ex,.plan-status,.lead{text-wrap:pretty}
 .plan-fig b,.tp-sub,.m-big{font-variant-numeric:tabular-nums}
+
+/* ================= The look: Dutch road signs (Nov 2026) =================
+   Letters: Overpass, an open font drawn from the highway-sign alphabet, served from fonts/ (no outside font service).
+   Sign blue is for signs (the header and the plan panel), plate yellow is for the one main action on a screen.
+   Section headings are plain sentence case. No small capitals, no monospace. */
+@font-face{font-family:'Overpass';src:url(../fonts/overpass-latin.woff2) format('woff2');font-weight:100 900;font-style:normal;font-display:swap}
+:root{--font-display:'Overpass',-apple-system,BlinkMacSystemFont,system-ui,'Segoe UI',Roboto,sans-serif;
+  --font-body:'Overpass',-apple-system,BlinkMacSystemFont,system-ui,'Segoe UI',Roboto,sans-serif;
+  --font-mono:var(--font-body);--asphalt:#1B2433;--plate-ink:#1A1405}
+.timer,.count,.row-score,.badge,.src,.sync,.opt .k,.pr-count{font-variant-numeric:tabular-nums}
+body{font-weight:500;letter-spacing:.005em}
+.top{padding-block:14px 12px}
+html.shell .top{padding-top:calc(env(safe-area-inset-top,0px) + 12px)}
+.brand{font-size:27px;letter-spacing:-.02em}
+.brand small{text-transform:none;letter-spacing:0;font-size:14px;font-weight:600;opacity:.8}
+.h2,.home-hi .h2{font-weight:800;letter-spacing:-.015em}
+.label{text-transform:none;letter-spacing:0;font-family:var(--font-display);font-size:18px;font-weight:800;color:var(--fg);margin:28px 0 10px}
+.eyebrow{text-transform:none;letter-spacing:0;font-size:14px;font-weight:700}
+.qtext{font-weight:700}
+.btn{font-weight:800;letter-spacing:.01em}
+/* the main action: plate yellow with the thin dark keyline of a number plate */
+.btn.pop{position:relative;right:auto;bottom:auto;background:var(--pop);color:var(--plate-ink);border-radius:13px;box-shadow:0 6px 16px rgba(180,130,0,.28)}
+.btn.pop::after{content:"";position:absolute;inset:3.5px;border:1.5px solid rgba(26,20,5,.5);border-radius:9.5px;pointer-events:none}
+
+/* Home: the plan on a road sign */
+.plan{background:none;border:0;padding:0;border-radius:0}
+.sign{position:relative;background:var(--accent);color:#fff;border-radius:22px;padding:22px 20px 20px;box-shadow:0 14px 30px -14px color-mix(in srgb,var(--accent) 70%,#000)}
+.sign::before{content:"";position:absolute;inset:5px;border:2.5px solid rgba(255,255,255,.92);border-radius:17px;pointer-events:none}
+.sign .plan-fig b{color:#fff;font-weight:900;font-size:50px;letter-spacing:-.02em}
+.sign .plan-fig b small{opacity:.75}
+.sign .plan-fig span{color:rgba(255,255,255,.86);font-size:13.5px;font-weight:600}
+.sign .plan-status{color:#fff;font-weight:600;font-size:15.5px}
+.sign .plan-mock{color:rgba(255,255,255,.82)}.sign .plan-mock b{color:#fff}
+/* readiness as a road: asphalt, a dashed centre line, your stretch in plate yellow, the pass mark as a post */
+.sign .plan-bar{height:22px;border-radius:6px;margin:34px 0 14px;background:var(--asphalt) repeating-linear-gradient(90deg,rgba(255,255,255,.75) 0 12px,transparent 12px 22px) 0 50%/100% 2px no-repeat}
+.sign .plan-bar i{position:relative;height:6px;top:8px;border-radius:99px;background:var(--pop);min-width:10px;box-shadow:0 0 0 2px var(--asphalt)}
+.sign .plan-bar i::after{content:"";position:absolute;inset-inline-end:-4px;top:-4px;width:14px;height:14px;border-radius:50%;background:var(--pop);border:2.5px solid #fff}
+.sign .plan-bar u{top:-6px;bottom:0;width:2.5px;background:#fff;opacity:1;text-decoration:none}
+.sign .plan-bar u span{position:absolute;bottom:100%;inset-inline-end:-10px;margin-bottom:4px;white-space:nowrap;font-size:11.5px;font-weight:700;color:#fff;background:rgba(0,0,0,.28);padding:2px 7px;border-radius:99px}
+.plan-raise{margin-top:12px}
+.plan-next{margin-top:12px;padding:18px;border:1px solid var(--line);border-radius:22px;background:var(--surface)}
+.plan-title{font-weight:800}
+.plan-date,.plan-edit,.plan-what{margin-inline:4px}
+.plan-what{margin-top:4px}.plan-what summary{cursor:pointer;font-size:13.5px;font-weight:700;color:var(--muted);padding:8px 0;list-style-position:inside}
+.plan-what .note{margin:0 0 4px}
+
+/* topics: one list, not a pile of cards */
+.topics{gap:0;background:var(--surface);border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.tp{background:none;border:0;border-radius:0;border-top:1px solid var(--line);padding-inline-end:14px}
+.tp:first-child{border-top:0}
+.tp-main{padding-block:14px}
+.tp-name{font-size:16px}
+.tp-sub{font-size:13px}
+.tp-state{font-size:12px;font-weight:700;background:none;padding:0;color:var(--muted)}
+.tp-weak .tp-state{background:none;color:var(--bad)}.tp-strong .tp-state{background:none;color:var(--ok)}
+.tp-les{font-size:13.5px;padding-inline:8px 0}
+.today{border-radius:22px;margin-top:12px}
+.row{border-radius:18px}
+.badge{font-weight:800;font-size:15px}
+
+/* tab bar: the place you are in gets the yellow road line */
+.tab{font-size:12px;font-weight:700;letter-spacing:0}
+.tab-ind::before{inset:auto 30% calc(100% + 2px);height:4px;border-radius:0 0 4px 4px;background:var(--pop)}
+.tab[aria-selected="true"]{color:var(--accent)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tab[aria-selected="true"]{color:#fff}:root:not([data-theme="light"]) .btn.pop{box-shadow:none}}
+:root[data-theme="dark"] .tab[aria-selected="true"]{color:#fff}:root[data-theme="dark"] .btn.pop{box-shadow:none}
+
+/* practice and exams */
+.xpbar{display:none}
+.feed-head{margin-bottom:14px}
+.chip{font-weight:700;font-size:13px}
+.qcard{border-radius:24px;box-shadow:0 12px 30px -24px rgba(15,26,46,.5)}
+.opt{font-weight:600}
+.opt .k{border-radius:50%;font-weight:800;font-size:13.5px}
+.opt.multi .k{border-radius:7px}
+.fb{border-top:1px solid var(--line)}
+.fb .verdict{font-style:normal;font-weight:900;font-size:25px;letter-spacing:-.01em}
+.hist span{font-size:12px;font-weight:700;border-radius:99px;padding:3px 9px}
+.score b{font-family:var(--font-display);font-weight:900;font-size:62px;letter-spacing:-.02em}
+.score span{font-size:13.5px;font-weight:600}
+.timer{font-weight:800;font-size:16px}
+.src{font-size:12.5px;font-weight:600}
+.lead{font-size:15px}
+.note{font-size:13.5px}
+
+/* no small capitals anywhere */
+.su-kicker,.j-cap,.m-cap,.pr-why b,.plan-cap,.stat span,.hero .cap{text-transform:none;letter-spacing:0;font-size:13.5px;font-weight:700}
+.ai-box a,.note a,.lead a{color:var(--accent);font-weight:700;text-underline-offset:2px}
+.su-opt b,.onb h1,.setup h1{font-family:var(--font-display)}
+
+/* links need a lighter blue on dark ground */
+:root{--link:var(--accent)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--link:#8FB4F2}:root:not([data-theme="light"]) body[data-track="civic"]{--link:#E7A3B2}}
+:root[data-theme="dark"]{--link:#8FB4F2}:root[data-theme="dark"] body[data-track="civic"]{--link:#E7A3B2}
+.link,.tp-les,.ai-box a,.note a,.lead a,.eyebrow{color:var(--link)}

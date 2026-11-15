@@ -584,7 +584,7 @@ function feedHead(){
   return '<div class="feed-head"><div class="ring">' + ringSvg(today, S.goal) + '<b class="tabular">' + today + '<small>/' + S.goal + '</small></b></div>' +
     '<div class="chips"><span class="chip' + (st >= 3 ? " hot" : "") + '">' + FLAME + st + '-day streak</span>' +
     (examDays(S.track) ? '<span class="chip tabular">Exam in ' + examDays(S.track).n + ' d</span>' : '<span class="chip">' + esc(levelName(S.track)) + '</span>') +
-    (tr.combo >= 3 ? '<span class="chip hot">Combo x' + tr.combo + '</span>' : '<span class="chip tabular">' + tr.xp + ' XP</span>') +
+    (tr.combo >= 3 ? '<span class="chip hot">' + tr.combo + ' in a row</span>' : "") +
     '</div></div>' +
     '<div class="xpbar" title="Progress to next level"><i style="width:' + (tr.level >= MAXLV[S.track] ? 100 : lvlPct) + '%"></i></div>';
 }
@@ -852,15 +852,15 @@ function explain(){
 
 /* ---------------- EXAMS ---------------- */
 var DRIVE_MODES = [
-  {id:"full", badge:"50", title:"Full mock exam", sub:"50 questions · 30 min · pass with 44 (max 6 wrong)", n:50, mins:30, pass:44},
-  {id:"quick", badge:"20", title:"Quick mock", sub:"20 questions · 12 min · pass with 18", n:20, mins:12, pass:18},
-  {id:"hazard", badge:"!", title:"Hazard drill", sub:"Brake, release or nothing · 6 min", n:20, mins:6, filter:function(q){ return q.kind === "hazard"; }}
+  {id:"full", badge:"50", title:"Full mock exam", sub:"50 questions, 30 minutes. Pass with 44.", n:50, mins:30, pass:44},
+  {id:"quick", badge:"20", title:"Quick mock", sub:"20 questions, 12 minutes. Pass with 18.", n:20, mins:12, pass:18},
+  {id:"hazard", badge:"!", title:"Hazard drill", sub:"Brake, release or nothing. 6 minutes.", n:20, mins:6, filter:function(q){ return q.kind === "hazard"; }}
 ];
 var CIVIC_MODES = [
-  {id:"knm", badge:"KNM", title:"KNM", sub:"Kennis van de Nederlandse Maatschappij · real exam part", sec:"knm", n:25, mins:0, exam:true},
-  {id:"a2-lezen", badge:"A2", title:"A2 Lezen", sub:"Reading · real exam part", sec:"a2-lezen", n:15, exam:true},
-  {id:"a2-luisteren", badge:"A2", title:"A2 Luisteren", sub:"Listening · real exam part", sec:"a2-luisteren", n:12, exam:true},
-  {id:"a2-schrijven", badge:"A2", title:"A2 Schrijven", sub:"Writing & grammar · real exam part", sec:"a2-schrijven", n:15, exam:true},
+  {id:"knm", badge:"KNM", title:"KNM", sub:"Kennis van de Nederlandse Maatschappij, real exam part", sec:"knm", n:25, mins:0, exam:true},
+  {id:"a2-lezen", badge:"A2", title:"A2 Lezen", sub:"Reading, real exam part", sec:"a2-lezen", n:15, exam:true},
+  {id:"a2-luisteren", badge:"A2", title:"A2 Luisteren", sub:"Listening, real exam part", sec:"a2-luisteren", n:12, exam:true},
+  {id:"a2-schrijven", badge:"A2", title:"A2 Schrijven", sub:"Writing and grammar, real exam part", sec:"a2-schrijven", n:15, exam:true},
   {id:"b1", badge:"B1", title:"B1 Lezen", sub:"News, letters, work", sec:"b1", n:12},
   {id:"b2", badge:"B2", title:"B2 Lezen", sub:"Opinions, arguments, nuance", sec:"b2", n:10},
   {id:"c1", badge:"C1", title:"C1 Lezen", sub:"Working proficiency: reports, HR, formal writing", sec:"c1", n:10}
@@ -883,15 +883,15 @@ function renderExams(){
   } else {
     html = '<h2 class="h2">Integration exams</h2><p class="lead">In Dutch, scored at the end like the real exam. 85%+ on an exam part = ready to book it. B1 to C1 unlock once all four exam parts are passed.</p>';
   }
-  html += '<div class="label">' + (t === "drive" ? "Choose a test" : "Step 1 · Your exam (A2 + KNM)") + '</div>';
+  html += '<div class="label">' + (t === "drive" ? "Choose a test" : "Step 1: your exam (A2 + KNM)") + '</div>';
   modes(t).forEach(function(m, i){
-    if (t === "civic" && i === 4) html += '<p class="note">Spreken (speaking) can\'t be graded here. Practise it out loud with your teacher.</p><div class="label">Step 2 · Beyond the exam</div>';
+    if (t === "civic" && i === 4) html += '<p class="note">Spreken (speaking) can\'t be graded here. Practise it out loud with your teacher.</p><div class="label">Step 2: beyond the exam</div>';
     var h = S.t[t].mocks[m.id] || [];
     var open = t === "drive" || civicUnlocked(i);
     var best = h.length ? Math.max.apply(null, h.map(function(x){ return x.s / x.n; })) : null;
     var avail = examPool(t, m).length;
-    var sub = open ? m.sub : "Locked · pass all four exam parts first";
-    html += '<button class="row' + (mockPassed(t, m.id) ? " done" : "") + '" data-m="' + m.id + '"' + (open && avail ? "" : " disabled") + '><span class="badge">' + esc(m.badge) + '</span><span class="row-main"><span class="row-title">' + esc(m.title) + '</span><span class="row-sub">' + esc(sub) + ' · ' + avail + ' in bank</span>' +
+    var sub = open ? m.sub : "Locked. Pass all four exam parts first.";
+    html += '<button class="row' + (mockPassed(t, m.id) ? " done" : "") + '" data-m="' + m.id + '"' + (open && avail ? "" : " disabled") + '><span class="badge">' + esc(m.badge) + '</span><span class="row-main"><span class="row-title">' + esc(m.title) + '</span><span class="row-sub">' + esc(sub) + '</span>' +
       (h.length ? '<span class="hist">' + h.slice(-6).map(function(x){ return '<span class="' + (x.p ? "ok" : "") + '">' + x.s + '/' + x.n + '</span>'; }).join("") + '</span>' : "") +
       '</span><span class="row-score">' + (best != null ? Math.round(best * 100) + "%" : "") + '</span></button>';
   });
@@ -974,18 +974,18 @@ function finishExam(timedOut){
   list.push({s:s, n:n, p:ok, at:Date.now()}); if (list.length > 20) S.t[t].mocks[r.m.id] = list.slice(-20);
   if (t === "drive" && r.m.id === "full"){ var l3 = S.t.drive.mocks.full.slice(-3); if (l3.length === 3 && l3.every(function(x){ return x.p; })) S.plan["d-mock3"] = true; }
   if (t === "civic" && ok && ["knm", "a2-lezen", "a2-luisteren", "a2-schrijven"].indexOf(r.m.id) >= 0 && s / n >= 0.85 && S.t.civic.level < 2 &&
-      ["knm", "a2-lezen", "a2-luisteren", "a2-schrijven"].every(function(id){ return mockPassed("civic", id); })) { S.t.civic.level = 2; toast("All four exam parts cleared. B1 questions now join your feed."); }
+      ["knm", "a2-lezen", "a2-luisteren", "a2-schrijven"].every(function(id){ return mockPassed("civic", id); })) { S.t.civic.level = 2; toast("All four exam parts cleared. B1 questions now join your practice."); }
   save();
   var verdict;
   if (t === "drive") verdict = (timedOut ? "Time's up. " : "") + (ok ? "Passed. Keep going until you pass the full mock 3 times in a row." : "On the real exam this is a fail: " + (n - s) + " wrong, max " + (n - need) + ".");
-  else if (r.m.exam) verdict = s / n >= 0.85 ? "Ready. You can book this part of the real exam." : (ok ? "Passed, but close. Do it once more before booking." : "Not yet. Review below, drill in the feed, try again.");
+  else if (r.m.exam) verdict = s / n >= 0.85 ? "Ready. You can book this part of the real exam." : (ok ? "Passed, but close. Do it once more before booking." : "Not yet. Review below, practise the weak topics, try again.");
   else verdict = ok ? "Passed. Next level unlocked." : "Not yet. Review below and try again.";
   var topics = Object.keys(wrongBy).sort(function(a, b){ return wrongBy[b] - wrongBy[a]; });
   var v = $("#v-exams");
   var html = '<div class="run-top"><button class="link" data-act="back">&larr; All tests</button><b>' + esc(r.m.title) + '</b><span></span></div>';
   html += '<article class="qcard"><div class="score"><b class="' + (ok ? "ok" : "no") + '">' + s + '/' + n + '</b><span>pass mark ' + need + '/' + n + '</span></div>' +
     '<p style="font-weight:700;text-align:center;margin:14px 0 6px">' + esc(verdict) + '</p>' +
-    (topics.length ? '<p class="note" style="text-align:center">Weakest: ' + topics.slice(0, 3).map(function(x){ return esc(x) + " (" + wrongBy[x] + ")"; }).join(", ") + '. These now show up more in your feed.</p>' : "") +
+    (topics.length ? '<p class="note" style="text-align:center">Weakest: ' + topics.slice(0, 3).map(function(x){ return esc(x) + " (" + wrongBy[x] + ")"; }).join(", ") + '. These now come up more often in practice.</p>' : "") +
     '<div class="nav"><button class="btn ghost" data-act="again">New attempt</button><button class="btn" data-act="back2">All tests</button></div></article>';
   html += '<div class="label">Mistakes first</div>';
   r.qs.map(function(q, k){ return k; }).sort(function(a, b){ return (isRight(r.qs[a], r.ans[a]) ? 1 : 0) - (isRight(r.qs[b], r.ans[b]) ? 1 : 0); }).forEach(function(k){
@@ -1190,17 +1190,17 @@ function mockLine(t){
 }
 function planHtml(t){
   var P = plan(t), ex = P.exam, exRaw = ((prof().exam || {})[t]) || {};
-  var html = '<div class="plan"><div class="plan-figs">' +
+  var html = '<div class="plan"><div class="sign"><div class="plan-figs">' +
     '<div class="plan-fig"><b class="tabular">' + (ex ? ex.n : "&ndash;") + '</b><span>' + (ex ? (ex.n === 1 ? "day" : "days") + " to your exam" + (ex.exact ? "" : ", roughly") : "No exam date yet") + '</span></div>' +
     '<div class="plan-fig"><b class="tabular">' + P.ready + '<small>%</small></b><span>ready</span></div></div>' +
-    '<div class="plan-bar" role="img" aria-label="' + P.ready + '% ready"><i style="width:' + P.ready + '%"></i><u style="inset-inline-start:' + PASS_PCT[t] + '%"></u></div>' +
-    '<p class="plan-status">' + esc(P.status) + '</p>' + mockLine(t) +
+    '<div class="plan-bar" role="img" aria-label="' + P.ready + '% ready, pass mark ' + PASS_PCT[t] + '%"><i style="width:' + P.ready + '%"></i><u style="inset-inline-start:' + PASS_PCT[t] + '%"><span>Pass ' + PASS_PCT[t] + '%</span></u></div>' +
+    '<p class="plan-status">' + esc(P.status) + '</p>' + mockLine(t) + '</div>' +
     (P.raise ? '<button class="btn ghost plan-raise" data-act="plan-raise" data-n="' + P.raise + '">Make my goal ' + P.raise + ' a day</button>' : "") +
     '<div class="plan-next"><h3 class="plan-title">Next: ' + esc(P.next.title) + '</h3><p>' + esc(P.next.why) + '</p>' +
     '<button class="btn pop" data-act="plan-go">' + (P.next.kind === "mock" ? "Go to exams" : "Start") + '</button></div>' +
     '<div class="plan-date"' + (ex && ex.exact ? " hidden" : "") + ' id="plan-date"><label for="plan-date-in">Exam date</label><div class="hero-row"><input type="date" class="inp" id="plan-date-in" value="' + esc(exRaw.date || "") + '"><button class="btn" data-act="plan-date-ok">Save</button></div></div>' +
     (ex && ex.exact ? '<button class="link plan-edit" data-act="plan-date-edit">Change exam date</button>' : "") +
-    '<p class="note">Ready = the share of all questions you got right the last time you saw them. The line marks the pass mark. A mock exam is the real check.</p></div>';
+    '<details class="plan-what"><summary>How "ready" is worked out</summary><p class="note">Ready is the share of all questions you got right the last time you saw them. The line on the road marks the pass mark. A mock exam is the real check.</p></details></div>';
   return html;
 }
 function wirePlan(v, t){

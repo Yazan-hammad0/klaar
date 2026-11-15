@@ -17,6 +17,7 @@ No framework and no build step. GitHub Pages serves this folder as-is.
 | `css/` | The one stylesheet |
 | `audio/` | Recorded Dutch audio and the script that makes it |
 | `icons/` | App icons and `og.png`, the picture shown next to the link when someone shares it |
+| `fonts/` | Overpass, the app's font (open licence, in `OFL.txt`). Served from here so no outside font service is contacted |
 | `welcome/` | The landing page for people who do not know Klaar yet |
 | `privacy/` | The privacy page, linked from the landing page and the profile. Update it whenever the app starts sending or storing something new |
 | `marketing/` | Messaging, ready-to-post copy, app screenshots and social pictures. Start with `marketing/README.md` |
