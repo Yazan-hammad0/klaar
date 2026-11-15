@@ -1,5 +1,6 @@
-/* Step-by-step setup: one question per screen, big buttons, a short placement check, then your plan.
-   Replaces the old chat. Existing users see it once (profile v2) with their answers filled in. */
+/* Step-by-step setup: one question per screen, big buttons, then your plan.
+   New users get the short version (exam date, daily time, plan); the placement check is offered on the plan screen.
+   The full version (name, driven before, check, time of day, style) opens from the profile, and once for users from before profile v2. */
 (function(){
 "use strict";
 function $(s, r){ return (r || document).querySelector(s); }
@@ -7,7 +8,7 @@ function $$(s, r){ return Array.prototype.slice.call((r || document).querySelect
 function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
 var ICON = '<img src="icons/icon-180.png" alt="">';
-var K = null, a = {}, hist = [], el = null, existing = false;
+var K = null, a = {}, hist = [], el = null, existing = false, quick = false;
 
 function overlay(){
   var o = document.getElementById("setup");
@@ -20,7 +21,9 @@ function close(){ var o = document.getElementById("setup"); if (o) o.remove(); d
 
 /* ---- the steps, worked out from the answers so far ---- */
 function steps(){
-  var s = (window.I18N && Object.keys(I18N.langs).length > 1 ? ["lang"] : []).concat(["name"]);
+  var s = window.I18N && Object.keys(I18N.langs).length > 1 ? ["lang"] : [];
+  if (quick && has("drive") && !has("civic")) return s.concat(["examDrive", "time", "plan"]);
+  s.push("name");
   if (has("drive")) s.push("drive", "examDrive", "placeDrive");
   if (has("civic")) s.push("examCivic", "placeCivic");
   if (has("civic") && a.civicSkipped) s.splice(s.indexOf("placeCivic") + 1, 0, "nl");
@@ -39,7 +42,7 @@ function go(id, back){
   if (r.wire) r.wire(el);
   el.scrollTop = 0;
 }
-function next(cur){ var list = steps(), i = list.indexOf(cur); go(list[i + 1]); }
+function next(cur){ var list = steps(), i = list.indexOf(cur); go(i < 0 ? "plan" : list[i + 1]); }
 /* a list of big options; tapping one saves it and moves on */
 function choice(title, sub, opts, key, cur, multi){
   return {html:'<h1>' + title + '</h1>' + (sub ? '<p class="sub">' + sub + '</p>' : "") + '<div class="su-opts">' + opts.map(function(o, i){
@@ -54,7 +57,7 @@ function choice(title, sub, opts, key, cur, multi){
 var EXAM = [["Within 4 weeks", "", "4w"], ["In 1 to 3 months", "", "3m"], ["Later than that", "", "later"], ["Not booked yet", "", "none"]];
 function examScreen(t, cur){
   var key = t === "drive" ? "examDrive" : "examCivic", v = a[key] || {};
-  return {html:'<h1>' + (t === "drive" ? "When is your driving theory exam?" : "When is your inburgering exam?") + '</h1><p class="sub">Your plan and daily pace follow from this. A guess is fine.</p><div class="su-opts">' +
+  return {html:(quick && t === "drive" ? '<p class="su-kicker">Two questions, then your plan</p>' : "") + '<h1>' + (t === "drive" ? "When is your driving theory exam?" : "When is your inburgering exam?") + '</h1><p class="sub">Your plan and daily pace follow from this. A guess is fine.</p><div class="su-opts">' +
       EXAM.map(function(o, i){ return '<button class="su-opt" data-i="' + i + '" aria-pressed="' + (v.when === o[2]) + '"><span><b>' + o[0] + '</b></span></button>'; }).join("") +
       '</div><div class="su-date"><label for="su-date">I know the date</label><input type="date" class="inp" id="su-date" value="' + esc(v.date || "") + '"><button class="btn" id="su-date-ok"' + (v.date ? "" : " disabled") + '>Continue</button></div>',
     wire:function(el){
@@ -198,8 +201,9 @@ var SCREENS = {
   plan:function(){
     var L = planLines();
     return {html:'<h1>' + (a.name ? "Your plan, " + esc(a.name) : "Your plan") + '</h1><ul class="su-plan">' + L.map(function(x){ return '<li>' + esc(x) + '</li>'; }).join("") + '</ul><p class="sub">You can change all of this in your profile, top right.</p>' +
-        '<div class="su-foot"><button class="btn su-main pop" id="su-start">Start</button></div>',
-      wire:function(el){ $("#su-start", el).addEventListener("click", finish); }};
+        '<div class="su-foot"><button class="btn su-main pop" id="su-start">Start</button>' + (quick && has("drive") && !a.place_drive ? '<button class="onb-link" id="su-check">Driven before? Take a 2-minute check and skip what you know</button>' : "") + '</div>',
+      wire:function(el){ $("#su-start", el).addEventListener("click", finish);
+        var ck = $("#su-check", el); if (ck) ck.addEventListener("click", function(){ runPlacement("drive", "placeDrive"); }); }};
   }
 };
 
@@ -216,6 +220,7 @@ function open(fromProfile){
   K = window.KLAAR; hist = [];
   var old = K.profile() || {};
   existing = !fromProfile && K.hasProgress() > 0;
+  quick = !fromProfile && !existing;
   a = {name:old.name || "", goals:[K.track()], drive:old.drive, nl:old.nl, goal:old.goal || K.goal() || 30, style:old.style || "learn", when:old.when,
        examDrive:(old.exam || {}).drive || null, examCivic:(old.exam || {}).civic || null};
   go(steps()[0]);
