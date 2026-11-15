@@ -44,15 +44,7 @@ window.UNTAUGHT = {
     "x-d-1upjunt": "F5/F6: who waits at a narrow passage",
     "x-d-1p8cfyy": "F5/F6: who waits at a narrow passage",
     /* Motorway */
-    "d55": "Matrix signs: red cross closes the lane",
-    "x-d-1cwboeq": "Matrix signs: white arrow warns of a red cross",
-    "x-d-6r5e5a": "Matrix signs: green arrow opens the lane",
-    "x-d-19x3pai": "Matrix signs: red cross and green arrow",
-    "d53": "Motorway: only vehicles that can go faster than 60 km/h",
-    "x-d-vpzxjh": "Autoweg: only vehicles that can go faster than 50 km/h",
-    "x-d-1xagx4i": "Motorway: only vehicles that can go faster than 60 km/h",
     "x-d-1ly9xi3": "Lorries: 80 km/h",
-    "x-d-cr1tpy": "Lorries and long combinations: two right-hand lanes only",
     "d54": "Tunnel fire: leave the car with the key in it, walk to an exit",
     "x-d-16c3ivk": "No driving on striped areas",
     /* Railway crossings */

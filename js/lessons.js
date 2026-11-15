@@ -343,6 +343,25 @@ var SCENES = {
     var disc = '<g transform="translate(32 100)"><rect class="sc-disc" x="-20" y="-26" width="40" height="52" rx="6"/><circle class="sc-clock" cx="0" cy="-4" r="13"/><path class="sc-hand" d="M0 -4V-13M0 -4L6 0"/></g>';
     return svg("bz", road(), bays + disc, [ you([[0, 120, 215], [40, 120, 125], [60, 155, 125, 0], [100, 155, 125, 0]], {still:[0, 155, 125]}) ]);
   },
+  /* signs above the motorway lanes: red cross, white arrow, green arrow */
+  matrixLanes: function(){
+    var g = '<rect class="sc-road" x="40" y="0" width="140" height="200"/><path class="sc-dash" d="M86 0V200M134 0V200"/><path class="sc-solid" d="M42 0V200M178 0V200"/>';
+    function box(x){ return '<rect class="mp-mx" x="' + (x - 13) + '" y="6" width="26" height="22" rx="3"/>'; }
+    var m = box(63) + '<path class="mp-mx-x" d="M57 11L69 23M69 11L57 23"/>' + box(110) + '<path class="mp-mx-a" d="M105 12L115 22M109 22H115V16"/>' + box(157) + '<path class="mp-mx-g" d="M157 24V11M152 16L157 11L162 16"/>';
+    return svg("mx", g, m, [
+      you([[0, 110, 220, 0], [30, 110, 150, 0], [42, 133, 122, 25], [55, 157, 95, 0], [100, 157, -30, 0]], {still:[0, 133, 124, 25]})
+    ]);
+  },
+  minSpeed: function(){
+    return svg("ms", "", roadSign("g1", 55, 76, 70) + roadSign("g3", 145, 76, 70) + label(55, 132, "Motorway") + label(145, 132, "Autoweg") + label(55, 150, "faster than 60") + label(145, 150, "faster than 50"), []);
+  },
+  lorryLanes: function(){
+    var g = '<rect class="sc-road" x="40" y="0" width="140" height="200"/><path class="sc-dash" d="M86 0V200M134 0V200"/><path class="sc-solid" d="M42 0V200M178 0V200"/><rect class="sc-nozone" x="42" y="0" width="44" height="200"/>';
+    return svg("ll", g, '<text class="sc-mark" transform="translate(64 100) rotate(-90)">Not for lorries</text>', [
+      {shape:"truck", steady:true, path:[[0, 157, 240], [100, 157, -50]], still:[0, 157, 120]},
+      {shape:"truck", color:"c-red", steady:true, path:[[0, 110, 260], [100, 110, -60]], still:[0, 110, 60]}
+    ]);
+  },
   missedExit: function(){
     var exitLane = '<path class="sc-road" d="M150 120L190 40V0H170V30L150 70Z"/>';
     return svg("me", motorway(), exitLane, [
@@ -833,7 +852,16 @@ window.LESSONS = {
        why:"On a road this fast, anything standing still or going backwards is very dangerous.", src:SRC.gov(34)},
       {scene:"speedSigns", h:"130 by law, often 100 by day",
        t:"The maximum is 130 km/h, but on many motorways signs set 100 km/h from 06:00 to 19:00. A speed on a matrix sign above your lane always wins.",
-       why:"Signs and matrix signs adjust the limit to the road, the time of day and the traffic.", src:SRC.speedRules}
+       why:"Signs and matrix signs adjust the limit to the road, the time of day and the traffic.", src:SRC.speedRules},
+      {scene:"matrixLanes", h:"Signs above your lane: red cross, white arrow, green arrow",
+       t:"A red cross above a lane closes it: don't drive in it. A white arrow is the first warning that a red cross is coming, so move over the way it points. A green arrow, or a speed, means the lane is open.",
+       why:"The signs clear a lane well before an accident or roadworks, so everyone has time to move over.", src:SRC.gov(45)},
+      {scene:"minSpeed", h:"Only for vehicles that can go fast enough",
+       t:"A motorway is only for vehicles that can drive faster than 60 km/h. An autoweg (expressway) is only for vehicles that can drive faster than 50 km/h. Slower vehicles may not use them.",
+       why:"A vehicle much slower than the traffic around it is a danger on a fast road.", src:SRC.gov(34)},
+      {scene:"lorryLanes", h:"Lorries keep to the two right-hand lanes",
+       t:"On a motorway with three or more lanes, lorries and vehicles with a trailer that are longer than 7 m together may only use the two right-hand lanes, except when they need to get in lane for an exit or a junction.",
+       why:"It keeps the slow, heavy traffic together and leaves the left lane for overtaking.", src:SRC.gov(35)}
     ]
   },
   /* the €385 eigen risico applies to 2026 and 2027: recheck every year */
