@@ -412,6 +412,18 @@ var SCENES = {
     {shape:"car", color:"c-red", badge:"1", path:[[0, 215, 85, -90], [30, 215, 85, -90], [58, -25, 85, -90], [100, -25, 85, -90]], still:[0, 150, 85, -90]},
     you([[0, 115, 215], [22, 115, 148], [62, 115, 148], [86, 115, -25], [100, 115, -25]], {badge:"2", still:[0, 115, 148]})
   ]); },
+  prioSigns: function(){
+    return svg("pg", "", roadSign("priority-road", 55, 48, 56) + roadSign("b2", 145, 48, 56) + roadSign("crossroads-priority", 55, 132, 56) + roadSign("b4", 145, 132, 56) +
+      label(55, 90, "Priority road") + label(145, 90, "Priority ends") + label(55, 176, "Next junction") + label(145, 176, "Side road waits"), []);
+  },
+  endSigns: function(){
+    return svg("es", "", label(100, 44, "These end here") + roadSign("a2-50", 34, 92, 52) + roadSign("f8", 100, 92, 52) + roadSign("g2", 166, 92, 52) +
+      label(34, 138, "Limit") + label(100, 138, "All bans") + label(166, 138, "Motorway"), []);
+  },
+  amberLight: function(){
+    return svg("al", "", '<rect class="mp-lbox" x="78" y="22" width="44" height="120" rx="10"/><circle class="mp-l-off" cx="100" cy="48" r="14"/><circle class="mp-l-amber" cx="100" cy="82" r="14"/><circle class="mp-l-off" cx="100" cy="116" r="14"/>' +
+      label(100, 166, "Amber: stop, if you safely can"), []);
+  },
   parkStop: function(){
     return svg("ps", "", roadSign("no-parking", 55, 72, 70) + roadSign("no-stopping", 145, 72, 70) +
       label(55, 128, "No parking") + label(145, 128, "No stopping") + label(55, 146, "Drop-off OK") + label(145, 146, "Not even briefly"), []);
@@ -780,7 +792,16 @@ window.LESSONS = {
        why:"One stripe takes away parking. The cross takes away stopping as well.", src:SRC.gov(9)},
       {scene:"advisory", h:"Red circle is a limit, blue square is advice",
        t:"A number in a red circle (A1) is the maximum speed. A white number on a blue square (A4) is an advised speed, for example before a sharp bend.",
-       why:"The limit is the law. The advice tells you the speed that suits the road there.", src:SRC.gov(7)}
+       why:"The limit is the law. The advice tells you the speed that suits the road there.", src:SRC.gov(7)},
+      {scene:"prioSigns", h:"Priority signs: the yellow diamond and its friends",
+       t:"On a priority road (B1, yellow diamond) traffic from side roads gives way to you, even from your right, until the same diamond with stripes ends it (B2). A triangle with a cross (B3) gives you priority at the next junction only. A triangle with a thick and a thin road (B4) means the side road gives way to you at this junction.",
+       why:"Without these signs, traffic from the right goes first, so you need to know when they switch that off.", src:SRC.gov(7)},
+      {scene:"endSigns", h:"Grey stripes or a red line: the rule ends here",
+       t:"A sign with grey or black stripes, or a red line through it, ends what an earlier sign started. The end of a speed limit (A2) means the normal limit for that road applies again, not that there is no limit. F8 ends all bans set by signs. G2 ends the motorway.",
+       why:"After the end sign, the general rules for that kind of road take over.", src:SRC.gov(10)},
+      {scene:"amberLight", h:"Amber means stop",
+       t:"An amber light means stop. Drive on only if you are so close that you can no longer stop safely.",
+       why:"Amber is the last warning before red, not a signal to speed up.", src:SRC.gov(44)}
     ],
     "Motorway": [
       {scene:"mwJoin", h:"Joining: speed up, then fit in",
