@@ -975,3 +975,27 @@ html.shell .top{padding-top:calc(env(safe-area-inset-top,0px) + 12px)}
 @keyframes intro-out{to{opacity:0;visibility:hidden}}
 @keyframes app-in{from{opacity:0;transform:translateY(14px)}}
 @media (prefers-reduced-motion: reduce){.intro{display:none}}
+
+/* Home, calmer: one panel, one next step, three topics; the rest folds away */
+.home-hi .h2{font-size:24px;margin:2px 0 12px}
+.sign{box-shadow:none;padding:20px 20px 16px}
+.sign .plan-fig b{font-size:44px}
+.sign .plan-bar{height:8px;border-radius:99px;margin:30px 0 14px;background:rgba(255,255,255,.22)}
+.sign .plan-bar i{top:0;height:100%;box-shadow:none}
+.sign .plan-bar i::after{display:none}
+.sign .plan-bar u{top:-5px;bottom:-5px}
+.plan-today{margin:10px 0 0;font-size:14px;font-weight:600;color:rgba(255,255,255,.86)}
+.sign .plan-edit{display:inline-block;margin:6px 0 0;padding:6px 0 2px;color:#fff;font-size:14px;font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.plan-date{margin-top:12px}
+.btn.pop{box-shadow:none}
+.btn.pop::after{display:none}
+.plan-next{margin-top:12px}
+.tp-more,.home-road{margin-top:10px}
+.tp-more>summary,.home-road>summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border:1px solid var(--line);border-radius:18px;background:var(--surface);font-weight:700;font-size:15px}
+.tp-more>summary::-webkit-details-marker,.home-road>summary::-webkit-details-marker{display:none}
+.tp-more>summary::after,.home-road>summary::after{content:"";width:8px;height:8px;border-inline-end:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);margin-inline-end:4px}
+.tp-more[open]>summary::after,.home-road[open]>summary::after{transform:rotate(-135deg)}
+.tp-more[open]>summary,.home-road[open]>summary{margin-bottom:10px}
+.home-road{margin-top:28px}
+.gl-open{margin-top:10px}
+.sign .plan-edit[hidden]{display:none}

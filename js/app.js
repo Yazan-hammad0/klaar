@@ -1029,7 +1029,7 @@ function renderProgress(pre){
     html += '<button class="btn pop" data-act="gen"' + (ai[t] === "busy" ? " disabled" : "") + '>' + (ai[t] === "busy" ? "Writing questions…" : "Write 8 new questions now") + '</button></div>';
   }
 
-  html += roadmapHtml(t);
+  html += '<details class="home-road"' + (homeOpen.road ? " open" : "") + ' data-fold="road"><summary>' + (t === "drive" ? "Your road to a licence" : "Your road to inburgering and citizenship") + '</summary>' + roadmapHtml(t).replace(/^<div class="label">[^<]*<\/div>/, "") + '</details>';
   html += t === "drive" ?
     '<div class="also"><h3>Staying in the Netherlands?</h3><p>Klaar also prepares you for the inburgering exam: Dutch society (KNM) and Dutch at A2, with listening you can play back. Your driving progress is kept.</p><button class="btn ghost" data-act="other-goal">Try inburgering practice</button></div>' :
     '<div class="also"><h3>Need a Dutch driving licence too?</h3><p>Klaar has a full plan for the CBR theory exam, in English. Your inburgering progress is kept.</p><button class="btn ghost" data-act="other-goal">Go to driving theory</button></div>';
@@ -1194,43 +1194,48 @@ function mockLine(t){
   var m = (S.t[t].mocks || {})[t === "drive" ? "full" : "knm"] || [], l = m[m.length - 1];
   return l ? '<p class="plan-mock">Last ' + (t === "drive" ? "full" : "KNM") + ' mock: <b class="tabular">' + l.s + ' of ' + l.n + '</b>, ' + (l.p ? "passed" : "not passed yet") + '.</p>' : "";
 }
-function planHtml(t){
-  var P = plan(t), ex = P.exam, exRaw = ((prof().exam || {})[t]) || {};
+function planHtml(t, todayLine){
+  var P = plan(t), ex = P.exam, exRaw = ((prof().exam || {})[t]) || {}, exact = ex && ex.exact;
   var html = '<div class="plan"><div class="sign"><div class="plan-figs">' +
     '<div class="plan-fig"><b class="tabular">' + (ex ? ex.n : "&ndash;") + '</b><span>' + (ex ? (ex.n === 1 ? "day" : "days") + " to your exam" + (ex.exact ? "" : ", roughly") : "No exam date yet") + '</span></div>' +
     '<div class="plan-fig"><b class="tabular">' + P.ready + '<small>%</small></b><span>ready</span></div></div>' +
     '<div class="plan-bar" role="img" aria-label="' + P.ready + '% ready, pass mark ' + PASS_PCT[t] + '%"><i style="width:' + P.ready + '%"></i><u style="inset-inline-start:' + PASS_PCT[t] + '%"><span>Pass ' + PASS_PCT[t] + '%</span></u></div>' +
-    '<p class="plan-status">' + esc(P.status) + '</p>' + mockLine(t) + '</div>' +
+    '<p class="plan-status">' + esc(P.status) + '</p>' + mockLine(t) +
+    (todayLine ? '<p class="plan-today">' + esc(todayLine) + '</p>' : "") +
+    '<button class="link plan-edit" data-act="plan-date-edit">' + (exact ? "Change exam date" : "Add your exam date") + '</button></div>' +
     (P.raise ? '<button class="btn ghost plan-raise" data-act="plan-raise" data-n="' + P.raise + '">Make my goal ' + P.raise + ' a day</button>' : "") +
     '<div class="plan-next"><h3 class="plan-title">Next: ' + esc(P.next.title) + '</h3><p>' + esc(P.next.why) + '</p>' +
     '<button class="btn pop" data-act="plan-go">' + (P.next.kind === "mock" ? "Go to exams" : "Start") + '</button></div>' +
-    '<div class="plan-date"' + (ex && ex.exact ? " hidden" : "") + ' id="plan-date"><label for="plan-date-in">Exam date</label><div class="hero-row"><input type="date" class="inp" id="plan-date-in" value="' + esc(exRaw.date || "") + '"><button class="btn" data-act="plan-date-ok">Save</button></div></div>' +
-    (ex && ex.exact ? '<button class="link plan-edit" data-act="plan-date-edit">Change exam date</button>' : "") +
-    '<details class="plan-what"><summary>How "ready" is worked out</summary><p class="note">Ready is the share of all questions you got right the last time you saw them. The line on the road marks the pass mark. A mock exam is the real check.</p></details></div>';
+    '<div class="plan-date" hidden id="plan-date"><label for="plan-date-in">Exam date</label><div class="hero-row"><input type="date" class="inp" id="plan-date-in" value="' + esc(exRaw.date || "") + '"><button class="btn" data-act="plan-date-ok">Save</button></div></div>' +
+    '</div>';
   return html;
 }
 function wirePlan(v, t){
   var go = $('[data-act="plan-go"]', v); if (go) go.addEventListener("click", function(){ startNext(t, plan(t).next); });
   var rs = $('[data-act="plan-raise"]', v); if (rs) rs.addEventListener("click", function(){ S.goal = +rs.getAttribute("data-n"); save(); renderHome(); toast("Daily goal: " + S.goal + " a day."); });
-  var ed = $('[data-act="plan-date-edit"]', v); if (ed) ed.addEventListener("click", function(){ $("#plan-date", v).hidden = false; ed.hidden = true; });
+  var ed = $('[data-act="plan-date-edit"]', v); if (ed) ed.addEventListener("click", function(){ var d = $("#plan-date", v); d.hidden = false; ed.hidden = true; var inp = $("#plan-date-in", d); if (inp) inp.focus(); });
   var ok = $('[data-act="plan-date-ok"]', v); if (ok) ok.addEventListener("click", function(){
     var val = $("#plan-date-in", v).value; if (!/^\d{4}-\d{2}-\d{2}$/.test(val)) return toast("Pick a date first.");
     S.prof = S.prof || {}; S.prof.exam = S.prof.exam || {}; S.prof.exam[t] = {when:"date", date:val}; save(); renderHome();
   });
 }
+var homeOpen = {};
 var STATE_NAME = {weak:"Weak", going:"Going", "new":"New", strong:"Strong"};
 function topicsHtml(t){
   var rank = {weak:0, going:1, "new":2, strong:3};
   var ts = topicStats(t).map(function(x, i){ x.i = i; return x; }).sort(function(a, b){ return rank[a.state] - rank[b.state] || (a.state === "new" ? a.i - b.i : (a.acc || 0) - (b.acc || 0)); });
-  var ms = mistakes(t).length;
-  return '<div class="label">Your topics</div><div class="topics">' +
-    (ms ? '<div class="tp tp-weak"><button class="tp-main" data-act="mistakes"><span class="tp-name">Your mistakes</span><span class="tp-sub">' + ms + (ms === 1 ? " question" : " questions") + ' you got wrong the last time</span></button><span class="tp-state">Fix</span></div>' : "") + ts.map(function(x){
+  var ms = mistakes(t).length, SHOW = 3, rest = ts.slice(SHOW);
+  function row(x){
     var sub = x.state === "new" ? "Not started, " + x.total + " questions" : Math.round((x.acc || 0) * 100) + "% right, " + x.seen + " of " + x.total + " seen";
     return '<div class="tp tp-' + x.state + '"><button class="tp-main" data-topic="' + esc(x.name) + '"><span class="tp-name">' + esc(x.name) + '</span><span class="tp-sub">' + sub + '</span>' +
       '<span class="tp-bar"><i style="width:' + Math.round(x.seen / x.total * 100) + '%"></i></span></button>' +
       '<span class="tp-state">' + STATE_NAME[x.state] + '</span>' +
       (topicLesson(t, x.name) ? '<button class="tp-les" data-topic-les="' + esc(x.name) + '" aria-label="Lesson: ' + esc(x.name) + '">Lesson</button>' : "") + '</div>';
-  }).join("") + '</div><p class="note">Weakest first. Tap a topic to practise it. The bar shows how much of it you have seen.</p>';
+  }
+  return '<div class="label">' + (ts.some(function(x){ return x.state !== "new"; }) ? "Work on these" : "Start with these") + '</div><div class="topics">' +
+    (ms ? '<div class="tp tp-weak"><button class="tp-main" data-act="mistakes"><span class="tp-name">Your mistakes</span><span class="tp-sub">' + ms + (ms === 1 ? " question" : " questions") + ' you got wrong the last time</span></button><span class="tp-state">Fix</span></div>' : "") +
+    ts.slice(0, SHOW).map(row).join("") + '</div>' +
+    (rest.length ? '<details class="tp-more"' + (homeOpen.topics ? " open" : "") + ' data-fold="topics"><summary>All ' + ts.length + ' topics</summary><div class="topics">' + rest.map(row).join("") + '</div></details>' : "");
 }
 
 /* ---------------- where you are (journey), milestone cards, share ---------------- */
@@ -1329,19 +1334,11 @@ function renderHome(){
   var v = $("#v-home"), today = rightToday(), st = streak(), hr = new Date().getHours();
   var hi = hr < 12 ? "Good morning" : (hr < 18 ? "Good afternoon" : "Good evening");
   var nm = String(prof().name || "").trim();
-  var line = today === 0 ? "Nothing yet today." : (today < S.goal ? today + " right today, " + (S.goal - today) + " to go." : "Daily goal done. Anything now is bonus.");
-  var html = '<div class="home-hi"><h2 class="h2">' + hi + (nm ? ', <span translate="no">' + esc(nm) + '</span>' : "") + '</h2><p class="lead">' + esc(line) + '</p></div>';
+  var line = today === 0 ? "Nothing yet today. Your goal is " + S.goal + " right answers." : (today < S.goal ? today + " of " + S.goal + " right today." : "Daily goal done. Anything now is bonus.");
+  if (st > 1) line += " " + st + "-day streak.";
+  var html = '<div class="home-hi"><h2 class="h2">' + hi + (nm ? ', <span translate="no">' + esc(nm) + '</span>' : "") + '</h2></div>';
   var t = S.track;
-  html += planHtml(t);
-
-  /* today: ring + streak + last 7 days */
-  var week = "", d = new Date(), names = [0, 1, 2, 3, 4, 5, 6].map(function(i){ return new Date(2023, 0, 1 + i).toLocaleDateString(loc(), {weekday:"narrow"}); });
-  for (var i = 6; i >= 0; i--){
-    var day = new Date(d.getFullYear(), d.getMonth(), d.getDate() - i), n = rightOn(S.track, dayKey(day));
-    week += '<span class="wk' + (n ? " on" : "") + (i === 0 ? " now" : "") + '"><i style="height:' + Math.max(4, Math.min(100, n / S.goal * 100)) + '%"></i><b>' + names[day.getDay()] + '</b></span>';
-  }
-  html += '<div class="today"><div class="ring big">' + ringSvg(today, S.goal) + '<b class="tabular">' + today + '<small>/' + S.goal + '</small></b></div>' +
-    '<div class="today-mid"><div class="today-streak">' + FLAME + ' ' + st + '-day streak</div><div class="week" aria-label="Last 7 days">' + week + '</div></div></div>';
+  html += planHtml(t, line);
 
   html += topicsHtml(t);
   if (window.KLAAR_GLOSSARY) html += '<button class="row gl-open" data-act="glossary"><span class="badge">Aa</span><span class="row-main"><span class="row-title">Words to know</span><span class="row-sub">' + KLAAR_GLOSSARY.count(t) + ' terms, with the logic behind them</span></span><span class="nu-go">›</span></button>';
@@ -1352,6 +1349,7 @@ function renderHome(){
   $$("[data-topic]", v).forEach(function(b){ b.addEventListener("click", function(){ practiseTopic(t, b.getAttribute("data-topic")); }); });
   $$("[data-topic-les]", v).forEach(function(b){ b.addEventListener("click", function(){ practiseTopic(t, b.getAttribute("data-topic-les"), true); }); });
   var gl = $('[data-act="glossary"]', v); if (gl) gl.addEventListener("click", function(){ setView("glossary"); });
+  $$("details[data-fold]", v).forEach(function(d){ d.addEventListener("toggle", function(){ homeOpen[d.getAttribute("data-fold")] = d.open; }); });
 }
 
 /* ---------------- shell ---------------- */
