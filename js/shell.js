@@ -1,5 +1,5 @@
 /* Screen-tall layout for the home-screen app, update notice, service worker. */
-var KLAAR_VERSION = "3b7aa60225", KLAAR_NEWS = "A fresh look: clearer Home, road-sign style, and Feed is now called Practice";
+var KLAAR_VERSION = "321ede4b22", KLAAR_NEWS = "27 new road sign questions, each with its sign drawn";
 (function(){
   /* iOS home-screen apps sometimes get a layout viewport shorter than the screen, which leaves a strip under the tab bar.
      Measure it and push the bottom chrome down into that strip. */

@@ -45,8 +45,14 @@ CIVIC.STAGES.forEach(function(s){
   });
 });
 var XB = (typeof EXTRA !== "undefined" && EXTRA) ? EXTRA : {drive: [], civic: []};
+/* ids come from the question text. Two questions can share a text and differ only in the picture: the first keeps
+   its id (so progress is kept), a later one gets an id that also takes its picture into account. */
+var xSeen = {};
 (XB.drive || []).forEach(function(q){
-  STATIC.drive.push({id:"x-d-" + hashId(q.q), track:"drive", topic:q.t, kind:driveKind(q), q:q.q, o:q.o, c:q.c, cs:q.cs, a:q.a, ans:q.ans, e:q.e, sign:q.sign, view:q.view, map:q.map, src:q.source, lvl:1});
+  var xid = "x-d-" + hashId(q.q);
+  if (xSeen[xid]) xid = "x-d-" + hashId(q.q + "|" + (q.sign || JSON.stringify(q.map || q.view || "")));
+  xSeen[xid] = 1;
+  STATIC.drive.push({id:xid, track:"drive", topic:q.t, kind:driveKind(q), q:q.q, o:q.o, c:q.c, cs:q.cs, a:q.a, ans:q.ans, e:q.e, sign:q.sign, view:q.view, map:q.map, src:q.source, lvl:1});
 });
 (XB.civic || []).forEach(function(q){
   var sec = SEC_LVL[q.sec] ? q.sec : "knm";

@@ -530,7 +530,62 @@ EXTRA.drive = EXTRA.drive.concat([
    map:{g:"rail", sig:"none", items:[{x:120, y:66, r:0}, {x:120, y:30, r:0, c:"c-dark"}], spots:[[120, 152, "before the crossing"], [120, 100, "on the tracks"], [80, 100, "on the tracks, in the other lane"]]}},
   {t:"Motorway", kind:"spot", q:"These signs show above the motorway. Tap the lane you may drive in.", c:0,
    e:"A red cross means the lane is closed: you must not use it. Only the lane under the green arrow is open.", source:G(45),
-   map:{g:"lanes3", matrix:[[63, "green"], [110, "x"], [157, "x"]], spots:[[63, 120, "the left lane"], [110, 120, "the middle lane"], [157, 120, "the right lane"]]}}
+   map:{g:"lanes3", matrix:[[63, "green"], [110, "x"], [157, "x"]], spots:[[63, 120, "the left lane"], [110, 120, "the middle lane"], [157, 120, "the right lane"]]}},
+  /* signs: one question each, drawing checked against the booklet page it cites */
+  {t:"Signs", sign:"a1-50", q:"What does this sign (A1) mean?", o:["Advised speed of 50 km/h", "Maximum speed of 50 km/h", "Minimum speed of 50 km/h", "End of the 50 km/h limit"], c:1,
+   e:"Round with a red ring is a ban: here, driving faster than 50 km/h. An advised speed is shown on a blue square sign.", source:G(7)},
+  {t:"Signs", sign:"a2-50", q:"What does this sign (A2) mean?", o:["End of the 50 km/h limit", "No speed limit from here on", "Maximum speed of 50 km/h for lorries", "End of the built-up area"], c:0,
+   e:"Grey with black stripes ends a ban. The 50 km/h limit stops here and the general limit for this kind of road applies again. That is not the same as no limit.", source:G(7)},
+  {t:"Signs", sign:"b2", q:"What does this sign (B2) mean?", o:["Priority road ahead", "Give way at the next junction", "End of the priority road", "Road closed ahead"], c:2,
+   e:"The striped yellow diamond ends the priority road. At the next junctions you look for signs and markings again. Without them, traffic from the right goes first.", source:G(7)},
+  {t:"Signs", sign:"b4", q:"What does this sign (B4) tell you?", o:["A side road joins from the left and you have priority over it", "A side road joins from the left and its traffic goes first", "You must turn left at the next junction", "The road bends to the left"], c:0,
+   e:"The thick line is your road, the thin one the side road. Drivers from that side road must give way to you at this junction.", source:G(7)},
+  {t:"Signs", sign:"c1", q:"What does this sign (C1) mean?", o:["No stopping", "End of all bans", "Closed in both directions for all vehicles", "No entry from this side only"], c:2,
+   e:"An empty red ring closes the road to vehicles from both sides. The red disc with a white bar closes it from one side only.", source:G(7)},
+  {t:"Signs", sign:"c3", q:"What does this sign (C3) mean?", o:["You must drive straight on", "One-way road", "You have priority over oncoming traffic", "Motorway ahead"], c:1,
+   e:"Square and blue gives information: this is a one-way road. The round blue sign with an arrow is different. That one orders you to go straight on.", source:G(7)},
+  {t:"Signs", sign:"c19", q:"What does this sign (C19) mean?", o:["Keep 3.5 m distance", "No vehicles higher than 3.5 m, load included", "No vehicles wider than 3.5 m", "Tunnel 3.5 km long"], c:1,
+   e:"The arrows above and below the number point at height. Vehicles higher than 3.5 m, with their load, may not pass.", source:G(8)},
+  {t:"Signs", sign:"d1", q:"What does this sign (D1) mean?", o:["Roundabout: drive in the direction of the arrows", "Roundabout ahead: give way", "Turning around is allowed here", "Winding road"], c:0,
+   e:"Blue and round is an order. On the roundabout you drive the way the arrows point, so anticlockwise.", source:G(9)},
+  {t:"Signs", sign:"d2", q:"What does this sign (D2) mean?", o:["Turn right at the junction", "Motorway exit on the right", "Pass this sign on the right", "Road narrows on the left"], c:2,
+   e:"You must pass the sign, and whatever it stands on, on the side the arrow points to.", source:G(9)},
+  {t:"Signs", sign:"d5", q:"What does this sign (D5) mean?", o:["Bend to the right ahead", "One-way road to the right", "Advised route to the right", "You must turn right"], c:3,
+   e:"Blue and round with an arrow is an order: follow the arrow. A warning for a bend would be a triangle with a red border.", source:G(9)},
+  {t:"Signs", sign:"e10", q:"What does this sign (E10) tell you?", o:["Paid parking for at most 2 hours", "A parking disc zone starts here", "Parking for permit holders only", "No parking for the next 2 hours"], c:1,
+   e:"A parking disc zone starts here and runs to the end-of-zone sign. Park only in marked spaces or along a blue line, with your disc set to your arrival time.", source:G(9)},
+  {t:"Signs", sign:"f5", q:"What does this sign (F5) mean?", o:["You have priority over oncoming traffic", "Give way to oncoming traffic", "Two-way traffic ahead", "No overtaking"], c:1,
+   e:"Your arrow is the red one, so you wait. Oncoming traffic has the black arrow and goes first, for example through a narrow passage.", source:G(10)},
+  {t:"Signs", sign:"f7", q:"What does this sign (F7) mean?", o:["No left turn", "Turning lane ahead", "No U-turns", "Roundabout ahead"], c:2,
+   e:"The red ring bans what is drawn inside it: turning around. Turning left at a junction is still allowed.", source:G(10)},
+  {t:"Signs", sign:"f8", q:"What does this sign (F8) mean?", o:["End of all bans that signs put on this road", "End of the motorway", "No entry for any vehicle", "Road closed ahead"], c:0,
+   e:"White with black stripes cancels the bans that signs placed on this stretch, such as a speed limit or an overtaking ban. The general rules apply again.", source:G(10)},
+  {t:"Signs", sign:"g1", q:"What does this sign (G1) mean?", o:["Bridge ahead", "Motorway", "Two lanes merge", "Tunnel"], c:1,
+   e:"A motorway (autosnelweg) starts here. It is only for vehicles that can drive faster than 60 km/h, and you may not stop, reverse or turn around on it.", source:G(10)},
+  {t:"Signs", sign:"g2", q:"What does this sign (G2) mean?", o:["Motorway closed", "No access to the motorway", "Road narrows", "End of the motorway"], c:3,
+   e:"A red line through a sign ends what the sign started. The motorway, and the rules that come with it, stop here.", source:G(10)},
+  {t:"Signs", sign:"g3", q:"What does this sign (G3) mean?", o:["Cars only", "Car park", "Expressway (autoweg)", "No lorries"], c:2,
+   e:"An autoweg starts here. It is only for motor vehicles that can drive faster than 50 km/h. The limit is 100 km/h unless signs say otherwise.", source:G(10)},
+  {t:"Signs", sign:"g5", q:"What does this sign (G5) mean?", o:["Home zone (erf): 15 km/h at most", "School ahead", "Playground: no cars allowed", "Pedestrian crossing"], c:0,
+   e:"In an erf pedestrians may use the full width of the road. You drive at most 15 km/h and park only in marked spaces.", source:G(10)},
+  {t:"Signs", sign:"g7", q:"What does this sign (G7) mean?", o:["Pedestrian crossing ahead", "School route", "Footpath", "No pedestrians"], c:2,
+   e:"Blue and round: this path is for pedestrians. You may not drive or park on it.", source:G(10)},
+  {t:"Signs", sign:"j2", q:"What does this sign (J2) warn you about?", o:["A bend to the right", "A duty to turn right", "A slippery road", "A side road from the right"], c:0,
+   e:"A triangle with a red border warns. Here: a bend to the right. Slow down before the bend, not in it.", source:G(11)},
+  {t:"Signs", sign:"j8", q:"What does this sign (J8) warn you about?", o:["A level crossing without barriers", "A dangerous junction", "A closed road", "A hospital"], c:1,
+   e:"A junction that needs extra care is coming. The sign says nothing about priority, so look for other signs and markings. Without them, traffic from the right goes first.", source:G(11)},
+  {t:"Signs", sign:"j9", q:"What does this sign (J9) warn you about?", o:["A duty to turn around", "A roundabout ahead", "A winding road", "Traffic lights ahead"], c:1,
+   e:"The triangle warns that a roundabout is coming. The round blue sign with the same arrows stands at the roundabout itself and gives the driving direction.", source:G(11)},
+  {t:"Signs", sign:"j17", q:"What does this sign (J17) warn you about?", o:["The road narrows", "Two lanes become three", "A bridge", "The end of an overtaking ban"], c:0,
+   e:"The road gets narrower on both sides. Be ready to slow down and give oncoming traffic room.", source:G(12)},
+  {t:"Signs", sign:"j29", q:"What does this sign (J29) warn you about?", o:["A one-way road", "Priority over oncoming traffic", "An overtaking ban", "Two-way traffic"], c:3,
+   e:"Traffic can come towards you from here, for example after a one-way stretch. Keep to the right.", source:G(12)},
+  {t:"Signs", sign:"j32", q:"What does this sign (J32) warn you about?", o:["A level crossing", "A speed camera", "Traffic lights", "A pedestrian crossing"], c:2,
+   e:"Traffic lights are coming. Be ready to stop.", source:G(12)},
+  {t:"Signs", sign:"j38", q:"What does this sign (J38) warn you about?", o:["A rough road for several kilometres", "A road hump", "A steep hill", "A bridge"], c:1,
+   e:"A road hump is coming. Slow down before you reach it.", source:G(12)},
+  {t:"Signs", sign:"l8", q:"What does this sign (L8) mean?", o:["T-junction ahead", "Hospital", "No through road for vehicles", "Road works"], c:2,
+   e:"This road has no way through for vehicles. If you drive in, you will have to turn around to get out.", source:G(14)}
 ]);
 })();
 var DRIVE = (function(){
@@ -545,8 +600,46 @@ var ICONS = {
   all: svg('<circle cx="35" cy="35" r="20" fill="none" stroke="#5B6472" stroke-width="7"/><circle cx="65" cy="65" r="20" fill="none" stroke="#5B6472" stroke-width="7"/>')
 };
 
+/* shared parts of the sign drawings, checked against the pictures in the RVV booklet (pages 7 to 14) */
+var S_RING = '<circle cx="50" cy="50" r="42" fill="#fff" stroke="#D7152A" stroke-width="9"/>';
+var S_TRI = '<path d="M50 6 L96 88 H4 Z" fill="#fff" stroke="#D7152A" stroke-width="7" stroke-linejoin="round"/>';
+var S_DISC = '<circle cx="50" cy="50" r="46" fill="#145DA0" stroke="#fff" stroke-width="4"/>';
+var S_SQ = '<rect x="8" y="8" width="84" height="84" rx="6" fill="#145DA0" stroke="#fff" stroke-width="3"/>';
+var S_END = '<circle cx="50" cy="50" r="45" fill="#fff" stroke="#9AA3AF" stroke-width="2"/>';
+var S_STRIPES = '<g transform="rotate(28 50 50)" stroke="#111" stroke-width="2.4"><path d="M41 11V89M45.5 8V92M50 7V93M54.5 8V92M59 11V89"/></g>';
+var S_MOTORWAY = '<path d="M30 84 L43 30 H48 L44 84 Z M70 84 L57 30 H52 L56 84 Z" fill="#fff"/><rect x="18" y="38" width="64" height="8" fill="#fff"/><rect x="18" y="38" width="64" height="8" fill="none" stroke="#145DA0" stroke-width="2"/>';
+function sNum(t, fill, size){ return '<text x="50" y="' + (size > 30 ? 64 : 58) + '" font-size="' + size + '" font-weight="700" font-family="Arial,sans-serif" text-anchor="middle" fill="' + fill + '">' + t + '</text>'; }
+/* three arrows going round anticlockwise, as on the roundabout signs */
+function sRound(col){
+  var one = '<path d="M68.4 65.4 A24 24 0 0 0 65.4 31.6" fill="none" stroke="' + col + '" stroke-width="8"/><path d="M57 24 L71.5 24.5 L60 38.5 Z" fill="' + col + '"/>';
+  return one + '<g transform="rotate(120 50 50)">' + one + '</g><g transform="rotate(240 50 50)">' + one + '</g>';
+}
 function signSvg(kind){
   switch(kind){
+    case "a1-50": return svg(S_RING + sNum("50", "#111", 38));
+    case "a2-50": return svg(S_END + sNum("50", "#9AA3AF", 38) + S_STRIPES);
+    case "b2": return svg('<rect x="18" y="18" width="64" height="64" fill="#fff" stroke="#111" stroke-width="3" transform="rotate(45 50 50)"/><rect x="28" y="28" width="44" height="44" fill="#F4B400" transform="rotate(45 50 50)"/><path d="M28 72L72 28M24.8 68.8L68.8 24.8M31.2 75.2L75.2 31.2" stroke="#111" stroke-width="2.4"/>');
+    case "b4": return svg(S_TRI + '<rect x="45" y="44" width="10" height="36" fill="#111"/><path d="M50 27 L63 46 H37 Z" fill="#111"/><rect x="29" y="57" width="16" height="5" fill="#111"/>');
+    case "c1": return svg(S_RING);
+    case "c3": return svg(S_SQ + '<path d="M50 20 L74 50 H58 V80 H42 V50 H26 Z" fill="#fff"/>');
+    case "c19": return svg(S_RING + sNum("3,5 m", "#111", 21) + '<path d="M50 32 L42 20 H58 Z M50 68 L42 80 H58 Z" fill="#111"/>');
+    case "d1": return svg(S_DISC + sRound("#fff"));
+    case "d2": return svg(S_DISC + '<g transform="rotate(135 50 50)"><path d="M50 18 L72 46 H58 V82 H42 V46 H28 Z" fill="#fff"/></g>');
+    case "d5": return svg(S_DISC + '<path d="M36 80 V52 Q36 38 50 38 H58 V27 L80 44 L58 61 V50 H50 Q48 50 48 52 V80 Z" fill="#fff"/>');
+    case "e10": return svg('<rect x="18" y="4" width="64" height="92" rx="5" fill="#fff" stroke="#111" stroke-width="3"/><text x="50" y="21" font-size="14" font-weight="700" font-family="Arial,sans-serif" text-anchor="middle" fill="#111">ZONE</text><rect x="28" y="26" width="44" height="46" rx="3" fill="#145DA0"/><text x="50" y="63" font-size="38" font-weight="700" font-family="Arial,sans-serif" text-anchor="middle" fill="#fff">P</text><rect x="25" y="78" width="9" height="10" rx="1.5" fill="#145DA0"/><text x="58" y="88" font-size="11.5" font-weight="700" font-family="Arial,sans-serif" text-anchor="middle" fill="#111">max 2h</text>');
+    case "f5": return svg(S_RING + '<path d="M34 26 V58 H26 L38 76 L50 58 H42 V26 Z" fill="#111"/><path d="M58 74 V42 H50 L62 24 L74 42 H66 V74 Z" fill="#D7152A"/>');
+    case "f7": return svg(S_RING + '<path d="M62 72 V46 A12 12 0 0 0 38 46 V58" fill="none" stroke="#111" stroke-width="8"/><path d="M38 74 L26 56 H50 Z" fill="#111"/>');
+    case "f8": return svg(S_END + S_STRIPES);
+    case "g2": return svg('<rect x="6" y="6" width="88" height="88" rx="8" fill="#145DA0" stroke="#fff" stroke-width="3"/>' + S_MOTORWAY + '<path d="M16 84 L84 16" stroke="#D7152A" stroke-width="7" stroke-linecap="round"/>');
+    case "g7": return svg(S_DISC + '<circle cx="40" cy="25" r="6.5" fill="#fff"/><path d="M33 35 H47 L50 58 H46 L47 83 H41.5 L40 63 L38.5 83 H33 L34 58 H30 Z" fill="#fff"/><circle cx="63" cy="44" r="4.8" fill="#fff"/><path d="M58 51 H68 L70 67 H67 L67.5 83 H63.8 L63 71 L62.2 83 H58.5 L59 67 H56 Z" fill="#fff"/><path d="M48 49 L57 56" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>');
+    case "j2": return svg(S_TRI + '<path d="M40 80 V64 Q40 46 62 46" fill="none" stroke="#111" stroke-width="10"/>');
+    case "j8": return svg(S_TRI + '<path d="M38 52 L62 76 M62 52 L38 76" stroke="#111" stroke-width="8"/>');
+    case "j9": return svg(S_TRI + '<g transform="translate(50 62) scale(.46) translate(-50 -50)">' + sRound("#111") + '</g>');
+    case "j17": return svg(S_TRI + '<path d="M38 80 V66 L45 54 V38 M62 80 V66 L55 54 V38" fill="none" stroke="#111" stroke-width="5"/>');
+    case "j29": return svg(S_TRI + '<path d="M40 46 V66 H35 L42.5 79 L50 66 H45 V46 Z" fill="#111"/><path d="M55 79 V59 H50 L57.5 46 L65 59 H60 V79 Z" fill="#111"/>');
+    case "j32": return svg(S_TRI + '<rect x="42.5" y="36" width="15" height="44" rx="5" fill="#111"/><circle cx="50" cy="45" r="4.3" fill="#E5202E"/><circle cx="50" cy="58" r="4.3" fill="#F4B400"/><circle cx="50" cy="71" r="4.3" fill="#2FA657"/>');
+    case "j38": return svg(S_TRI + '<path d="M28 76 C38 76 39 60 50 60 C61 60 62 76 72 76 Z" fill="#111"/>');
+    case "l8": return svg('<rect x="22" y="6" width="56" height="88" rx="5" fill="#145DA0" stroke="#fff" stroke-width="3"/><rect x="46" y="30" width="8" height="54" fill="#fff"/><rect x="34" y="18" width="32" height="13" fill="#D7152A" stroke="#fff" stroke-width="1.5"/>');
     case "mandatory-up": return svg('<circle cx="50" cy="50" r="46" fill="#145DA0" stroke="#fff" stroke-width="4"/><path d="M50 22 L74 52 H58 V80 H42 V52 H26 Z" fill="#fff"/>');
     case "no-entry": return svg('<circle cx="50" cy="50" r="46" fill="#D7152A" stroke="#fff" stroke-width="4"/><circle cx="50" cy="50" r="38" fill="#fff"/><rect x="18" y="42" width="64" height="16" rx="2" fill="#D7152A"/>');
     case "warning": return svg('<path d="M50 6 L96 88 H4 Z" fill="#fff" stroke="#D7152A" stroke-width="7" stroke-linejoin="round"/><rect x="45" y="34" width="10" height="34" rx="3" fill="#111"/><circle cx="50" cy="76" r="5.5" fill="#111"/>');
@@ -572,7 +665,7 @@ function signSvg(kind){
     case "optional-cycle": return svg('<rect x="4" y="24" width="92" height="52" rx="5" fill="#145DA0" stroke="#fff" stroke-width="3"/><text x="50" y="58" font-size="20" font-family="Arial,sans-serif" font-weight="700" text-anchor="middle" fill="#fff">fietspad</text>');
     case "no-motor": return svg('<circle cx="50" cy="50" r="42" fill="#fff" stroke="#D7152A" stroke-width="9"/><g transform="translate(50 50) scale(0.75) translate(-50 -50)"><path d="M24 62 V54 Q24 50 28 49 L34 40 Q36 37 40 37 H60 Q64 37 66 40 L72 49 Q76 50 76 54 V62 Z" fill="#111"/><circle cx="34" cy="63" r="6" fill="#111"/><circle cx="66" cy="63" r="6" fill="#111"/></g>');
     case "no-overtaking": return svg('<circle cx="50" cy="50" r="42" fill="#fff" stroke="#D7152A" stroke-width="9"/><g transform="translate(34 50) scale(0.48) translate(-50 -50)"><path d="M24 62 V54 Q24 50 28 49 L34 40 Q36 37 40 37 H60 Q64 37 66 40 L72 49 Q76 50 76 54 V62 Z" fill="#D7152A"/><circle cx="34" cy="63" r="6" fill="#D7152A"/><circle cx="66" cy="63" r="6" fill="#D7152A"/></g><g transform="translate(66 50) scale(0.48) translate(-50 -50)"><path d="M24 62 V54 Q24 50 28 49 L34 40 Q36 37 40 37 H60 Q64 37 66 40 L72 49 Q76 50 76 54 V62 Z" fill="#111"/><circle cx="34" cy="63" r="6" fill="#111"/><circle cx="66" cy="63" r="6" fill="#111"/></g>');
-    case "priority-oncoming": return svg('<rect x="8" y="8" width="84" height="84" rx="6" fill="#145DA0" stroke="#fff" stroke-width="3"/><path d="M36 76 V34 H28 L40 18 L52 34 H44 V76 Z" fill="#fff"/><path d="M64 24 V66 H72 L60 82 L48 66 H56 V24 Z" fill="#D7152A"/>');
+    case "priority-oncoming": return svg('<rect x="8" y="8" width="84" height="84" rx="6" fill="#145DA0" stroke="#fff" stroke-width="3"/><path d="M30 28 V62 H23 L34 78 L45 62 H38 V28 Z" fill="#D7152A"/><path d="M58 80 V44 H48 L64 19 L80 44 H70 V80 Z" fill="#fff"/>');
     case "crossroads-priority": return svg('<path d="M50 6 L96 88 H4 Z" fill="#fff" stroke="#D7152A" stroke-width="7" stroke-linejoin="round"/><rect x="45" y="34" width="10" height="44" fill="#111"/><rect x="30" y="54" width="40" height="5" fill="#111"/>');
     case "fietsstraat": return svg('<rect x="8" y="6" width="84" height="88" rx="6" fill="#145DA0" stroke="#fff" stroke-width="3"/><g transform="translate(50 34) scale(0.55) translate(-50 -50)"><circle cx="33" cy="62" r="11" fill="none" stroke="#fff" stroke-width="5"/><circle cx="67" cy="62" r="11" fill="none" stroke="#fff" stroke-width="5"/><path d="M33 62 L45 44 H62 L67 62 M45 44 L52 62 H33 M60 36 H68" fill="none" stroke="#fff" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/></g><g transform="translate(50 68) scale(0.42) translate(-50 -50)"><path d="M24 62 V54 Q24 50 28 49 L34 40 Q36 37 40 37 H60 Q64 37 66 40 L72 49 Q76 50 76 54 V62 Z" fill="#D7152A"/><circle cx="34" cy="63" r="6" fill="#D7152A"/><circle cx="66" cy="63" r="6" fill="#D7152A"/></g><text x="50" y="90" font-size="10" font-family="Arial,sans-serif" font-weight="700" text-anchor="middle" fill="#fff">auto te gast</text>');
     case "emergency-exit": return svg('<rect x="4" y="26" width="92" height="48" rx="4" fill="#0E8A43"/><circle cx="24" cy="38" r="5" fill="#fff"/><path d="M22 44 L16 54 M22 44 L28 52 L34 50 M22 44 L22 56 L14 66 M22 56 L30 66" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M36 50 H46 M42 45 L47 50 L42 55" stroke="#fff" stroke-width="3" fill="none"/><text x="72" y="56" font-size="16" font-family="Arial,sans-serif" font-weight="700" text-anchor="middle" fill="#fff">150 m</text>');

@@ -32,7 +32,7 @@ Pass the Dutch driving theory exam. In English.
 - A pass rate for Klaar users. There is no data for that yet.
 
 ## Numbers to recheck before each campaign
-- Question count in the app (270+ on 14 Nov 2026).
+- Question count in the app (300+ on 15 Nov 2026).
 - CBR exam format and price: read them on cbr.nl, do not copy them from another site.
 - "Free": change every picture and post on the day a paid plan starts.
 

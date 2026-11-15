@@ -22,7 +22,7 @@ So I built Klaar. It is a web app, free, no account:
 - Every answer explains the rule, and most link to the page of the official English rulebook on government.nl
 - Mock exams use the real format: 50 questions, 30 minutes, 44 to pass
 
-It has 270+ questions right now and I add more every week. The questions are my own, not official CBR material.
+It has 300+ questions right now and I add more every week. The questions are my own, not official CBR material.
 
 Link: https://yazan-hammad0.github.io/klaar/welcome/
 
