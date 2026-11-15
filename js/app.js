@@ -1568,6 +1568,40 @@ function renderCivicRoute(){
   $$("[data-plan]", v).forEach(function(c){ c.addEventListener("click", function(){ var k = c.getAttribute("data-plan"); S.plan[k] = !S.plan[k]; save(); renderCivicRoute(); }); });
 }
 
+/* ---------------- news: news.json is fetched whenever the phone is online, so news and rule changes reach people without an app update.
+   Practice never needs the internet. One unread item shows on Home until you close it. ---------------- */
+var NEWS_KEY = "klaarNews", NEWS_SEEN = "klaarNewsSeen";
+function isoToday(){ var d = new Date(); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
+function newsItems(){
+  var n = lsGet(NEWS_KEY) || [], seen = lsGet(NEWS_SEEN) || [], today = isoToday();
+  return n.filter(function(x){ return x && x.id && x.title && seen.indexOf(x.id) < 0 && (!x.track || x.track === "all" || x.track === S.track) && (!x.from || x.from <= today) && (!x.until || x.until >= today); });
+}
+function newsHtml(){
+  var x = newsItems()[0]; if (!x) return "";
+  var url = /^https:\/\//.test(x.url || "") ? x.url : "";
+  return '<section class="news" aria-label="News"><div class="news-h"><span>News</span><button class="news-x" data-news-x="' + esc(x.id) + '" aria-label="Close">&times;</button></div><b>' + esc(x.title) + '</b>' +
+    (x.body ? '<p>' + esc(x.body) + '</p>' : "") + (url ? '<a href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(x.link || "Read more") + ' ›</a>' : "") + '</section>';
+}
+function wireNews(v){
+  $$("[data-news-x]", v).forEach(function(b){ b.addEventListener("click", function(){
+    var seen = lsGet(NEWS_SEEN) || []; seen.push(b.getAttribute("data-news-x")); lsSet(NEWS_SEEN, seen.slice(-100));
+    var card = b.closest(".news"); if (card) card.remove();
+  }); });
+}
+function fetchNews(){
+  if (navigator.onLine === false || !window.fetch) return;
+  fetch("news.json", {cache:"no-store"}).then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
+    if (!j || !Array.isArray(j.items)) return;
+    var items = j.items.slice(0, 20), had = JSON.stringify(lsGet(NEWS_KEY) || []);
+    if (had === JSON.stringify(items)) return;
+    lsSet(NEWS_KEY, items);
+    if (view === "home" && !homeSub) renderHome();
+  }).catch(function(){});
+}
+document.addEventListener("visibilitychange", function(){ if (!document.hidden) fetchNews(); });
+window.addEventListener("online", fetchNews);
+setTimeout(fetchNews, 1500);
+
 /* ---------------- where you are (journey), milestone cards, share ---------------- */
 function journey(t){
   var tr = S.t[t], rec = tr.recent || [], recAcc = rec.length ? rec.reduce(function(a, b){ return a + b; }, 0) / rec.length : 0;
@@ -1668,7 +1702,7 @@ function renderHome(){
   var nm = String(prof().name || "").trim();
   var line = today === 0 ? "Nothing yet today. Your goal is " + S.goal + " right answers." : (today < S.goal ? today + " of " + S.goal + " right today." : "Daily goal done. Anything now is bonus.");
   if (st > 1) line += " " + st + "-day streak.";
-  var t = S.track, html = "";
+  var t = S.track, html = newsHtml();
   if (t === "drive") html += driveHomeHtml(t, plan(t));
   else html += civicHomeHtml(t, plan(t));
   if (window.KLAAR_GLOSSARY) html += '<button class="row gl-open" data-act="glossary"><span class="badge">Aa</span><span class="row-main"><span class="row-title">Words to know</span><span class="row-sub">' + KLAAR_GLOSSARY.count(t) + ' terms, with the logic behind them</span></span><span class="nu-go">›</span></button>';
@@ -1684,6 +1718,7 @@ function renderHome(){
   var yp = $('[data-act="your-plan"]', v); if (yp) yp.addEventListener("click", function(){ homeSub = "plan"; renderLicencePlan(); scrollTop0(); });
   animateRing(v, t);
   if (t === "civic") wireCivic(v);
+  wireNews(v);
 }
 
 /* ---------------- shell ---------------- */

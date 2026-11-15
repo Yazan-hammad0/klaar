@@ -1247,3 +1247,13 @@ body[data-track="civic"]{--go:var(--delft);--nx:#1A1B2E}
 .rt-off{display:flex;align-items:center;justify-content:center;margin-top:14px;min-height:52px;border-radius:16px;text-decoration:none}
 @media (prefers-reduced-motion: reduce){.cv-hero,.cv-card,.stamp-c,.rt-steps li,.cv-years b{animation:none}}
 .rt-tabs button[aria-selected="true"]{box-shadow:inset 0 0 0 1.5px var(--delft-tx);color:var(--delft-tx)}
+
+/* news from news.json, one card on Home */
+.news{background:var(--surface);border:1.5px solid var(--green);border-radius:20px;padding:12px 16px 14px;margin:4px 0 12px;display:flex;flex-direction:column;gap:4px;animation:rise-in .45s cubic-bezier(.2,.9,.25,1) both}
+body[data-track="civic"] .news{border-color:var(--delft-tx)}
+.news-h{display:flex;align-items:center;justify-content:space-between}
+.news-h span{font-size:12.5px;font-weight:700;color:var(--chip-fg)}
+.news-x{border:0;background:none;color:var(--muted);font-size:22px;line-height:1;padding:2px 4px;cursor:pointer;margin-inline-end:-4px}
+.news b{font-size:16px}
+.news p{margin:0;font-size:14px;line-height:1.45;color:var(--muted)}
+.news a{font-size:14px;font-weight:700;color:var(--link);text-decoration:none}

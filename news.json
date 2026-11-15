@@ -1,0 +1,18 @@
+{
+  "items": [
+    {
+      "id": "2026-11-plan-drive",
+      "track": "drive",
+      "until": "2026-12-15",
+      "title": "New: your licence plan",
+      "body": "Tap Your plan on Home. Pick when you want your licence and Klaar shows if that is realistic, with the dates and the official sites."
+    },
+    {
+      "id": "2026-11-plan-civic",
+      "track": "civic",
+      "until": "2026-12-15",
+      "title": "New: your inburgering plan",
+      "body": "Tell Klaar why you came and what you want. You get a countdown, a checklist that fits you and the official route, step by step."
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 // Klaar offline cache. release.py stamps VERSION; a new VERSION makes phones download everything fresh.
-const VERSION = "66e6c197cf";
+const VERSION = "735c226bda";
 const CACHE = "klaar-" + VERSION, FONTS = "klaar-fonts";
 const SHELL = ["./", "./index.html", "./css/app.css", "./js/i18n-data.js", "./js/i18n.js", "./js/content.js", "./js/audio.js", "./js/lessons.js", "./js/view.js", "./js/map.js", "./js/glossary.js", "./js/stats.js", "./js/app.js", "./js/shell.js", "./js/setup.js", "./js/onboard.js", "./manifest.webmanifest", "./icons/icon-180.png", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/icon-maskable-512.png", "./fonts/bricolage-grotesque-latin.woff2", "./fonts/inter-latin.woff2"];
 self.addEventListener("install", e => {
@@ -22,6 +22,8 @@ self.addEventListener("fetch", e => {
   const root = new URL("./", self.location).pathname, rest = url.pathname.slice(root.length);
   if (url.pathname.indexOf(root) !== 0 || /^(welcome|privacy|marketing)\//.test(rest)) return;
   if (req.mode === "navigate" && rest !== "" && rest !== "index.html") return;
+  // news is fetched fresh whenever the phone is online; never cache it here
+  if (rest === "news.json") return;
   // network first for the page (so updates arrive), cache when offline
   if (req.mode === "navigate") {
     e.respondWith(fetch(req).then(res => { const copy = res.clone(); caches.open(CACHE).then(c => c.put("./index.html", copy)); return res; })
@@ -29,4 +31,19 @@ self.addEventListener("fetch", e => {
     return;
   }
   e.respondWith(caches.match(req, {ignoreSearch: true}).then(hit => hit || fetch(req).then(res => { if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); } return res; })));
+});
+
+// Notifications. Sending them needs a small server (see notes); this part shows them and opens the app when you tap one.
+self.addEventListener("push", e => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (x) { d = {body: e.data ? e.data.text() : ""}; }
+  e.waitUntil(self.registration.showNotification(d.title || "Klaar", {body: d.body || "", icon: "icons/icon-192.png", badge: "icons/icon-192.png", tag: d.tag || "klaar", data: {url: d.url || "./"}}));
+});
+self.addEventListener("notificationclick", e => {
+  e.notification.close();
+  const url = new URL((e.notification.data && e.notification.data.url) || "./", self.location).href;
+  e.waitUntil(self.clients.matchAll({type: "window", includeUncontrolled: true}).then(list => {
+    for (const c of list) if ("focus" in c) return c.focus();
+    return self.clients.openWindow(url);
+  }));
 });
