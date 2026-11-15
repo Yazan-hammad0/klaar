@@ -168,7 +168,7 @@ window.KLAAR_MAP = function(m){
   (m.tline || []).forEach(function(x){ extra += teethLine.apply(null, x); });
   (m.matrix || []).forEach(function(b){ var x = b[0];
     extra += '<rect class="mp-mx" x="' + (x - 13) + '" y="6" width="26" height="22" rx="3"/>' +
-      (b[1] === "warn" ? '<path class="mp-mx-a" d="M' + (x - 5) + ' 12L' + (x + 5) + ' 22M' + (x - 1) + ' 22H' + (x + 5) + 'V16"/>' : b[1] === "x" ? '<path class="mp-mx-x" d="M' + (x - 6) + ' 11L' + (x + 6) + ' 23M' + (x + 6) + ' 11L' + (x - 6) + ' 23"/>' :
+      (typeof b[1] === "number" ? '<circle class="mp-mx-ring" cx="' + x + '" cy="17" r="9"/><text class="mp-mx-n" x="' + x + '" y="20.6">' + b[1] + "</text>" : b[1] === "warn" ? '<path class="mp-mx-a" d="M' + (x - 5) + ' 12L' + (x + 5) + ' 22M' + (x - 1) + ' 22H' + (x + 5) + 'V16"/>' : b[1] === "x" ? '<path class="mp-mx-x" d="M' + (x - 6) + ' 11L' + (x + 6) + ' 23M' + (x + 6) + ' 11L' + (x - 6) + ' 23"/>' :
        '<path class="' + (b[1] === "green" ? "mp-mx-g" : "mp-mx-a") + '" d="M' + x + ' 24V11M' + (x - 5) + ' 16L' + x + ' 11L' + (x + 5) + ' 16"/>'); });
   if (m.note) extra += '<rect class="mp-note" x="6" y="6" width="' + (m.note.length * 5.6 + 12) + '" height="18" rx="9"/><text class="mp-notet" x="12" y="18.5">' + m.note + "</text>";
   var items = (m.items || []).map(item).join("") + (m.items || []).map(slot).join("") + (m.spots || []).map(spot).join("");

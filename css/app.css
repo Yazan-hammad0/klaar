@@ -807,7 +807,7 @@ html[dir="rtl"] .gl-def,html[dir="rtl"] .gl-head h3,html[dir="rtl"] .gl-card .pr
 .mp-ballast{fill:#8B8478}.mp-barrier{fill:#fff;stroke:#C0392B;stroke-width:1.5;stroke-dasharray:4 4}
 .mp-blink2{animation:scBlink 1s steps(1) infinite .5s}
 @media (prefers-reduced-motion: reduce){.mp-blink2{animation:none}}
-.mp-mx{fill:#111827;stroke:#fff;stroke-width:1}.mp-mx-x{stroke:#EF4444;stroke-width:3;stroke-linecap:round}.mp-mx-a,.mp-mx-g{stroke:#F8FAFC;stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}.mp-mx-g{stroke:#22C55E}
+.mp-mx{fill:#111827;stroke:#fff;stroke-width:1}.mp-mx-ring{fill:none;stroke:#EF4444;stroke-width:1.8}.mp-mx-n{fill:#F8FAFC;font:800 9.5px var(--font-body);text-anchor:middle}.mp-mx-x{stroke:#EF4444;stroke-width:3;stroke-linecap:round}.mp-mx-a,.mp-mx-g{stroke:#F8FAFC;stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}.mp-mx-g{stroke:#22C55E}
 
 /* your plan: exam countdown, readiness, pace, and the one thing to do next */
 .plan{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:18px;margin-bottom:12px}
