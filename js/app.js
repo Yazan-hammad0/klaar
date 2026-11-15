@@ -1032,14 +1032,11 @@ function renderProgress(pre){
     html += '<button class="btn pop" data-act="gen"' + (ai[t] === "busy" ? " disabled" : "") + '>' + (ai[t] === "busy" ? "Writing questions…" : "Write 8 new questions now") + '</button></div>';
   }
 
-  if (t !== "drive") html += '<details class="home-road"' + (homeOpen.road ? " open" : "") + ' data-fold="road"><summary>Your road to inburgering and citizenship</summary>' + roadmapHtml(t).replace(/^<div class="label">[^<]*<\/div>/, "") + '</details>';
   html += t === "drive" ?
     '<div class="also"><h3>Staying in the Netherlands?</h3><p>Klaar also prepares you for the inburgering exam: Dutch society (KNM) and Dutch at A2, with listening you can play back. Your driving progress is kept.</p><button class="btn ghost" data-act="other-goal">Try inburgering practice</button></div>' :
     '<div class="also"><h3>Need a Dutch driving licence too?</h3><p>Klaar has a full plan for the CBR theory exam, in English. Your inburgering progress is kept.</p><button class="btn ghost" data-act="other-goal">Go to driving theory</button></div>';
   v.innerHTML = html;
   var g = $('[data-act="gen"]', v); if (g) g.addEventListener("click", function(){ generate(t, 8); renderHome(); });
-  var as = $('[data-act="arr-set"]', v); if (as) as.addEventListener("click", function(){ var val = $("#arr-in", v).value; if (!/^\d{4}-\d{2}-\d{2}$/.test(val)) return toast("Pick a date first."); S.arrived = val; save(); renderHome(); });
-  var ae = $('[data-act="arr-edit"]', v); if (ae) ae.addEventListener("click", function(){ S.arrived = null; save(); renderHome(); });
   var jg = $('[data-act="j-go"]', v); if (jg) jg.addEventListener("click", function(){ setView("exams"); });
   $$("[data-plan]", v).forEach(function(c){ c.addEventListener("click", function(){ var k = c.getAttribute("data-plan"); S.plan[k] = !S.plan[k]; save(); renderHome(); }); });
 }
@@ -1388,6 +1385,189 @@ function renderLicencePlan(){
   $$("[data-plan]", v).forEach(function(c){ c.addEventListener("click", function(){ var k = c.getAttribute("data-plan"); S.plan[k] = !S.plan[k]; save(); renderLicencePlan(); }); });
 }
 
+/* ---------------- inburgering Home: your situation, a 5-year countdown, exam stamps, a checklist that fits why you came ---------------- */
+var civEdit = false;
+function civ(){ return prof().civ || {}; }
+function setCiv(k, val){ S.prof = S.prof || {}; S.prof.civ = Object.assign({}, S.prof.civ || {}); S.prof.civ[k] = val; save(); }
+var CIV_WHY = [["study", "To study"], ["work", "To work"], ["family", "To live with my partner or family"], ["other", "Something else"]];
+var CIV_GOAL = [["citizen", "Become Dutch"], ["permanent", "Stay for good"], ["integrate", "Just integrate"]];
+var GOAL_CAP = {citizen:"to become Dutch", permanent:"for permanent residence"};
+function dayDiff(a, b){ return Math.round((a - b) / 86400000); }
+function civicSetupHtml(){
+  var C = civ(), step = civEdit ? (civEdit === true ? 1 : civEdit) : (!C.why ? 1 : (!C.goal ? 2 : 3));
+  function opts(key, list){ return '<div class="cv-opts">' + list.map(function(o){ return '<button class="cv-opt' + (C[key] === o[0] ? " on" : "") + '" data-civ="' + key + '" data-val="' + o[0] + '">' + o[1] + '</button>'; }).join("") + '</div>'; }
+  var html = '<section class="cv-hero cv-setup"><span class="cv-step">Your plan, step ' + step + ' of 3</span>';
+  if (step === 1) html += '<h3>Why are you in the Netherlands?</h3>' + opts("why", CIV_WHY);
+  else if (step === 2) html += '<h3>What do you want?</h3>' + opts("goal", CIV_GOAL) + '<p class="cv-small">You can change this later.</p>';
+  else html += '<h3>When did you move here?</h3><p class="cv-small">Not moved yet? Pick the day you will move. Klaar counts down to it.</p>' +
+    '<div class="hero-row"><input type="date" class="inp" id="arr-in" aria-label="The day you moved, or will move, to the Netherlands" value="' + esc(S.arrived || "") + '"><button class="btn cv-save" data-act="arr-set">Save</button></div>';
+  return html + '</section>';
+}
+function civicCountdownHtml(){
+  var C = civ(), cd = citizenDates(), now = new Date(), html;
+  if (!C.why || !C.goal || !cd || civEdit) return civicSetupHtml();
+  var future = cd.from > now, big, cap, bars = "";
+  if (future){ big = dayDiff(cd.from, now) + 1; cap = big === 1 ? "day until you move" : "days until you move"; }
+  else if (C.goal === "integrate"){ big = dayDiff(now, cd.from) + 1; cap = "days in the Netherlands"; }
+  else {
+    big = Math.max(0, Math.ceil((cd.at - now) / 86400000));
+    cap = big ? (big === 1 ? "day" : "days") + " until you can apply " + GOAL_CAP[C.goal] : "You can apply " + GOAL_CAP[C.goal] + " now";
+  }
+  if (!future && C.goal !== "integrate"){
+    bars = '<div class="cv-years" role="img" aria-label="' + Math.min(100, Math.round((now - cd.from) / (cd.at - cd.from) * 100)) + '% of 5 years">';
+    for (var y = 0; y < 5; y++){ var ys = new Date(cd.from), ye; ys.setFullYear(ys.getFullYear() + y); ye = new Date(ys); ye.setFullYear(ye.getFullYear() + 1);
+      bars += '<i><b style="width:' + Math.max(0, Math.min(100, (now - ys) / (ye - ys) * 100)).toFixed(1) + '%"></b></i>'; }
+    bars += '</div><div class="cv-meta"><span>' + fmtDate(cd.from) + '</span><span>' + fmtDate(cd.at) + '</span></div>';
+  }
+  var sub = future ? "Your 5 years start when you move. Sort out the checklist below first." :
+    (C.goal === "integrate" ? "No deadline here. If DUO sent you a letter, you have 3 years from the date in it." : "Most people can apply after 5 years with a residence permit.");
+  html = '<section class="cv-hero"><div class="cv-top"><span class="cv-cap">' + (future ? "Before you move" : (C.goal === "integrate" ? "Your time here" : "Your 5 years")) + '</span><button class="link cv-edit" data-act="civ-edit">Change</button></div>' +
+    (big ? '<b class="cv-big tabular">' + big.toLocaleString(loc()) + '</b>' : "") + '<span class="cv-what">' + cap + '</span>' + bars +
+    '<p class="cv-sub">' + sub + '</p>' +
+    (C.goal !== "integrate" || !future ? '<button class="cv-route" data-act="civic-route">How to apply, step by step<span aria-hidden="true">›</span></button>' : "") + '</section>';
+  return html;
+}
+/* each exam is a stamp: it lands when you pass its practice exam, and gets a check when you pass the real one */
+var STAMPS = [
+  {id:"knm", name:"KNM", key:"c-knm", topic:"KNM"},
+  {id:"a2-lezen", name:"Reading", key:"c-lezen", topic:"A2 Lezen"},
+  {id:"a2-luisteren", name:"Listening", key:"c-luisteren", topic:"A2 Luisteren"},
+  {id:"a2-schrijven", name:"Writing", key:"c-schrijven", topic:"A2 Schrijven"},
+  {id:null, name:"Speaking", key:"c-spreken", topic:null}
+];
+function stampState(s){
+  var tr = S.t.civic, real = !!(S.plan || {})[s.key];
+  if (real) return {k:"passed", label:"Passed"};
+  if (s.id && mockPassed("civic", s.id)) return {k:"ready", label:"Ready"};
+  var ms = s.id ? (tr.mocks[s.id] || []) : [], best = 0;
+  ms.forEach(function(m){ best = Math.max(best, m.n ? m.s / m.n : 0); });
+  var tp = s.topic && tr.topics[s.topic], acc = tp && tp.a ? tp.ok / tp.a : 0, p = Math.round(Math.max(best, acc) * 100);
+  return p ? {k:"going", label:p + "%"} : {k:"new", label:"Not yet"};
+}
+function stampsHtml(){
+  var html = '<section class="cv-card" aria-label="Your exams"><div class="tl-h"><h2>Your exams</h2><span>' + STAMPS.filter(function(s){ return (S.plan || {})[s.key]; }).length + ' of 5 passed</span></div><div class="stamps">';
+  STAMPS.forEach(function(s, i){
+    var st = stampState(s);
+    html += '<button class="stamp st-' + st.k + '" data-stamp="' + i + '" style="animation-delay:' + (250 + i * 90) + 'ms" aria-label="' + s.name + ', ' + st.label + '"><span class="stamp-c">' +
+      (st.k === "passed" || st.k === "ready" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12.5l4 4 8-9"/></svg>' : (st.k === "going" ? st.label : "")) + '</span><b>' + s.name + '</b><small>' + (st.k === "going" ? "Practising" : st.label) + '</small></button>';
+  });
+  return html + '</div></section>';
+}
+function stampSheet(i){
+  var s = STAMPS[i], st = stampState(s), real = !!(S.plan || {})[s.key];
+  var line = s.id ? (st.k === "new" ? "Not practised yet." : (st.k === "going" ? "You get about " + st.label + " right in practice." : "You passed the practice exam.")) :
+    "Klaar has no speaking practice yet. The official practice exams on inburgeren.nl include speaking.";
+  openSheet('<div class="tsh"><div class="tsh-h"><h2>' + s.name + '</h2></div><p>' + line + '</p>' +
+    (s.topic ? '<button class="btn pop" data-act="st-prac">Practise ' + s.name + '</button><button class="btn ghost" data-act="st-exam">Take the practice exam</button>' :
+      '<a class="btn pop" href="https://www.inburgeren.nl/en/taking-the-integration-exam/practicing.jsp" target="_blank" rel="noopener">Official practice exams</a>') +
+    '<button class="btn ghost' + (real ? " on" : "") + '" data-act="st-real">' + (real ? "Passed the real exam ✓" : "I passed the real exam") + '</button></div>', true);
+  var p = $('[data-act="st-prac"]'); if (p) p.addEventListener("click", function(){ closeSheet(); practiseTopic("civic", s.topic); });
+  var e = $('[data-act="st-exam"]'); if (e) e.addEventListener("click", function(){ closeSheet(); setView("exams"); startExam(s.id); });
+  $('[data-act="st-real"]').addEventListener("click", function(){ S.plan[s.key] = !S.plan[s.key]; save(); closeSheet(); renderHome(); });
+}
+/* what to sort out, by why you came and what you want. Each line was checked on the official page it links to. */
+function civicChecklist(){
+  var C = civ(), L = [];
+  if (C.why === "study") L.push(["cl-permit", "Your university applies for your residence permit. Send them what they ask for.", ""]);
+  if (C.why === "work") L.push(["cl-permit", "Your employer applies for your residence permit. Send them what they ask for.", ""]);
+  if (C.why === "family") L.push(["cl-abroad", "Check if you must pass the civic integration exam abroad before you come.", "https://ind.nl/en/civic-integration-exam-abroad"]);
+  L.push(["cl-bsn", "Register at your town hall. You get your BSN there.", ""]);
+  L.push(["cl-digid", "Apply for your DigiD. You need it for Mijn Inburgering.", "https://www.digid.nl/en"]);
+  if (C.why === "family") L.push(["cl-duo", "Wait for the letter from DUO. It can take 8 weeks after you register. Then you have 3 years to integrate.", "https://www.inburgeren.nl/en/integration-in-the-netherlands/index.jsp"]);
+  else L.push(["cl-mijn", "Log in to Mijn Inburgering to see if you must integrate. If you must, DUO also sends you a letter.", "https://www.inburgeren.nl/en/log-in-to-mijn-inburgering/"]);
+  if (C.goal === "citizen") L.push(["cl-exam", "Pass the inburgering exams at A2, or the Nt2 state exam at B1 or B2.", "https://www.inburgeren.nl/en/integration-in-the-netherlands/naturalisation.jsp"]);
+  if (C.goal === "permanent") L.push(["cl-exam", "Get your civic integration diploma. The IND asks for it.", "https://ind.nl/en/living-in-the-netherlands-with-a-residence-permit/civic-integration-for-more-secure-residence-permit"]);
+  if (C.goal === "integrate") L.push(["cl-exam", "Book your exams in Mijn Inburgering when you are ready.", "https://www.inburgeren.nl/en/taking-the-integration-exam/registering.jsp"]);
+  return L;
+}
+function checklistHtml(){
+  var L = civicChecklist(), pl = S.plan || {}, todo = L.filter(function(x){ return !pl[x[0]]; }), done = L.length - todo.length;
+  var html = '<section class="cv-card" aria-label="Your checklist"><div class="tl-h"><h2>Your checklist</h2><span>' + done + ' of ' + L.length + ' done</span></div><ul class="ck">';
+  L.forEach(function(x){
+    var on = !!pl[x[0]];
+    html += '<li class="' + (on ? "on" : "") + '"><button class="ck-b" data-plan="' + x[0] + '" aria-pressed="' + on + '" aria-label="' + (on ? "Mark as not done" : "Mark as done") + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12.5l4 4 8-9"/></svg></button><span>' + esc(x[1]) +
+      (x[2] ? ' <a href="' + x[2] + '" target="_blank" rel="noopener">' + x[2].replace(/^https:\/\/(www\.)?/, "").split("/")[0] + ' ›</a>' : "") + '</span></li>';
+  });
+  return html + '</ul></section>';
+}
+function civicHomeHtml(t, P){
+  var C = civ(), html = civicCountdownHtml();
+  if (C.why && C.goal && citizenDates() && !civEdit){
+    var n = P.next, cap = n.kind === "drill" || n.kind === "mistakes" ? "Fix this first" : (P.seen ? "Next up" : "Start here");
+    html += '<section class="nx" aria-label="Next up"><span class="nx-cap">' + cap + '</span><h3 class="nx-t">' + esc(n.kind === "drill" ? n.topic : n.title) + '</h3><p class="nx-s">' + esc(n.why) + '</p>' +
+      '<button class="btn pop" data-act="plan-go">' + (n.kind === "mock" ? "Go to exams" : "Start") + '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></button></section>';
+    html += stampsHtml() + checklistHtml();
+    var ms = mistakes(t).length;
+    if (ms) html += '<button class="link tl-miss" data-act="mistakes">Fix your ' + ms + (ms === 1 ? " mistake" : " mistakes") + ' ›</button>';
+  }
+  return html;
+}
+function wireCivic(v){
+  $$("[data-civ]", v).forEach(function(b){ b.addEventListener("click", function(){
+    var k = b.getAttribute("data-civ"); setCiv(k, b.getAttribute("data-val"));
+    if (civEdit) civEdit = k === "why" ? 2 : 3;
+    renderHome();
+  }); });
+  var as = $('[data-act="arr-set"]', v); if (as) as.addEventListener("click", function(){ var val = $("#arr-in", v).value; if (!/^\d{4}-\d{2}-\d{2}$/.test(val)) return toast("Pick a date first."); S.arrived = val; civEdit = false; save(); renderHome(); });
+  var ed = $('[data-act="civ-edit"]', v); if (ed) ed.addEventListener("click", function(){ civEdit = true; renderHome(); });
+  $$("[data-stamp]", v).forEach(function(b){ b.addEventListener("click", function(){ stampSheet(+b.getAttribute("data-stamp")); }); });
+  var rt = $('[data-act="civic-route"]', v); if (rt) rt.addEventListener("click", function(){ homeSub = "route"; renderCivicRoute(); scrollTop0(); });
+}
+
+/* ---------------- the official route for inburgering: book and pass your exams, then become Dutch or stay for good ---------------- */
+var routeTab = "a";
+var EXAM_STEPS = [
+  ["See which exams you need", "Log in to Mijn Inburgering with your DigiD. It shows which exams to take and at which level.", "Mijn Inburgering", "https://www.inburgeren.nl/en/log-in-to-mijn-inburgering/"],
+  ["Book early", "Register for KNM and the A2 exams in Mijn Inburgering. It can take more than 6 weeks to get a date. You can change the date up to 1 week before.", "Registering for an exam", "https://www.inburgeren.nl/en/taking-the-integration-exam/registering.jsp"],
+  ["B1 or B2 instead?", "At B1 or B2 the language exams are the state exam Dutch as a second language (Nt2). It is booked another way.", "Read how on inburgeren.nl", "https://www.inburgeren.nl/en/taking-the-integration-exam/registering.jsp"],
+  ["Pass, then keep your diploma", "DUO runs the exams. You get a digital diploma in Mijn Inburgering. The town hall or the IND asks for it later.", "Your diploma", "https://www.inburgeren.nl/en/taking-the-integration-exam/diploma.jsp"]
+];
+var NAT_REQ = [
+  "I am 18 or older.",
+  "I have lived here for 5 years in a row with a valid residence permit, and always extended it on time.",
+  "I passed the inburgering exam at A2 or higher, or I am exempt.",
+  "I am willing to give up my current nationality, unless an exception applies to me.",
+  "I am willing to make the declaration of solidarity at the ceremony."
+];
+var NAT_STEPS = [
+  ["Apply at your town hall", "Make an appointment where you live. You fill in the form together and pay the fee there."],
+  ["The IND decides", "Your town hall sends it to the IND. They have 12 months to decide."],
+  ["Go to the ceremony", "After a yes, go to the naturalisation ceremony within 1 year. That is when you become Dutch."],
+  ["Get your Dutch passport", "Apply for it at your town hall."]
+];
+var PERM_STEPS = [
+  ["Get your civic integration diploma", "The IND usually asks for it. Some people are exempt."],
+  ["Apply to the IND", "Online or by post, while your current permit is still valid. After 5 years with a residence permit you can choose when to apply."],
+  ["Pay the fee", "The IND page shows the current amount."]
+];
+function renderCivicRoute(){
+  var v = $("#v-home"), C = civ(), goal = C.goal || "citizen", pl = S.plan || {};
+  var second = goal === "permanent" ? "2. Staying for good" : "2. Becoming Dutch";
+  var html = '<div class="run-top"><button class="link" data-act="rt-back">&larr; Home</button><b>The official route</b><span></span></div>';
+  if (goal !== "integrate") html += '<div class="rt-tabs" role="tablist"><button role="tab" data-tab="a" aria-selected="' + (routeTab === "a") + '">1. Your exams</button><button role="tab" data-tab="b" aria-selected="' + (routeTab === "b") + '">' + second + '</button></div>';
+  if (routeTab === "a" || goal === "integrate"){
+    html += '<h2 class="rt-h">Book and pass your inburgering exams</h2><ol class="rt-steps">' + EXAM_STEPS.map(function(s){
+      return '<li><b>' + s[0] + '</b><p>' + s[1] + '</p><a href="' + s[3] + '" target="_blank" rel="noopener">' + s[2] + ' ›</a></li>'; }).join("") + '</ol>';
+  } else if (goal === "permanent"){
+    html += '<h2 class="rt-h">Apply for permanent residence</h2><ol class="rt-steps">' + PERM_STEPS.map(function(s){ return '<li><b>' + s[0] + '</b><p>' + s[1] + '</p></li>'; }).join("") + '</ol>' +
+      '<a class="btn pop rt-off" href="https://ind.nl/en/replace-extend-renew-and-change/permanent-residency/permanent-residence-permit" target="_blank" rel="noopener">Read the full rules on ind.nl</a>';
+  } else {
+    var cd = citizenDates();
+    if (cd) html += '<section class="cv-hero rt-when"><span class="cv-cap">Based on the date you moved here</span><b>' + (cd.at > new Date() ? "You can apply from " + fmtDate(cd.at) : "You can apply now") + '</b></section>';
+    var left = NAT_REQ.filter(function(x, i){ return !pl["nat-" + i]; }).length;
+    html += '<section class="cv-card"><h3 class="rt-sub">Tick what is true for you</h3><ul class="ck">' + NAT_REQ.map(function(x, i){ var on = !!pl["nat-" + i];
+      return '<li class="' + (on ? "on" : "") + '"><button class="ck-b" data-plan="nat-' + i + '" aria-pressed="' + on + '" aria-label="' + (on ? "Untick" : "Tick") + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12.5l4 4 8-9"/></svg></button><span>' + x + '</span></li>'; }).join("") + '</ul>' +
+      '<p class="lp-say ' + (left ? "ts-going" : "ts-strong") + '">' + (left ? left + (left === 1 ? " condition" : " conditions") + " still open. Klaar helps with the exam. The IND page explains the rest." : "You meet the main conditions. Make an appointment at your town hall.") + '</p></section>';
+    html += '<h2 class="rt-h">Then, step by step</h2><ol class="rt-steps">' + NAT_STEPS.map(function(s){ return '<li><b>' + s[0] + '</b><p>' + s[1] + '</p></li>'; }).join("") + '</ol>' +
+      '<a class="btn pop rt-off" href="https://ind.nl/en/dutch-citizenship/becoming-a-dutch-national-through-naturalisation" target="_blank" rel="noopener">Read the full rules on ind.nl</a>';
+  }
+  html += '<p class="lp-disc">Klaar is an independent practice app. It is not DUO, the IND or your town hall. Book exams and apply only on their official sites. Rules can change, so always check there first.</p>';
+  v.innerHTML = html;
+  $('[data-act="rt-back"]', v).addEventListener("click", function(){ homeSub = null; renderHome(); scrollTop0(); });
+  $$("[data-tab]", v).forEach(function(b){ b.addEventListener("click", function(){ routeTab = b.getAttribute("data-tab"); renderCivicRoute(); }); });
+  $$("[data-plan]", v).forEach(function(c){ c.addEventListener("click", function(){ var k = c.getAttribute("data-plan"); S.plan[k] = !S.plan[k]; save(); renderCivicRoute(); }); });
+}
+
 /* ---------------- where you are (journey), milestone cards, share ---------------- */
 function journey(t){
   var tr = S.t[t], rec = tr.recent || [], recAcc = rec.length ? rec.reduce(function(a, b){ return a + b; }, 0) / rec.length : 0;
@@ -1482,6 +1662,7 @@ var HOME_SUB = {drive: "Driving theory (CBR)", civic: "KNM and Dutch A2"};
 function trackFrac(t){ var j = journey(t), n = j.steps.length; if (j.at >= n) return 1; return (j.at + (j.steps[j.at].p || 0)) / n; }
 function renderHome(){
   if (homeSub === "plan" && S.track === "drive") return renderLicencePlan();
+  if (homeSub === "route" && S.track === "civic") return renderCivicRoute();
   var v = $("#v-home"), today = rightToday(), st = streak(), hr = new Date().getHours();
   var hi = hr < 12 ? "Good morning" : (hr < 18 ? "Good afternoon" : "Good evening");
   var nm = String(prof().name || "").trim();
@@ -1489,10 +1670,7 @@ function renderHome(){
   if (st > 1) line += " " + st + "-day streak.";
   var t = S.track, html = "";
   if (t === "drive") html += driveHomeHtml(t, plan(t));
-  else {
-    html += '<div class="home-hi"><h2 class="h2">' + hi + (nm ? ', <span translate="no">' + esc(nm) + '</span>' : "") + '</h2></div>';
-    html += planHtml(t, line) + civicHero() + topicsHtml(t);
-  }
+  else html += civicHomeHtml(t, plan(t));
   if (window.KLAAR_GLOSSARY) html += '<button class="row gl-open" data-act="glossary"><span class="badge">Aa</span><span class="row-main"><span class="row-title">Words to know</span><span class="row-sub">' + KLAAR_GLOSSARY.count(t) + ' terms, with the logic behind them</span></span><span class="nu-go">›</span></button>';
   renderProgress(html);
   wirePlan(v, t);
@@ -1505,6 +1683,7 @@ function renderHome(){
   $$("[data-tile]", v).forEach(function(b){ b.addEventListener("click", function(){ topicSheet(t, b.getAttribute("data-tile")); }); });
   var yp = $('[data-act="your-plan"]', v); if (yp) yp.addEventListener("click", function(){ homeSub = "plan"; renderLicencePlan(); scrollTop0(); });
   animateRing(v, t);
+  if (t === "civic") wireCivic(v);
 }
 
 /* ---------------- shell ---------------- */
