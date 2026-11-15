@@ -97,6 +97,8 @@ var SHAPES = {
   fogcar: function(c){ return SHAPES.car(c) + TAIL + SHAPES.foglamp(); },
   foglamp: function(){ return '<circle class="sc-fogglow" cx="0" cy="13" r="8"/><rect class="sc-foglight" x="-2.5" y="11.5" width="5" height="2.5" rx="1"/>'; },
   flash: function(c){ return '<path class="sc-ray" d="M-5 -18L-12 -34M0 -19V-37M5 -18L12 -34"/>' + SHAPES.car(c); },
+  /* a car indicating left: amber lights on its left side */
+  left: function(c){ return SHAPES.car(c) + '<rect class="sc-ind sc-blink" x="-9" y="-15" width="4" height="4" rx="1"/><rect class="sc-ind sc-blink" x="-9" y="11" width="4" height="4" rx="1"/>'; },
   badge: function(c, t){ return '<circle class="sc-badge" r="9"/><text class="sc-num" x="0" y="3.5">' + t + '</text>'; }
 };
 var PERSON = '<ellipse class="sc-kid" rx="8.5" ry="4.8"/><circle class="sc-head" r="3.8"/>';
@@ -218,6 +220,33 @@ var SCENES = {
   keepRight: function(){ return svg("kr", road(), "", [
     {shape:"truck", steady:true, path:[[0, 120, 135], [100, 120, 60]], still:[0, 120, 110]},
     you([[0, 120, 215], [25, 120, 182], [38, 92, 152, -18], [48, 80, 122, 0], [62, 80, 62, 0], [72, 100, 36, 18], [82, 120, 12, 0], [100, 120, -40, 0]], {still:[0, 80, 105]})
+  ]); },
+  /* a car that has moved left and indicates left: you pass it on the right */
+  passRight: function(){ return svg("pr", road(), "", [
+    {shape:"left", color:"c-red", path:[[0, 108, 82], [100, 108, 82]], still:[0, 108, 82]},
+    you([[0, 122, 215, 0], [30, 122, 140, 0], [42, 130, 115, 12], [70, 130, 40, 0], [100, 128, -40, 0]], {still:[0, 130, 120]})
+  ]); },
+  /* a queue in two lanes going the same way: your lane moves a little faster */
+  queuePass: function(){
+    var g = '<rect class="sc-road" x="60" y="0" width="80" height="200"/><path class="sc-dash" d="M100 0V200"/>';
+    return svg("qp", g, parked(80, 20) + parked(80, 60) + parked(80, 100) + parked(80, 140) + parked(80, 180), [
+      {shape:"car", color:"c-red", steady:true, path:[[0, 120, 40], [100, 120, -10]], still:[0, 120, 30]},
+      you([[0, 120, 215], [100, 120, 90]], {steady:true, still:[0, 120, 130]})
+    ]);
+  },
+  /* a two-lane roundabout: you go round in the outer lane and pass the car in the inner lane on its right */
+  roundRight: function(){
+    function lap(r, a0, turns){ var p = []; for (var k = 0; k <= 48; k++){ var a = a0 + turns * 360 * k / 48, rad = a * Math.PI / 180; p.push([k * 100 / 48, +(100 + r * Math.cos(rad)).toFixed(1), +(100 - r * Math.sin(rad)).toFixed(1), -a]); } return p; }
+    var g = '<rect class="sc-road" x="80" y="0" width="40" height="200"/><rect class="sc-road" x="0" y="80" width="200" height="40"/><circle class="sc-road" cx="100" cy="100" r="74"/><circle class="mp-island" cx="100" cy="100" r="32"/><circle class="sc-dash" cx="100" cy="100" r="53"/>';
+    var me = lap(64, 0, 2), other = lap(43, 40, 1);
+    return svg("rr2", g, "", [
+      {shape:"car", color:"c-red", steady:true, path:other, still:other[8]},
+      you(me, {steady:true, still:me[2]})
+    ]);
+  },
+  /* before a left turn: move close to the middle of the road */
+  turnPos: function(){ return svg("tp", crossroads(), "", [
+    you([[0, 118, 215, 0], [25, 118, 175, 0], [38, 106, 150, -12], [45, 104, 140, 0], [60, 104, 140, 0], [70, 104, 112, 0], [80, 88, 88, -90], [100, -30, 85, -90]], {still:[0, 104, 142]})
   ]); },
   zip: function(){ return svg("zp", zipRoad(), "", [
     {shape:"car", color:"c-red", badge:"1", path:[[0, 120, 150], [30, 120, 40], [60, 120, -40], [100, 120, -40]], still:[0, 120, 45]},
@@ -593,6 +622,18 @@ window.LESSONS = {
       {scene:"keepRight", h:"Keep right, overtake on the left",
        t:"Drive in the right-hand lane when it is free. Overtake on the left, then move back to the right.",
        why:"The left lane stays free for overtaking, so nobody needs to pass on the wrong side.", src:SRC.gov(24)},
+      {scene:"passRight", h:"Overtaking on the right: only in these cases",
+       t:"A driver who has moved to the left and indicates left is passed on the right. A tram is passed on the right too. Cyclists may pass slower vehicles, your car included, on the right, so check your mirror before you turn right. Never overtake just before or on a zebra crossing.",
+       why:"The car turning left and the tram on its rails leave only the right side free.", src:SRC.gov(24)},
+      {scene:"queuePass", h:"In a queue you may pass on the right",
+       t:"When traffic queues in lanes going the same way, you don't have to keep to the right lane, and you may drive past a slower queue on its right. Even on green, don't drive onto a junction if you would have to stop on it.",
+       why:"In a queue everyone crawls side by side, so passing on the right surprises nobody. A car stuck on a junction blocks the crossing traffic.", src:SRC.gov(25)},
+      {scene:"roundRight", h:"On a roundabout you may pass on the right",
+       t:"On a roundabout with more than one lane, you may use any lane, and you may overtake on the right when you enter it or drive round it.",
+       why:"On a roundabout you pick your lane by your exit, not by your speed.", src:SRC.gov(35)},
+      {scene:"turnPos", h:"Before a turn: get in position and indicate",
+       t:"To turn right, move to the right side of the road in good time. To turn left, move close to the middle of the road, or as far left as you can on a road with a central divider. Indicate before you turn.",
+       why:"Traffic behind you can then pass on the side you leave free.", src:SRC.gov(26)},
       {scene:"zip", h:"Lane ends? Zip merge (ritsen)",
        t:"Use both lanes up to the point where one ends, then take turns, one by one. This is the advised way, not a legal duty: the driver who changes lanes must give way.",
        why:"Using both lanes to the end keeps the queue shorter and moving.", src:SRC.rvv54}
