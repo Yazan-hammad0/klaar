@@ -1265,3 +1265,13 @@ body[data-track="civic"] .news{border-color:var(--delft-tx)}
 .rvw-step .les-h{font-weight:700;font-size:17px;line-height:1.3;margin:0 0 6px}
 .sheet .rvw-step .pr-t{color:var(--fg);font-size:15.5px;margin:0 0 10px}
 .sheet .rvw-step .src{margin:0}
+
+/* Inburgering Home: practise one exam part (Reading, Listening, Writing and grammar, Dutch society) */
+.parts{margin-top:14px;display:flex;flex-direction:column;gap:8px;animation:rise-in .5s cubic-bezier(.2,.9,.25,1) .1s both}
+.parts-h{margin:0;padding:0 4px;font-family:var(--font-display);font-weight:800;font-size:17px;letter-spacing:-.01em}
+.parts-g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.part{display:flex;flex-direction:column;gap:2px;align-items:flex-start;text-align:start;min-height:64px;padding:12px 14px;border-radius:18px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;font:inherit}
+.part b{font-size:15.5px;color:var(--delft-tx)}
+.part span{font-size:12.5px;line-height:1.35;color:var(--muted)}
+.part:active{transform:scale(.97)}
+@media (prefers-reduced-motion: reduce){.parts{animation:none}}

@@ -487,7 +487,14 @@ function lessonKey(t, topic){ var a = window.LESSON_ALIAS && LESSON_ALIAS[t]; re
 function topicLesson(t, topic){ return window.LESSONS && LESSONS[t] && LESSONS[t][lessonKey(t, topic)]; }
 function needsLesson(q){ var tr = S.t[q.track]; return teachFirst() && !!topicLesson(q.track, q.topic) && !(tr.primers || {})[lessonKey(q.track, q.topic)]; }
 var lesson = null, focus = null, UNIT_MAX = 10, MISTAKES = "Your mistakes";
-function inFocus(q){ return focus.set ? !!focus.set[q.id] : lessonKey(q.track, q.topic) === focus.topic; }
+function inFocus(q){ return focus.set ? !!focus.set[q.id] : (focus.part ? q.track === "civic" && partOf(q) === focus.part : lessonKey(q.track, q.topic) === focus.topic); }
+/* inburgering exam parts: practise just one of them today. Every civic question belongs to one part, by its exam section,
+   and for the basics (and AI questions) by its topic. */
+var PARTS = [["read", "Reading", "Signs, letters and short texts"], ["listen", "Listening", "Short spoken Dutch"], ["write", "Writing and grammar", "Words and sentences"], ["knm", "Dutch society", "KNM: work, health, rules, history"]];
+var SEC_PART = {"a2-lezen":"read", "b1":"read", "b2":"read", "c1":"read", "a2-luisteren":"listen", "a2-schrijven":"write", "knm":"knm"};
+var TOPIC_PART = {"Reading":"read", "Listening":"listen", "Grammar":"write", "Vocabulary":"write"};
+function partOf(q){ return (q.sec && SEC_PART[q.sec]) || TOPIC_PART[lessonKey("civic", q.topic)] || "knm"; }
+function partName(k){ for (var i = 0; i < PARTS.length; i++) if (PARTS[i][0] === k) return PARTS[i][1]; return k; }
 /* a unit = a topic's lesson, then its questions, then a short "topic done" card */
 function nextLessonTopic(t, p){
   var order = (window.LESSON_ORDER && LESSON_ORDER[t]) || [], tr = S.t[t], done = tr.primers || {};
@@ -500,7 +507,7 @@ function nextLessonTopic(t, p){
 }
 function startLesson(first){
   var t = S.track;
-  lesson = {track:t, topic:lessonKey(t, first.topic), primer:{steps:topicLesson(t, first.topic), i:0}};
+  lesson = {track:t, topic:lessonKey(t, first.topic), primer:{steps:topicLesson(t, first.topic), i:0}, keep:focus && focus.part && focus.track === t ? focus : null};
   cur = null; waitingForQuestions = false;
   renderFeed(true);
   scrollTop0();
@@ -622,7 +629,7 @@ function renderPrimer(v, entering){
     var tr = S.t[L.track]; tr.primers = tr.primers || {}; tr.primers[L.topic] = Date.now();
     if (window.KLAAR_STATS) KLAAR_STATS.lesson(L.track, L.topic);
     var unseen = pool(L.track).filter(function(x){ return lessonKey(L.track, x.topic) === L.topic && !tr.seen[x.id] && (x.lvl || 1) <= levelCap(L.track); }).length;
-    focus = unseen ? {track:L.track, topic:L.topic, n:Math.min(UNIT_MAX, unseen), asked:0, ok:0} : null; lesson = null; save(); nextQuestion();
+    focus = L.keep ? L.keep : (unseen ? {track:L.track, topic:L.topic, n:Math.min(UNIT_MAX, unseen), asked:0, ok:0} : null); lesson = null; save(); nextQuestion();   /* a part run carries on after its lesson */
   });
 }
 function renderLesson(v, entering){ renderPrimer(v, entering); }
@@ -1188,6 +1195,22 @@ function practiseTopic(t, topic, lessonOnly){
   }
   setView("feed");
 }
+/* practise one inburgering exam part: its first lesson you have not had, then a drill of up to 10 from that part only */
+function practisePart(k){
+  var t = "civic", tr = S.t[t], cap = levelCap(t);
+  var qs = pool(t).filter(function(q){ return partOf(q) === k && (q.lvl || 1) <= cap; });
+  if (!qs.length){ toast("No questions in this part yet."); return; }
+  cur = null; lastId = null; lesson = null;
+  focus = {track:t, topic:partName(k), part:k, n:Math.min(UNIT_MAX, qs.length), asked:0, ok:0, drill:true, ids:{}};
+  var order = (window.LESSON_ORDER && LESSON_ORDER[t]) || [], done = tr.primers || {};
+  if (teachFirst()) for (var i = 0; i < order.length; i++){
+    var key = order[i];
+    if (done[key] || !topicLesson(t, key) || !qs.some(function(q){ return lessonKey(t, q.topic) === key; })) continue;
+    lesson = {track:t, topic:key, primer:{steps:topicLesson(t, key), i:0}, keep:focus};
+    break;
+  }
+  setView("feed");
+}
 function practiseMistakes(t){
   var ms = mistakes(t); if (!ms.length){ toast("No mistakes to fix right now."); return; }
   var set = {}; ms.forEach(function(q){ set[q.id] = 1; });
@@ -1508,6 +1531,8 @@ function civicHomeHtml(t, P){
     var n = P.next, cap = n.kind === "drill" || n.kind === "mistakes" ? "Fix this first" : (P.seen ? "Next up" : "Start here");
     html += '<section class="nx" aria-label="Next up"><span class="nx-cap">' + cap + '</span><h3 class="nx-t">' + esc(n.kind === "drill" ? n.topic : n.title) + '</h3><p class="nx-s">' + esc(n.why) + '</p>' +
       '<button class="btn pop" data-act="plan-go">' + (n.kind === "mock" ? "Go to exams" : "Start") + '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></button></section>';
+    html += '<section class="parts" aria-label="Practise one part"><h2 class="parts-h">Or practise one exam part</h2><div class="parts-g">' + PARTS.map(function(x){
+      return '<button class="part" data-part="' + x[0] + '"><b>' + x[1] + '</b><span>' + x[2] + '</span></button>'; }).join("") + '</div></section>';
     html += stampsHtml() + checklistHtml();
     var ms = mistakes(t).length;
     if (ms) html += '<button class="link tl-miss" data-act="mistakes">Fix your ' + ms + (ms === 1 ? " mistake" : " mistakes") + ' ›</button>';
@@ -1522,6 +1547,7 @@ function wireCivic(v){
   }); });
   var as = $('[data-act="arr-set"]', v); if (as) as.addEventListener("click", function(){ var val = $("#arr-in", v).value; if (!/^\d{4}-\d{2}-\d{2}$/.test(val)) return toast("Pick a date first."); S.arrived = val; civEdit = false; save(); renderHome(); });
   var ed = $('[data-act="civ-edit"]', v); if (ed) ed.addEventListener("click", function(){ civEdit = true; renderHome(); });
+  $$("[data-part]", v).forEach(function(b){ b.addEventListener("click", function(){ practisePart(b.getAttribute("data-part")); }); });
   $$("[data-stamp]", v).forEach(function(b){ b.addEventListener("click", function(){ stampSheet(+b.getAttribute("data-stamp")); }); });
   var rt = $('[data-act="civic-route"]', v); if (rt) rt.addEventListener("click", function(){ homeSub = "route"; renderCivicRoute(); scrollTop0(); });
 }
