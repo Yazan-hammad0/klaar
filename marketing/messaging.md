@@ -22,9 +22,10 @@ Expats and international students in the Netherlands who need a Dutch car licenc
 ## Why believe it (only say what is true today)
 | Claim | Proof in the app |
 |---|---|
-| A plan that follows your exam date | Home shows the readiness ring, days left, today's count, the route to a licence and one next step |
+| A plan that follows your exam date | Today shows the readiness ring, days left, today's count, the route to a licence and one next step |
 | Your road to a licence | "Your plan" asks when you want your licence, says if that is very tight, realistic or comfortable, dates every step and links to mijn.cbr.nl, cbr.nl, government.nl and rdw.nl. It checks first if a foreign licence can be swapped |
 | You know when you are ready | The readiness ring goes red, amber, green |
+| Teach before you test | Every topic starts with a short lesson (16 lessons). Practice only asks about lessons you have done |
 | You see the situation | Junctions drawn from above, hazards from the driver's seat |
 | You learn the rule and the reason | Every answer explains why. Most link to the page of the English RVV booklet on government.nl |
 | Mock exams in the real format | 50 questions, 30 minutes, 44 to pass, no feedback until you hand in |
@@ -47,7 +48,7 @@ What the inburgering side shows (for when you do mention it): a Delft blue count
 - CBR, DUO or IND logos, anywhere.
 
 ## Numbers to recheck before each campaign
-- Question count in the app (300+ on 15 Nov 2026).
+- Question count in the app (309 driving questions, 196 with a picture, on 17 Nov 2026). The landing page shows both numbers.
 - CBR exam format and price: read them on cbr.nl, do not copy them from another site.
 - "Free": change every picture and post on the day a paid plan starts (planned for 15 Dec 2026).
 

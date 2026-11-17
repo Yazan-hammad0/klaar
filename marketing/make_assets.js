@@ -37,7 +37,7 @@ function seed(){
     tr.seen[q.id] = Date.now(); tr.last[q.id] = ok ? 1 : 0; if (!ok && tr.wrong.length < 20) tr.wrong.push({id:q.id, due:tr.ans + 40}); });
   tr.xp = 2140; tr.level = 3;
   for (var d = 0; d < 12; d++){ var k = dayKey(new Date(Date.now() - d * 86400000)); var n = d === 0 ? 18 : 22 + Math.floor(rnd() * 20); tr.days[k] = n + 6; tr.right[k] = n; S.days[k] = n + 6; }
-  Object.keys(LESSONS.drive).forEach(function(k){ tr.primers[k] = 1; });
+  Object.keys(LESSONS.drive).forEach(function(k){ if (k !== "Vehicle condition" && k !== "Safety") tr.primers[k] = 1; });
   var day = 86400000, now = Date.now();
   tr.mocks = {quick:[{s:15,n:20,p:false,at:now-6*day},{s:18,n:20,p:true,at:now-4*day}], full:[{s:39,n:50,p:false,at:now-3*day},{s:43,n:50,p:false,at:now-2*day},{s:45,n:50,p:true,at:now-day}]};
   localStorage.setItem("klaarStateV1", JSON.stringify(S));
@@ -71,21 +71,25 @@ async function appShots(browser){
   const home = async () => { await page.keyboard.press('Escape'); await page.waitForTimeout(400); await page.click('.tab[data-view="home"]'); await page.waitForTimeout(500); await scrollMain(0); };
 
   await home(); await page.waitForTimeout(2200); await shot('1-plan');
-  await page.evaluate(() => { var g = document.querySelector('#v-home .tile'), m = document.querySelector('main'); if (g) m.scrollTop += g.getBoundingClientRect().top - 300; });
-  await page.waitForTimeout(400);
-  const tile = await page.$('#v-home [data-tile="Priority"]'); if (tile){ await tile.click(); await page.waitForTimeout(900); }
-  await shot('2-topics');
 
-  /* a question with a picture: Priority from its tile */
-  const openTopic = async name => { await home(); await page.click('#v-home [data-tile="' + name + '"]'); await page.waitForTimeout(700);
-    await page.click('[data-act="tsh-go"]'); await page.waitForTimeout(1300); await scrollMain(0); };
+  /* Learn: the lessons in order, most done, the next one marked */
+  await page.click('.tab[data-view="learn"]'); await page.waitForTimeout(800); await scrollMain(0); await shot('2-learn');
+  /* a lesson step with its scene: read the Priority lesson again */
+  await page.click('#v-learn [data-ln="Priority"]'); await page.waitForTimeout(700);
+  await page.click('[data-act="ln-read"]'); await page.waitForTimeout(2600); await scrollMain(0); await shot('2b-lesson');
+
+  /* Practice: the picker, then one topic */
+  const openTopic = async name => { await page.reload(); await page.waitForTimeout(1800);
+    await page.click('.tab[data-view="feed"]'); await page.waitForTimeout(500);
+    if (!(await page.$('#v-feed [data-pk-topic]'))){ await page.click('.tab[data-view="feed"]'); await page.waitForTimeout(500); }
+    await scrollMain(0); await page.click('#v-feed [data-pk-topic="' + name + '"]'); await page.waitForTimeout(1300); await scrollMain(0); };
   await openTopic('Priority'); await shot('3-question');
   /* a wrong answer, so the picture shows the right one and the rule. Options are shuffled: try until one is wrong. */
   for (let i = 0; i < 8; i++){
     const opts = await page.$$('#v-feed .opt'); if (!opts.length) break;
-    await opts[opts.length - 1].click(); await page.waitForTimeout(1100);
+    await opts[0].click(); await page.waitForTimeout(1100);
     if (await page.$('#v-feed .verdict.no')) break;
-    await page.click('#v-feed [data-act="next"]'); await page.waitForTimeout(1300); await scrollMain(0);
+    const nx = await page.$('#v-feed [data-act="next"], #v-feed [data-act="u-next"]'); if (!nx) break; await nx.click(); await page.waitForTimeout(1300); await scrollMain(0);
   }
   if (await page.$('#v-feed .verdict')){ await page.evaluate(() => { var v = document.querySelector('#v-feed .verdict'), m = document.querySelector('main'); if (v) m.scrollTop += v.getBoundingClientRect().top - 150; }); await page.waitForTimeout(400); await shot('4-explained'); }
   await openTopic('Hazard perception'); await shot('5-hazard');
@@ -184,7 +188,7 @@ async function webCopies(browser){
   /* small JPGs for the landing page, 2x a 300px-wide phone */
   const ctx = await browser.newContext({ viewport: {width:600, height:1298}, deviceScaleFactor: 1 });
   const page = await ctx.newPage();
-  for (const f of ['1-plan', '2-topics', '3-question', '4-explained', '6-mock-exams', '7-licence-plan']){
+  for (const f of ['1-plan', '2-learn', '2b-lesson', '3-question', '4-explained', '5-hazard', '6-mock-exams', '7-licence-plan']){
     await page.setContent(`<body style="margin:0"><img src="${b64(f)}" style="display:block;width:600px">`); await page.waitForTimeout(150);
     await page.screenshot({ path: path.join(DIRS.web, f + '.jpg'), type: 'jpeg', quality: 82 });
   }

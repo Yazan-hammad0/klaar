@@ -4,7 +4,7 @@
 |---|---|
 | `messaging.md` | The "Green light" idea, who Klaar is for, what we may and may not claim, colours and fonts. Start here |
 | `posts.md` | Copy-paste text for Reddit, WhatsApp, LinkedIn, Instagram, a story, a Reel script and two outreach emails |
-| `screenshots/` | Real app screens at iPhone size (1170 x 2532): driving Home, topic grid, a junction question and its explanation, hazard question, mock exams, the licence plan, inburgering Home, exam stamps and the official route |
+| `screenshots/` | Real app screens at iPhone size (1170 x 2532): driving Today, Learn (the lessons in order), a lesson step, a junction question and its explanation, hazard question, mock exams, the licence plan, inburgering Home, exam stamps and the official route |
 | `social/` | Instagram and LinkedIn carousel (1080 x 1350, six slides) and a story (1080 x 1920) |
 | `make_assets.js` | Remakes every picture from the live app |
 | `../welcome/` | The landing page (https://yazan-hammad0.github.io/klaar/welcome/) |
