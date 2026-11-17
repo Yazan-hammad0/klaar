@@ -142,6 +142,23 @@ function parkedRow(s){
   } });
   return out;
 }
+/* a tunnel mouth across the road at distance d: a concrete front with a dark opening */
+function tunnelMouth(d){
+  return '<path class="dv-tunwall" d="M' + pt(-30, d) + "L" + pt(-30, d, 9) + "L" + pt(30, d, 9) + "L" + pt(30, d) + 'Z"/>' +
+    '<path class="dv-tunhole" d="M' + pt(-5.6, d) + "L" + pt(-5.6, d, 4.2) + "Q" + pt(-1.6, d, 6.2) + " " + pt(2.4, d, 4.2) + "L" + pt(2.4, d) + 'Z"/>';
+}
+/* fog: clear up to about vis metres, then white */
+function fogLayer(vis){
+  var y0 = n(sy(vis * 0.5)), y1 = n(sy(vis));
+  return '<defs><linearGradient id="dvfog" gradientUnits="userSpaceOnUse" x1="0" y1="' + y0 + '" x2="0" y2="' + (HOR - 4) + '"><stop offset="0" class="dv-fogc" stop-opacity="0"/>' +
+    '<stop offset="' + n((y0 - y1) / (y0 - HOR + 4)) + '" class="dv-fogc" stop-opacity=".88"/><stop offset="1" class="dv-fogc" stop-opacity="1"/></linearGradient></defs>' +
+    '<rect fill="url(#dvfog)" width="320" height="' + y0 + '"/>';
+}
+/* night: your dipped beam lights the road just ahead */
+function beam(high){
+  var far = high ? 90 : 40;
+  return '<path class="dv-beam" d="M' + pt(-1.2, NEAR) + "L" + pt(1.4, NEAR) + "L" + pt(2.2, far) + "L" + pt(-2.8, far) + 'Z"/>';
+}
 function hood(){ return '<path class="dv-hood" d="M0 190V176Q160 160 320 176V190Z"/><path class="dv-hoodline" d="M40 181Q160 168 280 181"/>'; }
 
 window.KLAAR_VIEW = function(s){
@@ -151,7 +168,10 @@ window.KLAAR_VIEW = function(s){
   if (s.trees) for (var d = 12; d < 220; d += 22){ items.push({k:"tree", x:s.road === "motorway" ? 9 : 5.5, d:d + (d % 3)}); items.push({k:"tree", x:s.road === "motorway" ? -14 : -9, d:d + 9}); }
   items.sort(function(a, b){ return (b.d2 || b.d) - (a.d2 || a.d); });
   var things = items.map(function(i){ return DRAW[i.k] ? DRAW[i.k](i) : ""; }).join("");
-  return '<svg class="dview" viewBox="0 0 320 190" role="img" aria-hidden="true"><defs><clipPath id="dvc"><rect width="320" height="190" rx="14"/></clipPath></defs><g clip-path="url(#dvc)">' +
+  if (s.tunnel) flats += tunnelMouth(s.tunnel);
+  if (s.night) flats += beam(s.night === "high");
+  if (s.fog) things += fogLayer(s.fog);
+  return '<svg class="dview' + (s.night ? " dv-night" : "") + '" viewBox="0 0 320 190" role="img" aria-hidden="true"><defs><clipPath id="dvc"><rect width="320" height="190" rx="14"/></clipPath></defs><g clip-path="url(#dvc)">' +
     g + flats + things + hood() + "</g></svg>";
 };
 })();

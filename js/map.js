@@ -25,7 +25,13 @@ var SHAPE = {
   bike: function(){ return '<g transform="scale(1.6)"><rect x="-1.4" y="-13" width="2.8" height="9" rx="1.4" class="sc-bike"/><rect x="-1.4" y="4" width="2.8" height="9" rx="1.4" class="sc-bike"/><rect x="-5" y="-8.5" width="10" height="1.8" rx=".9" class="sc-bike"/><ellipse cx="0" cy="1" rx="5.6" ry="3.4" class="sc-rider"/><circle cx="0" cy="0" r="2.6" class="sc-head"/></g>'; },
   ped: function(c){ return '<g transform="scale(1.1)"><ellipse class="sc-kid ' + (c || "") + '" rx="8.5" ry="4.8"/><circle class="sc-head" r="3.8"/></g>'; },
   blind: function(){ return SHAPE.ped() + '<path class="sc-cane" d="M6 4L15 15"/>'; },
-  officer: function(){ return '<circle r="6" class="sc-officer"/><path class="sc-arm" d="M-12 0H12"/>'; }
+  officer: function(){ return '<circle r="6" class="sc-officer"/><path class="sc-arm" d="M-12 0H12"/>'; },
+  /* inside the car (g:"cabin"): people seen from above, child seats, a phone */
+  sit: function(c){ return '<ellipse class="mp-occ ' + (c === "c-you" ? "mp-occ-you" : "") + '" rx="11" ry="6.5" cy="2"/><circle class="sc-head" r="5"/>'; },
+  kid: function(){ return '<ellipse class="mp-occ mp-occ-kid" rx="7.5" ry="4.5" cy="1.5"/><circle class="sc-head" r="3.8"/>'; },
+  cseat: function(){ return '<path class="mp-cseat" d="M-12 -13H-7V7H7V-13H12V13H-12Z"/>' + '<rect class="mp-cseat-in" x="-7" y="-13" width="14" height="20" rx="3"/>'; },
+  phone: function(){ return '<rect class="mp-phone" x="-4" y="-7" width="8" height="14" rx="1.6"/><rect class="mp-screen" x="-2.8" y="-5.4" width="5.6" height="9.6" rx=".6"/>'; },
+  triangle: function(){ return '<path class="mp-tri" d="M0 -8L7.5 6H-7.5Z"/>'; }
 };
 /* the arrow head, drawn at the end of a path */
 function arrow(d, cls){
@@ -44,6 +50,8 @@ function item(it){
   if (it.path) out += arrow(it.path, cls);
   var body = SHAPE[kind] ? SHAPE[kind](you ? "c-you" : (it.c || "c-red")) : "";
   if (it.tow) body = '<rect x="-9" y="20" width="18" height="30" rx="3" class="sc-car c-parked"/><path class="sc-post" d="M0 14V20"/>' + body;
+  if (it.hazard) body += '<rect class="sc-ind mp-blink" x="-9" y="-16" width="4" height="4" rx="1"/><rect class="sc-ind mp-blink" x="5" y="-16" width="4" height="4" rx="1"/><rect class="sc-ind mp-blink" x="-9" y="12" width="4" height="4" rx="1"/><rect class="sc-ind mp-blink" x="5" y="12" width="4" height="4" rx="1"/>';
+  if (it.kid) body += SHAPE.kid();
   if (it.blink) body += '<rect class="sc-ind mp-blink" x="' + (it.blink === "left" ? -9 : 5) + '" y="' + (kind === "bus" ? -26 : -16) + '" width="4" height="4" rx="1"/>';
   out += g("translate(" + n(p[0]) + " " + n(p[1]) + ") rotate(" + p[2] + ")", body);
   var lbl = you ? "You" : it.lbl;
@@ -139,7 +147,30 @@ var GROUND = {
     return s;
   },
   /* two lanes in your direction */
-  lanes: function(o){ return '<rect class="sc-road" x="60" y="0" width="80" height="200"/><path class="' + (o && o.solid ? "sc-solid" : "sc-dash") + '" d="M100 0V200"/>'; },
+  lanes: function(o){ var s = '<rect class="sc-road" x="60" y="0" width="80" height="200"/><path class="' + (o && o.solid ? "sc-solid" : "sc-dash") + '" d="M100 0V200"/>';
+    /* a hard shoulder on the right, behind a solid line, and a guardrail beside it */
+    if (o && o.shoulder) s += '<rect class="sc-road" x="140" y="0" width="28" height="200"/><path class="sc-solid" d="M141 0V200"/>' + (o.guard ? '<path class="mp-guard" d="M173 0V200"/>' : "");
+    return s; },
+  /* the inside of a car seen from above, front at the top. Seats: driver 78,89; passenger 122,89; back 72/100/128,139; boot 100,174 */
+  cabin: function(o){
+    var s = '<rect class="mp-body" x="46" y="6" width="108" height="188" rx="30"/><path class="mp-wind" d="M58 30Q100 18 142 30L138 46H62Z"/><rect class="mp-dash" x="58" y="48" width="84" height="10" rx="3"/>' +
+      '<ellipse class="mp-wheel" cx="78" cy="64" rx="11" ry="3.2"/>' +
+      '<rect class="mp-seat" x="63" y="72" width="30" height="36" rx="7"/><rect class="mp-seat" x="107" y="72" width="30" height="36" rx="7"/>' +
+      '<rect class="mp-seat" x="56" y="122" width="88" height="36" rx="8"/><path class="mp-seamline" d="M86 124V156M114 124V156"/>' +
+      '<rect class="mp-boot" x="58" y="162" width="84" height="26" rx="6"/>';
+    if (o.airbag) s += '<rect class="mp-airbag" x="108" y="49" width="28" height="8" rx="3"/><text class="mp-tag" x="122" y="44" style="text-anchor:middle">Airbag</text>';
+    if (o.holder) s += '<path class="mp-hold" d="M100 52V58"/>' + g("translate(100 51)", SHAPE.phone());
+    return s;
+  },
+  /* a tyre seen from the side; bulge: a lump on the sidewall */
+  tyre: function(o){
+    var s = '<circle class="mp-tyre" cx="100" cy="100" r="80"/>';
+    for (var a = 0; a < 360; a += 15) s += '<rect class="mp-tread" x="97" y="20" width="6" height="9" transform="rotate(' + a + ' 100 100)"/>';
+    s += '<circle class="mp-wall" cx="100" cy="100" r="66"/><circle class="mp-rim" cx="100" cy="100" r="44"/><circle class="mp-hub" cx="100" cy="100" r="12"/>';
+    for (var b = 0; b < 360; b += 72) s += '<circle class="mp-hub" r="3.5" cx="100" cy="76" transform="rotate(' + b + ' 100 100)"/>';
+    if (o.bulge) s += '<ellipse class="mp-bulge" cx="148" cy="128" rx="13" ry="10" transform="rotate(-35 148 128)"/>';
+    return s;
+  },
   round: function(o){
     var s = '<rect class="sc-road" x="70" y="0" width="60" height="200"/><rect class="sc-road" x="0" y="70" width="200" height="60"/>';
     if (o.cycle) s += '<circle class="mp-cring" cx="100" cy="100" r="66"/>';
