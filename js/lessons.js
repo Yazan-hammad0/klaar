@@ -63,7 +63,9 @@ var SRC = {
   rvv21: "https://wetten.overheid.nl/jci1.3:c:BWBR0004825&artikel=21",
   rvv45: "https://wetten.overheid.nl/jci1.3:c:BWBR0004825&artikel=45",
   /* checked on 10 Nov 2026 */
-  cbrAlc: "https://www.cbr.nl/nl/onveilig-rijgedrag/nl/voorkom-onveilig-rijgedrag/alcohol/rijden-met-alcohol-op-mag-dat",
+  cbrAlc: "https://www.cbr.nl/alcohol-en-drugs/met-hoeveel-alcohol-mag-ik-nog-rijden/",
+  alcGlass: "https://www.alcoholinfo.nl/effecten/standaardglazen/",
+  roPhone: "https://www.rijksoverheid.nl/onderwerpen/voertuigen-op-de-weg/vraag-en-antwoord/mag-ik-appen-bellen-en-naar-muziek-luisteren-als-ik-op-de-weg-rijd",
   roAlc: "https://www.rijksoverheid.nl/onderwerpen/verkeersveiligheid/vraag-en-antwoord/mag-ik-met-alcohol-op-deelnemen-aan-het-verkeer",
   roGordel: "https://www.rijksoverheid.nl/onderwerpen/verkeersveiligheid/vraag-en-antwoord/wanneer-moet-ik-de-autogordel-gebruiken",
   roZitje: "https://www.rijksoverheid.nl/onderwerpen/verkeersveiligheid/vraag-en-antwoord/moet-ik-mijn-kind-in-de-auto-in-een-kinderzitje-vervoeren",
@@ -575,6 +577,32 @@ var SCENES = {
     '<path class="cv-arrow" d="M74 70H126M81 64L74 70L81 76M119 64L126 70L119 76"/>' + '<text class="cv-t" x="100" y="58" style="fill:#C0392B">5 m at most</text>' +
     ctext(49, 138, "Towed", "cv-s") + ctext(151, 138, "Your car", "cv-s") + ctext(100, 172, "Gap between the two cars", "cv-t")); },
 
+  /* Nov 2026 steps: licence from abroad, hands-free, trailer limits, nobody in the boot, after a crash */
+  alcAbroad: function(){ return civ("aa",
+    ctext(100, 28, "Your first licence, anywhere", "cv-t") +
+    '<path class="cv-line" d="M20 96H180"/><circle class="cv-blue" cx="24" cy="96" r="7"/><path class="cv-dark2" style="stroke-width:3" d="M128 80V112"/>' +
+    '<rect class="cv-card" x="30" y="58" width="92" height="26" rx="6"/>' + ctext(76, 76, "0.2 per mille", "cv-t") + ctext(154, 76, "0.5", "cv-t") +
+    ctext(24, 126, "Issued", "cv-s") + ctext(128, 126, "+5 years", "cv-s") + ctext(100, 170, "Abroad or here, the same 5 years", "cv-s")); },
+  phoneFree: function(){ return civ("pf",
+    '<rect class="cv-card" x="10" y="30" width="86" height="110" rx="10"/><rect class="cv-card" x="104" y="30" width="86" height="110" rx="10"/>' +
+    '<path class="cv-dark2" style="stroke-width:5" d="M36 84Q36 58 53 58Q70 58 70 84" fill="none"/><rect class="cv-dark" x="30" y="82" width="12" height="20" rx="5"/><rect class="cv-dark" x="64" y="82" width="12" height="20" rx="5"/>' +
+    ctext(53, 126, "Hands-free", "cv-t") +
+    '<path class="cv-dark2" style="stroke-width:5" d="M140 98V62L168 56V92" fill="none"/><circle class="cv-dark" cx="134" cy="98" r="8"/><circle class="cv-dark" cx="162" cy="92" r="8"/>' +
+    ctext(147, 126, "Music, low", "cv-t") + ctext(100, 172, "Hold the phone only once parked", "cv-s")); },
+  trailerMax: function(){
+    function sign(x, n, l){ return '<circle class="sc-sign" cx="' + x + '" cy="80" r="27" style="stroke-width:7"/><text class="sc-signnum" x="' + x + '" y="87" style="font-size:19px">' + n + '</text><text class="sc-mark" x="' + x + '" y="132">' + l + '</text>'; }
+    return svg("tm", "", sign(36, "90", "Motorway") + sign(100, "80", "Other road") + sign(164, "50", "In town") + '<text class="sc-mark" x="100" y="176">With a trailer or caravan</text>', []);
+  },
+  safeBoot: function(){ return civ("sb",
+    '<path class="cv-card" d="M14 120V96L40 72H118L146 96H186V120Z"/><path class="cv-line" d="M146 96V120"/>' +
+    '<circle class="cv-blue" cx="74" cy="92" r="7"/><circle class="cv-warm" cx="166" cy="106" r="7"/><path class="cv-plus" d="M150 124L182 88"/>' +
+    '<circle class="cv-dark" cx="44" cy="122" r="11"/><circle class="cv-dark" cx="150" cy="122" r="11"/>' +
+    ctext(74, 154, "In a seat", "cv-t") + ctext(166, 154, "Boot", "cv-t") + ctext(100, 182, "Not in a boot, van or trailer", "cv-s")); },
+  safeCrash: function(){ return civ("sc",
+    '<g transform="rotate(-20 64 70)"><rect class="cv-blue" x="40" y="58" width="48" height="24" rx="8"/></g><g transform="rotate(25 136 70)"><rect class="cv-warm" x="112" y="58" width="48" height="24" rx="8"/></g>' +
+    '<path class="cv-dark2" style="stroke-width:3" d="M96 60L100 48L104 60M92 74L84 80M108 74L116 80"/>' +
+    ctext(100, 120, "Stay until", "cv-t") + ctext(100, 140, "you know who is involved", "cv-s") + ctext(100, 156, "and anyone hurt has help", "cv-s")); },
+
   /* civic: healthcare */
   insCard: function(){ return civ("ic", '<rect class="cv-card" x="18" y="44" width="104" height="68" rx="9"/><rect class="cv-blue" x="18" y="44" width="104" height="20" rx="9"/><rect class="cv-blue" x="18" y="56" width="104" height="8"/>' +
     ctext(70, 58, "Zorgverzekering", "cv-w") + '<path class="cv-plus" d="M44 82V100M35 91H53"/><path class="cv-line" d="M64 84H110M64 96H98"/>' + calendar(150, 120, "4", "months") + ctext(100, 178, "Within 4 months", "cv-t")); },
@@ -760,9 +788,12 @@ window.LESSONS = {
       {scene:"alcLimit", h:"0.5 per mille, and only 0.2 for beginners",
        t:"An experienced driver may have at most 0.5 per mille of alcohol in the blood, or 220 micrograms per litre of breath. In your first 5 years with a first car licence the limit is 0.2 per mille, or 88 micrograms.",
        why:"Even one glass makes an accident more likely, and beginners have the least experience to make up for it.", src:SRC.cbrAlc},
+      {scene:"alcAbroad", h:"A licence from abroad counts too",
+       t:"If your first car licence came from another country, your beginner years still run from the day it was first issued. Got it abroad 3 years ago? Then the 0.2 limit applies to you here for 2 more years.",
+       why:"The lower limit is about how little driving experience you have, wherever you got your licence.", src:SRC.gov(21)},
       {scene:"alcGlass", h:"One standard glass holds about 10 g of alcohol",
        t:"A standard glass is 250 ml of beer, 100 ml of wine or 35 ml of spirits. A bottle of beer counts as more than one. A man reaches 0.5 per mille after about 2 standard glasses and 0.2 after about 1. A woman gets there after slightly fewer.",
-       why:"The limit is the alcohol in your blood, not the number of drinks, so you need to know what a drink holds.", src:SRC.cbrAlc},
+       why:"The limit is the alcohol in your blood, not the number of drinks, so you need to know what a drink holds.", src:SRC.alcGlass},
       {scene:"alcOther", h:"Medicine and other substances count too",
        t:"You may not drive under the influence of any substance, alone or mixed with another, that makes you unfit to drive. Some medicines do. You also may not let someone drive when you know, or should know, that they are over the limit or unfit.",
        why:"What matters is whether you can still drive safely, whatever the cause.", src:SRC.gov(21)},
@@ -776,7 +807,10 @@ window.LESSONS = {
        why:"A device in your hand takes your hand, your eyes and your mind off the road.", src:SRC.gov(40)},
       {scene:"phoneBike", h:"On a bike: hands-free is fine, holding is not",
        t:"When you cycle you may not hold a phone. Calling hands-free and listening to music are allowed if they cause no danger. When you stand still you may hold and use your phone.",
-       why:"The danger is in riding with a device in your hand.", src:SRC.roFiets}
+       why:"The danger is in riding with a device in your hand.", src:SRC.roFiets},
+      {scene:"phoneFree", h:"Hands-free and music are fine",
+       t:"In the car you may call hands-free and listen to music. Keep the volume low enough to hear the traffic around you. Once you have parked, you may hold your phone and use it.",
+       why:"The danger is a device in your hand while you drive, not the sound.", src:SRC.roPhone}
     ],
     "Seatbelts": [
       {scene:"beltAlways", h:"Belt on, in front and at the back",
@@ -812,7 +846,13 @@ window.LESSONS = {
        why:"Approaching drivers need time to see you and slow down.", src:SRC.gov(37)},
       {scene:"safeTow", h:"Towing: no more than 5 m between the cars",
        t:"When you tow another vehicle, the gap between the back of your car and the front of the towed car may not be more than 5 m.",
-       why:"A short, visible link keeps the two cars moving as one.", src:SRC.gov(36)}
+       why:"A short, visible link keeps the two cars moving as one.", src:SRC.gov(36)},
+      {scene:"safeBoot", h:"Nobody rides in the boot or the back of a van",
+       t:"Passengers may not travel in the boot or in the loading space of a van or pick-up, open or closed, and not in or on a trailer. Everyone sits in a seat.",
+       why:"A loading space has no seat and no belt, so in a crash nothing holds you.", src:SRC.gov(40)},
+      {scene:"safeCrash", h:"After a crash: stay at the scene",
+       t:"If you are involved in a crash, you may not just drive off. Stay until everyone's identity and the cars involved are known, and nobody who is hurt is left without help.",
+       why:"The people involved need to know who to contact, and anyone injured needs help first.", src:SRC.gov(21)}
     ],
     "Road markings": [
       {scene:"overtake", h:"Solid line: don't cross it. Broken line: you may, when safe",
@@ -846,6 +886,9 @@ window.LESSONS = {
       {scene:"roadTypes", h:"Outside town: 80, autoweg 100, motorway 130",
        t:"With no speed sign, the limit is 80 km/h on a normal road, 100 km/h on an autoweg (expressway) and 130 km/h on a motorway (autosnelweg). Signs often set less, like 60 on country roads or 100 on the motorway by day.",
        why:"The better a road keeps traffic apart, the faster you can safely drive on it.", src:SRC.rvv21},
+      {scene:"trailerMax", h:"With a trailer or caravan: 90 at most",
+       t:"A car towing a trailer or caravan (up to 3,500 kg) may go at most 90 km/h on a motorway and an autoweg, 80 on other roads outside town and 50 in town. A sign showing 100 or 130 does not change that.",
+       why:"A trailer makes the car longer, heavier and less stable, so it needs more room to brake and steer.", src:SRC.gov(28)},
       {scene:"erf", h:"Woonerf (erf): 15 km/h",
        t:"In a woonerf, shown by a blue sign with a house and children playing, you drive at most 15 km/h. People on foot may use the whole width of the street. Older books say walking pace (stapvoets), but the law has said 15 km/h since 2012.",
        why:"The street is shared with people on foot, so you must be able to stop at once.", src:SRC.rvv45}
