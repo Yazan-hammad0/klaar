@@ -8,7 +8,7 @@ function $$(s, r){ return Array.prototype.slice.call((r || document).querySelect
 function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
 var ICON = '<img src="icons/icon-180.png" alt="">';
-var K = null, a = {}, hist = [], el = null, existing = false, quick = false;
+var K = null, a = {}, hist = [], el = null, existing = false, quick = false, fromProf = false;
 
 function overlay(){
   var o = document.getElementById("setup");
@@ -40,6 +40,16 @@ function go(id, back){
   el.querySelector(".onb-in").innerHTML = head + '<div class="su-body' + (reduce ? "" : (back ? " su-in-back" : " su-in")) + '">' + r.html + '</div>';
   $(".su-back", el).addEventListener("click", function(){ hist.pop(); go(hist[hist.length - 1], true); });
   if (r.wire) r.wire(el);
+  /* coming from another phone or the old web address: sign in first, and skip setup if the account already has it */
+  if (hist.length === 1 && !fromProf && window.KLAAR_SYNC && KLAAR_SYNC.on() && !KLAAR_SYNC.signedIn()){
+    var hb = document.createElement("button"); hb.className = "onb-link su-have"; hb.textContent = "I already have an account";
+    $(".su-body", el).appendChild(hb);
+    hb.addEventListener("click", function(){
+      try{ sessionStorage.setItem("klaarSetupLater", "1"); }catch(e){}
+      close();
+      KLAAR_SYNC.signInFirst(function(){ try{ sessionStorage.removeItem("klaarSetupLater"); }catch(e){} if (window.KLAAR && KLAAR.needsSetup()) open(false); });
+    });
+  }
   el.scrollTop = 0;
 }
 function next(cur){ var list = steps(), i = list.indexOf(cur); go(i < 0 ? "plan" : list[i + 1]); }
@@ -217,7 +227,7 @@ function finish(){
 }
 function open(fromProfile){
   if (!window.KLAAR) return;
-  K = window.KLAAR; hist = [];
+  K = window.KLAAR; hist = []; fromProf = !!fromProfile;
   var old = K.profile() || {};
   existing = !fromProfile && K.hasProgress() > 0;
   quick = !fromProfile && !existing;

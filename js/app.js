@@ -75,7 +75,7 @@ function freshState(){ return {v:1, updated:0, track:"drive", view:"feed", t:{dr
 function mergeState(raw){
   var s = freshState();
   if (!raw || typeof raw !== "object") return s;
-  ["updated", "track", "view", "goal", "arrived", "onboarded", "prof", "split"].forEach(function(k){ if (raw[k] != null) s[k] = raw[k]; });
+  ["updated", "track", "view", "goal", "arrived", "onboarded", "prof", "split", "wiped"].forEach(function(k){ if (raw[k] != null) s[k] = raw[k]; });
   if (raw.days) s.days = raw.days;
   if (raw.plan) s.plan = raw.plan;
   ["drive", "civic"].forEach(function(t){ if (raw.t && raw.t[t]) s.t[t] = Object.assign(freshTrack(), raw.t[t]); });
@@ -103,6 +103,7 @@ function renderSync(){
 function save(){
   S.updated = Date.now();
   lsSet(LS, S);
+  if (window.KLAAR_SYNC) KLAAR_SYNC.dirty();
   if (DB){ dbDirty = true; clearTimeout(dbTimer); dbTimer = setTimeout(flush, 2500); }
 }
 function flush(){
@@ -1101,14 +1102,16 @@ function renderProfile(){
     '<p class="note">' + (teachFirst() ? "Each new topic starts with a short animated lesson, then questions on it. Mock exams are always the real test." : "You get questions straight away and learn from the answers.") + '</p>';
 
 
+  if (window.KLAAR_SYNC) html += KLAAR_SYNC.profileHtml();
   html += '<div class="label">Your level and goals</div><div class="ai-box"><p>' + esc(profileLine()) + '</p><button class="btn ghost" data-act="redo-prof" style="width:100%">Change my level and goals</button></div>';
   html += '<div class="label">Share Klaar</div><div class="ai-box"><p>Know someone preparing for these exams? Send them the link. It shows them how to install it.</p><button class="btn ghost" data-act="share-app" style="width:100%">Share the link</button></div>';
   html += '<div class="label">Start again</div><div class="ai-box"><p>Clears your answers, mocks and streak on this phone. Your name, language and goals stay.</p><button class="btn ghost danger" data-act="reset" style="width:100%">Start from scratch</button></div>';
-  html += '<div class="label">Backup</div><div class="ai-box"><p>Progress lives on this phone only. Save a backup file now and then, so a new phone or a cleared browser doesn\'t wipe it.</p><div class="pair"><button class="btn ghost" data-act="bk-save">Save backup</button><label class="btn ghost" for="bk-file">Restore<input type="file" id="bk-file" accept="application/json,.json" hidden></label></div></div>';
-  if (window.KLAAR_STATS && KLAAR_STATS.ready()) html += '<div class="label">Anonymous stats</div><div class="ai-box"><p>Klaar counts which screens are used and which questions people get wrong, so the hard parts can be fixed. If you report a question, the question number and your reason are sent, also when stats are off. No name, no account, no cookies. Your progress itself stays on this phone. <a href="privacy/" target="_blank" rel="noopener">Read the privacy page</a></p><button class="btn ghost" data-act="stats" style="width:100%">' + (KLAAR_STATS.on() ? "Turn off anonymous stats" : "Turn on anonymous stats") + '</button></div>';
-  html += '<p class="note">Works offline. Practice questions are original and in the style of the real exams, not official CBR or DUO material.</p><p class="note diag" id="diag"></p>';
+  html += '<div class="label">Backup</div><div class="ai-box"><p>' + (window.KLAAR_SYNC && KLAAR_SYNC.signedIn() ? "Your progress is saved to your account. A backup file is an extra copy you keep yourself." : "Progress lives on this phone. Save a backup file now and then, so a new phone or a cleared browser doesn\'t wipe it.") + '</p><div class="pair"><button class="btn ghost" data-act="bk-save">Save backup</button><label class="btn ghost" for="bk-file">Restore<input type="file" id="bk-file" accept="application/json,.json" hidden></label></div></div>';
+  if (window.KLAAR_STATS && KLAAR_STATS.ready()) html += '<div class="label">Anonymous stats</div><div class="ai-box"><p>Klaar counts which screens are used and which questions people get wrong, so the hard parts can be fixed. If you report a question, the question number and your reason are sent, also when stats are off. No name, no email, no cookies. Your progress is never part of these counts. <a href="privacy/" target="_blank" rel="noopener">Read the privacy page</a></p><button class="btn ghost" data-act="stats" style="width:100%">' + (KLAAR_STATS.on() ? "Turn off anonymous stats" : "Turn on anonymous stats") + '</button></div>';
+  html += '<p class="note">Works offline. Practice questions are original and in the style of the real exams, not official CBR or DUO material.</p><p class="note prof-links"><a href="terms/" target="_blank" rel="noopener">Terms</a> <a href="privacy/" target="_blank" rel="noopener">Privacy</a></p><p class="note diag" id="diag"></p>';
   v.innerHTML = html;
   $('[data-act="prof-back"]', v).addEventListener("click", function(){ setView(backTo); });
+  if (window.KLAAR_SYNC) KLAAR_SYNC.wire(v);
   var stb = $('[data-act="stats"]', v); if (stb) stb.addEventListener("click", function(){ KLAAR_STATS.set(!KLAAR_STATS.on()); stb.textContent = KLAAR_STATS.on() ? "Turn off anonymous stats" : "Turn on anonymous stats"; });
   var nm = $("#prof-name", v), nt = null;
   nm.addEventListener("input", function(){ clearTimeout(nt); nt = setTimeout(function(){ S.prof = S.prof || {}; S.prof.name = nm.value.trim().slice(0, 30); save(); renderAvatar(); var a = $(".prof-card .avatar", v); if (a) a.innerHTML = avatarInner(); }, 300); });
@@ -1723,10 +1726,11 @@ function renderMilestone(){
   var v = $("#v-feed");
   var html = feedHead() + '<article class="qcard enter milestone"><div class="m-big tabular">' + today + '</div><div class="m-cap">right today</div><p class="m-cheer">' +
     esc(CHEERS[Math.floor(today / 10) % CHEERS.length]) + (today >= S.goal ? " Daily goal done." : " " + (S.goal - today) + " to go for your daily goal.") + '</p>' + journeyHtml(t, true) +
-    '<div class="fb-actions">' + (cur && cur.go ? '<button class="btn ghost" data-act="m-exam">Try the mock</button>' : "") + '<button class="btn" data-act="m-next">Keep going</button></div></article>';
+    '<div class="fb-actions">' + (cur && cur.go ? '<button class="btn ghost" data-act="m-exam">Try the mock</button>' : "") + '<button class="btn" data-act="m-next">Keep going</button></div>' + (window.KLAAR_SYNC ? KLAAR_SYNC.nudgeHtml() : "") + '</article>';
   v.innerHTML = html;
   $('[data-act="m-next"]', v).addEventListener("click", nextQuestion);
   var me = $('[data-act="m-exam"]', v); if (me) me.addEventListener("click", function(){ setView("exams"); });
+  if (window.KLAAR_SYNC) KLAAR_SYNC.wireNudge(v);
   scrollTop0();
 }
 function shareApp(){
@@ -1952,7 +1956,7 @@ function profileLine(){
   var s = bits.join(", "); return s.charAt(0).toUpperCase() + s.slice(1) + ".";
 }
 function applyProfile(p, fresh){
-  if (fresh){ var keep = {arrived:S.arrived, goal:S.goal, view:"home"}; S = freshState(); S.arrived = keep.arrived; S.view = "home"; cur = null; lastId = null; }
+  if (fresh){ var keep = {arrived:S.arrived, goal:S.goal, view:"home"}; S = freshState(); S.arrived = keep.arrived; S.view = "home"; S.wiped = Date.now(); cur = null; lastId = null; }
   S.prof = p; S.prof.at = Date.now(); S.onboarded = true; lesson = null;
   if (p.goal) S.goal = p.goal;
   if (p.civicLevel && S.t.civic.level < p.civicLevel) S.t.civic.level = p.civicLevel;
@@ -1978,8 +1982,18 @@ function placementSave(t, results){
   }
   save();
 }
-function resetProgress(){ var keep = {arrived:S.arrived, prof:S.prof, goal:S.goal}; S = freshState(); S.arrived = keep.arrived; S.prof = keep.prof; S.goal = keep.goal; S.onboarded = true; cur = null; lesson = null; focus = null; lastId = null; save(); applyTrack(); setView("home"); }
-window.KLAAR = {track:function(){ return S.track; }, needsSetup:function(){ return !(S.prof && S.prof.v >= 2); }, placementPool:placementPool, placementSave:placementSave, poolSize:function(t){ return pool(t).length; }, seenCount:function(t){ return Object.keys(S.t[t].seen).length; },
+function resetProgress(){ var keep = {arrived:S.arrived, prof:S.prof, goal:S.goal}; S = freshState(); S.arrived = keep.arrived; S.prof = keep.prof; S.goal = keep.goal; S.onboarded = true; S.wiped = Date.now(); cur = null; lesson = null; focus = null; lastId = null; save(); applyTrack(); setView("home"); }
+/* accounts (js/sync.js): take a merged state into the one already on screen. Fields are copied into the existing objects,
+   so a question or mock that is open keeps writing to the right place. Mode and screen stay as they are on this phone. */
+function adoptState(m){
+  m = mergeState(m);
+  ["updated", "goal", "arrived", "onboarded", "prof", "split", "wiped", "days", "plan"].forEach(function(k){ if (m[k] === undefined) delete S[k]; else S[k] = m[k]; });
+  ["drive", "civic"].forEach(function(t){ var tr = S.t[t]; Object.keys(tr).forEach(function(k){ delete tr[k]; }); Object.assign(tr, m.t[t]); });
+  lsSet(LS, S);
+  renderAvatar();
+  if ((view === "home" || view === "learn") && !document.getElementById("setup")) renderAll();
+}
+window.KLAAR = {track:function(){ return S.track; }, state:function(){ return S; }, adopt:adoptState, sheet:openSheet, closeSheet:closeSheet, toast:toast, needsSetup:function(){ return !(S.prof && S.prof.v >= 2); }, placementPool:placementPool, placementSave:placementSave, poolSize:function(t){ return pool(t).length; }, seenCount:function(t){ return Object.keys(S.t[t].seen).length; },
   isProfiled:function(){ return !!(S.prof && S.prof.at); }, hasProgress:function(){ return S.t.drive.ans + S.t.civic.ans; }, profile:function(){ return S.prof || null; }, applyProfile:applyProfile, isOnboarded:function(){ return !!S.onboarded; }, goal:function(){ return S.goal; }, finish:function(t, g){ if (t === 'drive' || t === 'civic') setTrack(t); if (g) S.goal = g; S.onboarded = true; save(); renderAll(); }};
 applyTrack();
 renderSync();

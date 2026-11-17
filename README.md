@@ -20,6 +20,8 @@ No framework and no build step. GitHub Pages serves this folder as-is.
 | `fonts/` | Overpass, the app's font (open licence, in `OFL.txt`). Served from here so no outside font service is contacted |
 | `welcome/` | The landing page for people who do not know Klaar yet |
 | `privacy/` | The privacy page, linked from the landing page and the profile. Update it whenever the app starts sending or storing something new |
+| `terms/` | The terms of use, linked from the landing page and the profile |
+| `docs/` | `BACKEND.md`: how to set up the Supabase project for accounts |
 | `marketing/` | Messaging, ready-to-post copy, app screenshots and social pictures. Start with `marketing/README.md` |
 
 ## The app's files
@@ -41,11 +43,14 @@ No framework and no build step. GitHub Pages serves this folder as-is.
 | `js/setup.js` | Step-by-step setup: language, name, goals, exam dates, a short placement check, time per day, then a plan. Existing users see it once |
 | `js/onboard.js` | Install guide per device and browser; hands over to the setup |
 | `audio/` | Recorded Dutch audio for the listening questions (two speakers that take turns: Piper's ronnie voice, and a female voice made by converting ronnie's speech into the sound of Piper's nathalie with kNN-VC; voices CC0, kNN-VC MIT). `audio/make_audio.py` records any new ones; `js/audio.js` lists what exists |
+| `js/config.js` | Accounts backend address and public key. Empty means no account features at all. Setup steps in `docs/BACKEND.md` |
+| `js/backend.js` | Talks to Supabase (accounts, saved progress) with plain fetch |
+| `js/sync.js` | Optional accounts: merges a phone's progress with the account copy, the sign-in sheet, sign out, delete account |
 | `js/stats.js` | Anonymous usage counts to GoatCounter (no cookies, no personal data). Site code: klaar (https://klaar.goatcounter.com) |
 | `sw.js` | Offline cache |
 | `release.py` | Stamps a new version so installed apps show the update card |
 
-Progress lives in the browser's localStorage on each phone (`klaarStateV1`). Progress is never sent anywhere. `js/stats.js` sends anonymous counts (screens, right/wrong per question, lessons finished, mock results) to GoatCounter, only on the live site, and each user can turn it off in their profile.
+Progress lives in the browser's localStorage on each phone (`klaarStateV1`). With an optional account (only once `js/config.js` is filled in) a copy is also saved to Supabase in the EU, and phones that sign in merge their progress. Without an account, progress is never sent anywhere. `js/stats.js` sends anonymous counts (screens, right/wrong per question, lessons finished, mock results) to GoatCounter, only on the live site, and each user can turn it off in their profile.
 
 ## Making a change
 1. Edit the files.

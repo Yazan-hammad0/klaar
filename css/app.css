@@ -1326,3 +1326,22 @@ body[data-track="civic"] .ms-house{opacity:1;transform:none}
 #v-learn .gl-open{margin-top:14px}
 .nx-t{font-weight:600;font-size:22px}
 .unit-done .fb-actions{display:flex;flex-direction:column-reverse;gap:8px}
+
+/* Accounts (js/sync.js): the sign-in sheet, the profile box, the one nudge after real progress */
+.acct h2{margin:0 0 6px}
+.acct > p{margin:0 0 14px;color:var(--muted)}
+.acct-form{display:flex;flex-direction:column;gap:6px}
+.acct-l{font-size:14px;font-weight:500;margin-top:6px}
+.acct-form .inp{width:100%}
+.acct-hint,.acct-small{margin:2px 0 0;font-size:13px;line-height:1.4;color:var(--muted)}
+.acct-small a{color:var(--link)}
+.acct-err{margin:4px 0 0;min-height:1.2em;font-size:14px;font-weight:500;color:var(--red)}
+.acct-form .btn.pop{width:100%;margin-top:6px}
+.acct-swap,.acct-later{display:block;margin:10px auto 0;text-align:center}
+.acct-later{margin-top:2px;color:var(--muted)}
+.acct-st{margin:0 0 10px}
+#acct-box .acct-swap{margin-top:8px}
+.acct-nudge{display:block;margin:14px auto 0;font-size:14px;line-height:1.4;text-align:center;max-width:30ch}
+.prof-links{display:flex;gap:16px}
+.prof-links a{color:var(--link)}
+.su-have{display:block;margin:18px auto 0}

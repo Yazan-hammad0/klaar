@@ -1,7 +1,7 @@
 // Klaar offline cache. release.py stamps VERSION; a new VERSION makes phones download everything fresh.
-const VERSION = "b4d46daea9";
+const VERSION = "23d56663bb";
 const CACHE = "klaar-" + VERSION, FONTS = "klaar-fonts";
-const SHELL = ["./", "./index.html", "./css/app.css", "./js/i18n-data.js", "./js/i18n.js", "./js/content.js", "./js/audio.js", "./js/lessons.js", "./js/untaught.js", "./js/view.js", "./js/map.js", "./js/glossary.js", "./js/stats.js", "./js/app.js", "./js/shell.js", "./js/setup.js", "./js/onboard.js", "./manifest.webmanifest", "./icons/icon-180.png", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/icon-maskable-512.png", "./fonts/bricolage-grotesque-latin.woff2", "./fonts/inter-latin.woff2"];
+const SHELL = ["./", "./index.html", "./css/app.css", "./js/i18n-data.js", "./js/i18n.js", "./js/content.js", "./js/audio.js", "./js/lessons.js", "./js/untaught.js", "./js/view.js", "./js/map.js", "./js/glossary.js", "./js/stats.js", "./js/config.js", "./js/backend.js", "./js/app.js", "./js/sync.js", "./js/shell.js", "./js/setup.js", "./js/onboard.js", "./manifest.webmanifest", "./icons/icon-180.png", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/icon-maskable-512.png", "./fonts/bricolage-grotesque-latin.woff2", "./fonts/inter-latin.woff2"];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL.map(u => new Request(u, {cache: "reload"})))).then(() => self.skipWaiting()));
 });
@@ -17,10 +17,10 @@ self.addEventListener("fetch", e => {
     return;
   }
   if (url.origin !== location.origin) return;
-  // Only the app itself is cached. The landing page (welcome/), privacy/ and marketing/ are ordinary web pages: leave them to the browser,
+  // Only the app itself is cached. The landing page (welcome/), privacy/, terms/ and marketing/ are ordinary web pages: leave them to the browser,
   // or a visit to them would overwrite the app's saved page and break opening the app offline.
   const root = new URL("./", self.location).pathname, rest = url.pathname.slice(root.length);
-  if (url.pathname.indexOf(root) !== 0 || /^(welcome|privacy|marketing)\//.test(rest)) return;
+  if (url.pathname.indexOf(root) !== 0 || /^(welcome|privacy|terms|marketing|docs)\//.test(rest)) return;
   if (req.mode === "navigate" && rest !== "" && rest !== "index.html") return;
   // news is fetched fresh whenever the phone is online; never cache it here
   if (rest === "news.json") return;
