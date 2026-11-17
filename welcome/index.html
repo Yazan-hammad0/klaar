@@ -3,134 +3,168 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Klaar: practise the Dutch driving theory exam in English</title>
-<meta name="description" content="Practice app for the Dutch CBR car theory exam, in English. A plan that follows your exam date, a short lesson before every topic, pictures for every junction, mock exams in the real format. Free, no account.">
+<title>Klaar: Dutch driving theory and inburgering, in English</title>
+<meta name="description" content="Practice app for the Dutch CBR car theory exam and the inburgering exams, in English. A lesson before every topic, pictures for every junction, mock exams in the real format and the official route, step by step.">
 <meta name="theme-color" content="#0E1726">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%230E1726'/%3E%3Ccircle cx='16' cy='16' r='9.5' fill='%2319B35C'/%3E%3Cpath d='M11.6 16.3l3 3 5.8-6.2' fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="canonical" href="https://yazan-hammad0.github.io/klaar/welcome/">
-<link rel="preload" href="../fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../fonts/familjen-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../fonts/atkinson-next-latin.woff2" as="font" type="font/woff2" crossorigin>
 <meta property="og:type" content="website">
 <meta property="og:title" content="Green light for your Dutch driving theory exam.">
-<meta property="og:description" content="Practise the CBR theory exam in English. A plan that follows your exam date, pictures for every junction, mock exams in the real format. Free, no account.">
+<meta property="og:description" content="Practise the CBR theory exam in English. A lesson before every topic, pictures for every junction, mock exams in the real format. Inburgering included.">
 <meta property="og:image" content="https://yazan-hammad0.github.io/klaar/icons/og.png">
 <meta property="og:url" content="https://yazan-hammad0.github.io/klaar/welcome/">
 <meta name="twitter:card" content="summary_large_image">
 <style>
-@font-face{font-family:'Bricolage Grotesque';src:url(../fonts/bricolage-grotesque-latin.woff2) format('woff2');font-weight:200 800;font-style:normal;font-display:swap}
-@font-face{font-family:'Inter';src:url(../fonts/inter-latin.woff2) format('woff2');font-weight:100 900;font-style:normal;font-display:swap}
-:root{--ground:#F3F4F1;--card:#fff;--fg:#0E1726;--fg2:#33404F;--muted:#5B6474;--line:#E3E6E1;--ink:#0E1726;--ink2:#162133;--green:#19B35C;--go:#0B8A43;--greenText:#0A6B34;--amber:#F2A51A;--red:#E5533D;--soft:#E4F3EA;--frame:#0E1726}
-@media (prefers-color-scheme:dark){:root{--ground:#0B111B;--card:#141C29;--fg:#EEF2F7;--fg2:#C9D2DE;--muted:#9AA5B5;--line:#263142;--greenText:#84D9A4;--soft:#14281E;--frame:#263142}}
+@font-face{font-family:'Familjen Grotesk';src:url(../fonts/familjen-grotesk-latin.woff2) format('woff2');font-weight:400 700;font-style:normal;font-display:swap}
+@font-face{font-family:'Atkinson Hyperlegible Next';src:url(../fonts/atkinson-next-latin.woff2) format('woff2');font-weight:200 800;font-style:normal;font-display:swap}
+:root{--ground:#F3F4F1;--card:#fff;--fg:#0E1726;--fg2:#33404F;--muted:#5B6474;--line:#E3E6E1;--ink:#0E1726;--green:#19B35C;--go:#0B8A43;--greenText:#0A6B34;--amber:#F2A51A;--red:#E5533D;--soft:#E4F3EA;--frame:#0E1726;
+  --delft:#1F3A93;--paper:#F6F1E6;--paperCard:#FFFDF8;--paperLine:#E6DDCB;--delftText:#1F3A93;--delftSoft:#E3E9F8}
+@media (prefers-color-scheme:dark){:root{--ground:#0B111B;--card:#141C29;--fg:#EEF2F7;--fg2:#C9D2DE;--muted:#9AA5B5;--line:#263142;--greenText:#84D9A4;--soft:#14281E;--frame:#263142;
+  --paper:#0F1424;--paperCard:#171F35;--paperLine:#26304D;--delftText:#9DB4F5;--delftSoft:#1D2A52}}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:var(--ground);color:var(--fg);font:17px/1.55 'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{margin:0;background:var(--ground);color:var(--fg);font:18px/1.55 'Atkinson Hyperlegible Next',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 a{color:inherit}
-h1,h2,h3,.wm,.num b{font-family:'Bricolage Grotesque','Inter',system-ui,sans-serif}
-h2{font-size:clamp(30px,4.2vw,44px);letter-spacing:-.03em;line-height:1.06;font-weight:600;margin:0 0 14px;text-wrap:balance}
-h3{font-size:21px;letter-spacing:-.015em;line-height:1.2;font-weight:600;margin:0 0 6px}
+h1,h2,h3,.wm,.say{font-family:'Familjen Grotesk','Atkinson Hyperlegible Next',system-ui,sans-serif}
+h2{font-size:clamp(32px,4.6vw,50px);letter-spacing:-.03em;line-height:1.04;font-weight:600;margin:0 0 16px;text-wrap:balance}
+h3{font-size:22px;letter-spacing:-.015em;line-height:1.2;font-weight:600;margin:0 0 6px}
 p{margin:0 0 12px}
 .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
-.kicker{font-size:15px;font-weight:500;color:var(--greenText);margin:0 0 10px}
-.intro{color:var(--fg2);max-width:36em;font-size:18px}
+.intro{color:var(--fg2);max-width:34em;font-size:19px}
+section{padding:96px 0 0}
 
-/* header and hero, always on ink */
-header{background:var(--ink);color:#fff;position:relative;overflow:hidden}
-header::after{content:"";position:absolute;right:-180px;top:-120px;width:620px;height:620px;border-radius:50%;background:radial-gradient(circle,rgba(25,179,92,.22),rgba(25,179,92,0) 65%);pointer-events:none}
+/* header and hero */
+header{background:var(--ink);color:#fff;position:relative;overflow:hidden;transition:background .35s}
+header.civic{background:var(--delft)}
+header::after{content:"";position:absolute;right:-180px;top:-120px;width:620px;height:620px;border-radius:50%;background:radial-gradient(circle,rgba(25,179,92,.22),rgba(25,179,92,0) 65%);pointer-events:none;transition:opacity .35s}
+header.civic::after{opacity:0}
 .bar{display:flex;justify-content:space-between;align-items:center;padding:16px 0;gap:12px;position:relative;z-index:2}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none}
 .wm{font-weight:700;font-size:30px;letter-spacing:-.035em;line-height:1}
 .ghost{font-weight:500;font-size:15px;text-decoration:none;border:1.5px solid rgba(255,255,255,.35);padding:9px 16px;border-radius:999px;white-space:nowrap}
 .ghost:hover{border-color:#fff}
-.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:32px;align-items:end;padding:44px 0 0;position:relative;z-index:1}
-.hero-txt{padding-bottom:72px}
-.chip{display:inline-flex;align-items:center;gap:8px;font-size:14.5px;font-weight:500;background:rgba(25,179,92,.16);color:#9BE3B8;padding:6px 13px 6px 10px;border-radius:999px;margin:0 0 20px}
-.chip i{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(25,179,92,.25)}
-h1{font-size:clamp(42px,6.6vw,72px);line-height:1;letter-spacing:-.04em;font-weight:600;margin:0 0 22px;text-wrap:balance}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:32px;align-items:end;padding:36px 0 0;position:relative;z-index:1}
+.hero-txt{padding-bottom:80px}
+.mode{display:inline-flex;padding:5px;border-radius:999px;background:rgba(255,255,255,.1);margin:0 0 28px;gap:4px}
+.mode button{font:500 16px 'Atkinson Hyperlegible Next',system-ui,sans-serif;color:rgba(255,255,255,.75);background:none;border:0;border-radius:999px;padding:9px 18px;cursor:pointer;display:flex;align-items:center;gap:8px}
+.mode button svg{width:18px;height:18px}
+.mode button[aria-selected="true"]{background:#fff;color:var(--ink)}
+header.civic .mode button[aria-selected="true"]{color:var(--delft)}
+h1{font-size:clamp(46px,7vw,80px);line-height:.98;letter-spacing:-.045em;font-weight:600;margin:0 0 24px;text-wrap:balance}
 h1 span{color:var(--green)}
-.lead{font-size:19px;color:rgba(255,255,255,.82);max-width:31em;margin:0 0 30px}
-.cta{display:inline-flex;align-items:center;gap:10px;background:var(--go);color:#fff;font-weight:600;font-size:19px;text-decoration:none;padding:16px 30px;border-radius:16px;box-shadow:0 10px 24px rgba(4,40,20,.3);transition:transform .15s}
+header.civic h1 span{color:#BFD0FF}
+.lead{font-size:20px;color:rgba(255,255,255,.84);max-width:30em;margin:0 0 32px}
+.cta{display:inline-flex;align-items:center;gap:10px;background:var(--go);color:#fff;font-weight:600;font-size:19px;text-decoration:none;padding:17px 30px;border-radius:16px;box-shadow:0 10px 24px rgba(4,40,20,.3);transition:transform .15s}
 .cta:hover{transform:translateY(-2px)}
 .cta svg{width:20px;height:20px}
-.small{font-size:14.5px;color:rgba(255,255,255,.68);margin:16px 0 0}
+header.civic .cta{background:#fff;color:var(--delft);box-shadow:0 10px 24px rgba(5,15,50,.35)}
 .stage{position:relative;height:560px}
 .stage .phone{position:absolute;left:50%;bottom:-2px;transform:translateX(-42%);height:540px;border-color:#22304A;border-bottom:0;border-radius:44px 44px 0 0;box-shadow:0 30px 70px rgba(0,0,0,.45)}
+header.civic .stage .phone{border-color:#16296B;background:#16296B}
 .tl{position:absolute;left:0;top:70px;width:74px;padding:10px;border-radius:40px;background:#1A2535;border:1px solid rgba(255,255,255,.1);display:grid;gap:10px;box-shadow:0 20px 40px rgba(0,0,0,.35);z-index:2}
 .tl i{display:block;width:54px;height:54px;border-radius:50%;opacity:.18}
-.tl .r{background:var(--red)}.tl .a{background:var(--amber)}.tl .g{background:var(--green);position:relative}
+.tl .r{background:var(--red);color:var(--red)}.tl .a{background:var(--amber);color:var(--amber)}.tl .g{background:var(--green);position:relative}
 .tl .g svg{position:absolute;inset:0;margin:auto;width:28px;height:28px;opacity:0}
 .tl .r{animation:lamp 1.1s .3s both}.tl .a{animation:lamp 1.1s 1.3s both}
 .tl .g{animation:glow .6s 2.3s forwards}.tl .g svg{animation:show .3s 2.6s forwards}
 @keyframes lamp{0%,100%{opacity:.18}20%,80%{opacity:1;box-shadow:0 0 22px currentColor}}
 @keyframes glow{to{opacity:1;box-shadow:0 0 28px rgba(25,179,92,.85)}}
 @keyframes show{to{opacity:1}}
-.tl .r{color:var(--red)}.tl .a{color:var(--amber)}
+.stamp{position:absolute;left:0;top:70px;z-index:2;width:96px;height:96px;border-radius:50%;border:3px solid #BFD0FF;color:#fff;display:grid;place-items:center;text-align:center;font:600 15px/1.1 'Familjen Grotesk',sans-serif;transform:rotate(-12deg);background:rgba(255,255,255,.06)}
+[hidden]{display:none!important}
 
 /* phone frames with real app screens */
 .phone{width:min(290px,76vw);border:9px solid var(--frame);border-radius:40px;overflow:hidden;background:var(--frame);margin:0 auto;line-height:0;height:540px;box-shadow:0 22px 46px rgba(5,12,30,.16)}
 .phone img{width:100%;height:auto;display:block}
 
-/* numbers strip */
-.nums{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:-1px 0 0;padding:28px 0 0}
-.num{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px 18px 16px}
-.num b{display:block;font-size:40px;font-weight:600;letter-spacing:-.035em;line-height:1.05}
-.num span{color:var(--muted);font-size:15px}
+/* one big sentence instead of number cards */
+.say{font-size:clamp(30px,4.4vw,52px);line-height:1.12;letter-spacing:-.03em;font-weight:500;margin:0;max-width:20em;text-wrap:balance;color:var(--muted)}
+.say b{color:var(--fg);font-weight:600}
+.say em{font-style:normal;color:var(--greenText);font-weight:600}
 
-section{padding:88px 0 0}
+/* where people get stuck: a short chat */
+.chat{display:grid;gap:26px;margin-top:34px;max-width:780px}
+.ex{display:grid;gap:8px}
+.bub{max-width:80%;padding:14px 18px;border-radius:22px;font-size:18px}
+.bub.me{background:var(--card);border:1px solid var(--line);border-bottom-left-radius:6px;justify-self:start}
+.bub.kl{background:var(--ink);color:#fff;border-bottom-right-radius:6px;justify-self:end}
+@media (prefers-color-scheme:dark){.bub.kl{background:#1F6E43}}
+.bub.kl b{color:#9BE3B8;font-weight:600}
+@media (prefers-color-scheme:dark){.bub.kl b{color:#fff}}
 
-/* sound familiar */
-.quotes{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:22px}
-.quote{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;position:relative}
-.quote p{font-size:18px;font-weight:500;margin:0 0 14px;color:var(--fg)}
-.quote small{color:var(--muted);font-size:15px;display:block}
-.quote small b{color:var(--greenText);font-weight:600}
+/* try a question */
+.try{display:grid;grid-template-columns:1fr 1fr;gap:0;background:var(--card);border:1px solid var(--line);border-radius:30px;overflow:hidden;margin-top:30px}
+.try .q{padding:34px}
+.try .q p.qt{font-size:21px;font-weight:600;line-height:1.35;margin:0 0 18px}
+.opts{display:grid;gap:10px}
+.opts button{font:inherit;font-size:17px;text-align:start;color:var(--fg);background:var(--ground);border:1.5px solid var(--line);border-radius:14px;padding:13px 16px;cursor:pointer}
+.opts button:hover:not(:disabled){border-color:var(--fg)}
+.opts button:disabled{cursor:default}
+.opts button.right{border-color:var(--go);background:var(--soft)}
+.opts button.wrong{border-color:var(--red);opacity:.75}
+.why{margin-top:18px;border-top:1px solid var(--line);padding-top:16px}
+.why h3{color:var(--greenText)}
+.why p{color:var(--fg2)}
+.why a{color:var(--greenText);font-weight:500}
+.try figure{margin:0;background:var(--ground);display:grid;place-items:center;min-height:100%}
+.try figure img{width:100%;height:auto;display:block}
 
 /* the four tabs */
 .tabs{display:flex;gap:8px;margin:26px 0 22px;padding:6px;background:var(--card);border:1px solid var(--line);border-radius:999px;width:max-content;max-width:100%;overflow-x:auto}
-.tabs button{font:500 15.5px 'Inter',system-ui,sans-serif;color:var(--muted);background:none;border:0;border-radius:999px;padding:9px 16px;display:flex;align-items:center;gap:7px;cursor:pointer;white-space:nowrap}
+.tabs button{font:500 16px 'Atkinson Hyperlegible Next',system-ui,sans-serif;color:var(--muted);background:none;border:0;border-radius:999px;padding:9px 16px;display:flex;align-items:center;gap:7px;cursor:pointer;white-space:nowrap}
 .tabs button svg{width:18px;height:18px}
 .tabs button[aria-selected="true"]{background:var(--ink);color:#fff}
 @media (prefers-color-scheme:dark){.tabs button[aria-selected="true"]{background:var(--green);color:var(--ink)}}
 .panel{display:grid;grid-template-columns:.85fr 1.15fr;gap:48px;align-items:center}
-.panel[hidden]{display:none}
-.panel ul{list-style:none;padding:0;margin:18px 0 0;display:grid;gap:12px}
-.panel li{display:flex;gap:12px;color:var(--fg2)}
-.panel li::before{content:"";flex:none;width:22px;height:22px;margin-top:2px;border-radius:50%;background:var(--soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Cpath d='M6.5 11.3l3 3 6-6.3' fill='none' stroke='%230B8A43' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/22px no-repeat}
-.panel .txt h3{font-size:clamp(26px,3vw,32px);letter-spacing:-.03em;line-height:1.1}
+.panel ul,.civ ul{list-style:none;padding:0;margin:18px 0 0;display:grid;gap:12px}
+.panel li,.civ li{display:flex;gap:12px;color:var(--fg2)}
+.panel li::before{content:"";flex:none;width:22px;height:22px;margin-top:3px;border-radius:50%;background:var(--soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Cpath d='M6.5 11.3l3 3 6-6.3' fill='none' stroke='%230B8A43' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/22px no-repeat}
+.panel .txt h3{font-size:clamp(26px,3vw,34px);letter-spacing:-.03em;line-height:1.1}
 .pair{display:flex;gap:18px;justify-content:center}
 .pair .phone{width:min(250px,42vw);height:500px;margin:0}
 .pair .phone:nth-child(2){margin-top:48px}
 
-/* proof: pictures and sources */
-.split{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
-.box{background:var(--card);border:1px solid var(--line);border-radius:26px;padding:28px 28px 0;overflow:hidden;display:flex;flex-direction:column}
-.box p{color:var(--fg2)}
-.box .phone{margin:16px auto 0;height:330px;border-bottom:0;border-radius:36px 36px 0 0;box-shadow:none;width:min(270px,70vw)}
-.box.ink{background:var(--ink);border-color:var(--ink);color:#fff}
-.box.ink p{color:rgba(255,255,255,.78)}
-.box.ink .phone{border-color:#22304A;background:#22304A}
-.words{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 0}
-.words span{font-size:14.5px;font-weight:500;background:var(--soft);color:var(--greenText);padding:5px 12px;border-radius:999px}
-
-/* mock exam */
+/* mock exam band */
 .exam{background:var(--ink);color:#fff;border-radius:30px;padding:48px;display:grid;grid-template-columns:1.2fr .8fr;gap:40px;align-items:center;overflow:hidden}
-.exam p{color:rgba(255,255,255,.78)}
-.exam .kicker{color:#9BE3B8}
+.exam p{color:rgba(255,255,255,.8)}
+.exam h2{color:#fff}
 .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:22px 0 18px}
-.facts div{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:14px 16px}
-.facts b{display:block;font-family:'Bricolage Grotesque',sans-serif;font-size:36px;font-weight:600;letter-spacing:-.03em;line-height:1.05;color:#fff}
-.facts span{font-size:14px;color:rgba(255,255,255,.7)}
+.facts div{border-top:2px solid var(--green);padding:12px 0 0}
+.facts b{display:block;font-family:'Familjen Grotesk',sans-serif;font-size:56px;font-weight:600;letter-spacing:-.04em;line-height:1;color:#fff}
+.facts span{font-size:15px;color:rgba(255,255,255,.72)}
 .exam .phone{height:460px;border-color:#22304A;background:#22304A}
+.fine{font-size:15px;color:rgba(255,255,255,.62)}
 
-/* licence plan */
-.feat{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
-.feat p{color:var(--fg2);max-width:30em}
-.feat p.note{font-size:14.5px;color:var(--muted)}
+/* licence route as a line */
+.route{list-style:none;padding:0;margin:34px 0 0;display:grid;grid-template-columns:repeat(4,1fr);position:relative}
+.route::before{content:"";position:absolute;left:14px;right:14px;top:13px;height:3px;background:linear-gradient(90deg,var(--green),var(--line))}
+.route li{position:relative;padding:44px 18px 0 0}
+.route li::before{content:"";position:absolute;left:0;top:0;width:29px;height:29px;border-radius:50%;background:var(--ground);border:3px solid var(--green)}
+.route li:first-child::before{background:var(--green)}
+.route b{display:block;font:600 21px/1.2 'Familjen Grotesk',sans-serif;letter-spacing:-.015em;margin-bottom:4px}
+.route span{color:var(--fg2);font-size:16.5px}
+.note{font-size:15.5px;color:var(--muted);max-width:44em;margin-top:26px}
 
-/* how to start */
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:22px;padding:0;list-style:none;counter-reset:s}
-.steps li{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px}
-.steps li::before{counter-increment:s;content:counter(s);display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--green);color:#0E1726;font-weight:600;margin-bottom:12px}
-.steps strong{display:block;font-size:18px;font-weight:600;margin-bottom:4px}
-.steps span{color:var(--muted);font-size:15.5px}
+/* inburgering: Delft blue on warm paper */
+.civ{background:var(--paper);margin-top:96px;padding:88px 0 96px;border-block:1px solid var(--paperLine)}
+.civ .tag{display:inline-flex;align-items:center;gap:8px;font-size:16px;font-weight:500;color:var(--delftText);margin:0 0 12px}
+.civ .tag svg{width:20px;height:20px}
+.civ h2{color:var(--delftText)}
+@media (prefers-color-scheme:dark){.civ h2{color:var(--fg)}}
+.civ-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:48px;align-items:center}
+.civ li::before{content:"";flex:none;width:22px;height:22px;margin-top:3px;border-radius:6px;background:var(--delftSoft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Cpath d='M6.5 11.3l3 3 6-6.3' fill='none' stroke='%231F3A93' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/22px no-repeat}
+.fan{position:relative;height:540px}
+.fan .phone{position:absolute;top:0;width:min(240px,40vw);height:500px;border-color:#16296B;background:#16296B;box-shadow:0 24px 50px rgba(15,30,80,.22)}
+.fan .phone:nth-child(1){left:0;transform:rotate(-5deg);top:30px}
+.fan .phone:nth-child(2){left:50%;margin-left:-120px;z-index:2}
+.fan .phone:nth-child(3){right:0;transform:rotate(5deg);top:30px}
+.parts-h{margin:24px 0 0;font-size:16px;color:var(--muted)}
+@media (prefers-color-scheme:dark){.civ li::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Cpath d='M6.5 11.3l3 3 6-6.3' fill='none' stroke='%239DB4F5' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}}
+.parts{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0}
+.parts span{font-size:15.5px;font-weight:500;padding:6px 13px;border-radius:999px;border:1.5px solid var(--delftText);color:var(--delftText)}
+.civ .more{display:inline-block;margin-top:22px;font-weight:600;color:var(--delftText)}
 
 /* questions */
 .faq{display:grid;grid-template-columns:.8fr 1.2fr;gap:40px;align-items:start}
@@ -142,49 +176,63 @@ details[open] summary::after{content:"\2212"}
 details p{color:var(--fg2);margin:10px 0 0}
 
 /* end */
-.end{text-align:center;background:var(--ink);color:#fff;border-radius:30px;padding:56px 24px;margin:88px 0 0;position:relative;overflow:hidden}
+.end{text-align:center;background:var(--ink);color:#fff;border-radius:30px;padding:64px 24px;margin:96px 0 0;position:relative;overflow:hidden}
 .end::before{content:"";position:absolute;left:50%;top:-220px;width:560px;height:560px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle,rgba(25,179,92,.24),rgba(25,179,92,0) 65%)}
 .end>*{position:relative}
 .lights{display:inline-flex;gap:10px;margin:0 0 22px;padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.08)}
 .lights i{width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.18)}
 .lights i.on{background:var(--green);box-shadow:0 0 14px rgba(25,179,92,.8)}
-.end h2{margin-bottom:10px}
-.end p{color:rgba(255,255,255,.75);margin:0 0 26px}
+.end h2{margin-bottom:10px;color:#fff}
+.end p{color:rgba(255,255,255,.78);margin:0 0 26px}
 footer{color:var(--muted);font-size:14px;padding:36px 20px 48px;text-align:center}
 
 @media (max-width:860px){
-  .hero{grid-template-columns:1fr;gap:8px;padding-top:28px}
+  body{font-size:17px}
+  .hero{grid-template-columns:1fr;gap:8px;padding-top:24px}
   .hero-txt{padding-bottom:12px}
+  .mode{margin-bottom:22px}
+  .mode button{padding:9px 14px;font-size:15px}
   .stage{height:470px}
   .stage .phone{height:460px;transform:translateX(-38%)}
   .tl{left:0;top:40px;width:48px;padding:6px;gap:6px}
   .tl i{width:36px;height:36px}.tl .g svg{width:20px;height:20px}
-  .nums{grid-template-columns:1fr 1fr}
-  .quotes,.steps,.split,.faq{grid-template-columns:1fr}
+  .stamp{top:40px;width:74px;height:74px;font-size:13px}
+  .faq,.try,.civ-grid{grid-template-columns:1fr}
+  .try .q{padding:24px 20px}
+  .try figure{order:-1}
   .faq{gap:10px}
-  .panel,.feat,.exam{grid-template-columns:1fr;gap:28px}
+  .panel,.exam{grid-template-columns:1fr;gap:28px}
   .exam{padding:32px 22px 0}
   .exam .phone{height:380px;border-bottom:0;border-radius:36px 36px 0 0}
+  .facts b{font-size:44px}
   .pair .phone{height:420px}
-  section{padding-top:64px}
-  .box{padding:24px 22px 0}
+  section{padding-top:72px}
   .tabs{width:100%;justify-content:space-between}
   .tabs button{padding:9px 12px}
+  .bub{max-width:92%}
+  .route{grid-template-columns:1fr;gap:22px}
+  .route::before{left:13px;right:auto;top:14px;bottom:14px;width:3px;height:auto;background:linear-gradient(180deg,var(--green),var(--line))}
+  .route li{padding:2px 0 0 46px}
+  .civ{margin-top:72px;padding:64px 0 72px}
+  .fan{height:440px}
+  .fan .phone{width:min(200px,46vw);height:420px}
+  .fan .phone:nth-child(2){margin-left:min(-100px,-23vw)}
 }
 @media (max-width:420px){
-  .tabs button svg{display:none}
+  .tabs button svg,.mode button svg{display:none}
   .pair .phone:nth-child(2){margin-top:28px}
-  .facts b{font-size:30px}
+  .fan .phone:nth-child(1){left:-30px}.fan .phone:nth-child(3){right:-30px}
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
+  header,header::after{transition:none}
   .tl i{animation:none!important}.tl .g{opacity:1;box-shadow:0 0 28px rgba(25,179,92,.85)}.tl .g svg{animation:none;opacity:1}
   .cta{transition:none}
 }
 </style>
 </head>
 <body>
-<header>
+<header id="top">
   <div class="wrap">
     <div class="bar">
       <a class="brand" href="./" aria-label="Klaar"><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#0E1726" stroke="rgba(255,255,255,.22)"/><circle cx="16" cy="16" r="9.5" fill="#19B35C"/><path d="M11.6 16.3l3 3 5.8-6.2" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="wm">klaar</span></a>
@@ -192,208 +240,257 @@ footer{color:var(--muted);font-size:14px;padding:36px 20px 48px;text-align:cente
     </div>
     <div class="hero">
       <div class="hero-txt">
-        <p class="chip"><i></i>Green light for your exam</p>
-        <h1>Pass the Dutch driving theory exam. <span>In English.</span></h1>
-        <p class="lead">Klaar is a practice app for the CBR car theory exam, made for expats and international students. Tell it your exam date. It teaches you each topic, tells you what to do today, and turns green when you are ready.</p>
-        <a class="cta" href="../index.html">Start practising <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5.5l4.5 4.5-4.5 4.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-        <p class="small">Free. No account. Works offline once it is on your phone.</p>
+        <div class="mode" role="tablist" aria-label="What are you preparing for?">
+          <button role="tab" id="m-drive" aria-selected="true" aria-controls="hero-drive"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16V11l2-5h10l2 5v5M5 16h14M5 16v2.5M19 16v2.5M4 11h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8" cy="13.5" r="1" fill="currentColor"/><circle cx="16" cy="13.5" r="1" fill="currentColor"/></svg>Driving licence</button>
+          <button role="tab" id="m-civic" aria-selected="false" aria-controls="hero-civic" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 21V9l3-3V3h6v3l3 3v12zM10 21v-4h4v4M10 11h1M13 11h1M10 14h1M13 14h1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Inburgering</button>
+        </div>
+        <div id="hero-drive" role="tabpanel" aria-labelledby="m-drive">
+          <h1>Pass the Dutch driving theory exam. <span>In English.</span></h1>
+          <p class="lead">A short lesson before every topic, a picture for every junction, and mock exams with the real pass mark. Tell Klaar your exam date and it tells you what to do each day, until your light turns green.</p>
+          <a class="cta" href="../index.html">Start practising <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5.5l4.5 4.5-4.5 4.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+        <div id="hero-civic" role="tabpanel" aria-labelledby="m-civic" hidden>
+          <h1>Pass your inburgering exams. <span>Know every step.</span></h1>
+          <p class="lead">Practise KNM, reading and listening in plain English. See which exams you have passed, how many days until you can apply to stay or become Dutch, and the official route on one screen.</p>
+          <a class="cta" href="../index.html">Start with inburgering <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5.5l4.5 4.5-4.5 4.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
       </div>
       <div class="stage">
-        <div class="tl" aria-hidden="true"><i class="r"></i><i class="a"></i><i class="g"><svg viewBox="0 0 28 28"><path d="M7.5 14.5l4.5 4.5 8.5-9" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></i></div>
-        <div class="phone"><img src="img/1-plan.jpg" width="600" height="1298" alt="Klaar Today: one thing to fix first, a readiness ring at 78%, 9 days to the theory exam and the route to a licence"></div>
+        <div class="tl" data-for="drive" aria-hidden="true"><i class="r"></i><i class="a"></i><i class="g"><svg viewBox="0 0 28 28"><path d="M7.5 14.5l4.5 4.5 8.5-9" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></i></div>
+        <div class="phone" data-for="drive"><img src="img/1-plan.jpg" width="600" height="1298" alt="Klaar Today: one thing to fix first, a readiness ring at 78%, 9 days to the theory exam and the route to a licence"></div>
+        <div class="stamp" data-for="civic" aria-hidden="true" hidden>KNM<br>passed</div>
+        <div class="phone" data-for="civic" hidden><img src="img/8-inburgering.jpg" width="600" height="1298" alt="Inburgering Today: 1,026 days until you can apply to become Dutch, and a stamp for each exam"></div>
       </div>
     </div>
   </div>
 </header>
 
-<main class="wrap">
-  <div class="nums">
-    <div class="num"><b>309</b><span>practice questions, more every week</span></div>
-    <div class="num"><b>196</b><span>of them with a picture of the situation</span></div>
-    <div class="num"><b>16</b><span>short lessons, one per topic</span></div>
-    <div class="num"><b>50</b><span>questions in a mock exam, timed like the real one</span></div>
+<main>
+  <div class="wrap">
+    <section style="padding-top:80px">
+      <p class="say"><b>309 practice questions,</b> <em>196 with a picture</em> of the situation. <b>16 lessons</b> that teach before they test. <b>One light</b> that tells you when you are ready.</p>
+    </section>
+
+    <section>
+      <h2>Where expats get stuck</h2>
+      <div class="chat">
+        <div class="ex"><p class="bub me">The study books are in Dutch, or the English reads like a bad translation.</p><p class="bub kl"><b>Klaar</b> is written in plain English. Dutch road words like haaientanden and ritsen are explained where they appear.</p></div>
+        <div class="ex"><p class="bub me">I do hundreds of questions and still don't know if I'm ready.</p><p class="bub kl">Your ring goes from <b>red to amber to green</b>, based on your answers. Green means book the exam.</p></div>
+        <div class="ex"><p class="bub me">I failed by two points and had to pay and wait again.</p><p class="bub kl">Mock exams use <b>the real pass mark</b>, and every question you got wrong comes back.</p></div>
+      </div>
+    </section>
+
+    <section id="try">
+      <h2>Try one</h2>
+      <p class="intro">A real question from the app. Small roundabout, no signs, no shark teeth.</p>
+      <div class="try">
+        <div class="q">
+          <p class="qt">A car wants to enter the roundabout from the road on your right. Who goes first?</p>
+          <div class="opts" id="opts">
+            <button data-ok="0">You, because roundabout traffic always has priority</button>
+            <button data-ok="1">The entering car, because right-first applies</button>
+            <button data-ok="0">You, because the entering car must stop</button>
+          </div>
+          <div class="why" id="why" hidden>
+            <h3 id="verdict">Right.</h3>
+            <p>Without signs or markings the general rule applies: traffic from the right goes first, even on a roundabout. Many drivers think roundabout traffic always has priority. That only holds when the entry has shark teeth or a give-way sign.</p>
+            <p><a href="https://www.government.nl/site/binaries/site-content/collections/documents/2024/02/09/road-traffic-signs-and-regulations-in-the-netherlands/Road+Traffic+Signs+and+Regulations+in+the+Netherlands.pdf#page=25" target="_blank" rel="noopener">The rule on government.nl, page 25</a></p>
+          </div>
+        </div>
+        <figure><picture><source srcset="img/demo-map-dark.jpg" media="(prefers-color-scheme: dark)"><img src="img/demo-map-light.jpg" width="640" height="640" loading="lazy" alt="A small roundabout seen from above. Your blue car is on it. A red car waits to enter from the road on your right."></picture></figure>
+      </div>
+    </section>
+
+    <section id="how">
+      <h2>Four tabs. One route to the exam.</h2>
+      <p class="intro">Every topic starts with a short lesson, and practice only asks about what you have learned.</p>
+
+      <div class="tabs" role="tablist" aria-label="The four tabs in Klaar">
+        <button role="tab" id="t-today" aria-controls="p-today" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Today</button>
+        <button role="tab" id="t-learn" aria-controls="p-learn" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6c3-1.5 6-1.5 9 0v14c-3-1.5-6-1.5-9 0zM21 6c-3-1.5-6-1.5-9 0v14c3-1.5 6-1.5 9 0z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Learn</button>
+        <button role="tab" id="t-practice" aria-controls="p-practice" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Practice</button>
+        <button role="tab" id="t-exams" aria-controls="p-exams" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 9v4l3 2M9 2h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Exams</button>
+      </div>
+
+      <div class="panel" id="p-today" role="tabpanel" aria-labelledby="t-today">
+        <div class="txt">
+          <h3>A plan that counts back from your exam date</h3>
+          <p>Open the app and it tells you the one thing to do next.</p>
+          <ul>
+            <li>How ready you are, on a ring that goes red, amber, green</li>
+            <li>Days left, today's goal and your streak</li>
+            <li>Your weakest topic first, with how far you are from the pass mark</li>
+          </ul>
+        </div>
+        <div class="pair">
+          <div class="phone"><img src="img/1-plan.jpg" width="600" height="1298" loading="lazy" alt="Today: fix Road markings first, 78% ready, 9 days to the exam"></div>
+          <div class="phone"><img src="img/7-licence-plan.jpg" width="600" height="1298" loading="lazy" alt="Your licence plan with a date for every step"></div>
+        </div>
+      </div>
+
+      <div class="panel" id="p-learn" role="tabpanel" aria-labelledby="t-learn" hidden>
+        <div class="txt">
+          <h3>A short lesson before every topic</h3>
+          <p>16 lessons in a sensible order, from priority and signs to the motorway and hazard perception.</p>
+          <ul>
+            <li>Each step is one rule you can use, with a moving scene that shows it</li>
+            <li>Every step says why the rule exists, so it sticks</li>
+            <li>Each lesson ends with questions on only what it taught</li>
+          </ul>
+        </div>
+        <div class="pair">
+          <div class="phone"><img src="img/2-learn.jpg" width="600" height="1298" loading="lazy" alt="Learn: the lessons in order, with done ticks"></div>
+          <div class="phone"><img src="img/2b-lesson.jpg" width="600" height="1298" loading="lazy" alt="A lesson step about an equal junction, with a picture and why the rule exists"></div>
+        </div>
+      </div>
+
+      <div class="panel" id="p-practice" role="tabpanel" aria-labelledby="t-practice" hidden>
+        <div class="txt">
+          <h3>Questions that show the situation</h3>
+          <p>Pick your mistakes, a mix of what you have learned, or one topic.</p>
+          <ul>
+            <li>Junctions drawn from above: your car, the others, and where each one goes</li>
+            <li>Hazard questions from the driver's seat, with everything at its real distance</li>
+            <li>Questions you get wrong come back until you get them right</li>
+          </ul>
+        </div>
+        <div class="pair">
+          <div class="phone"><img src="img/3-question.jpg" width="600" height="1298" loading="lazy" alt="A priority question with a junction drawn from above"></div>
+          <div class="phone"><img src="img/5-hazard.jpg" width="600" height="1298" loading="lazy" alt="A hazard question showing the road from the driver's seat"></div>
+        </div>
+      </div>
+
+      <div class="panel" id="p-exams" role="tabpanel" aria-labelledby="t-exams" hidden>
+        <div class="txt">
+          <h3>Mock exams in the real format</h3>
+          <p>A full mock, a quick one, and a hazard drill. Your scores stay on the card so you see the trend.</p>
+          <ul>
+            <li>No feedback until you hand in, like the real exam</li>
+            <li>Every wrong answer shows the rule and its source</li>
+            <li>Pass the full mock three times in a row and you are ready to book</li>
+          </ul>
+        </div>
+        <div class="pair">
+          <div class="phone"><img src="img/6-mock-exams.jpg" width="600" height="1298" loading="lazy" alt="CBR mock exams: full mock, quick mock and hazard drill with past scores"></div>
+          <div class="phone"><img src="img/4-explained.jpg" width="600" height="1298" loading="lazy" alt="A wrong answer with the right one, the rule and a link to the source"></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="exam">
+        <div>
+          <h2>Practise against the real pass mark</h2>
+          <p>The mock exam uses the same numbers as the CBR theory exam. Pass it three times in a row, then book.</p>
+          <div class="facts">
+            <div><b>50</b><span>questions</span></div>
+            <div><b>30</b><span>minutes</span></div>
+            <div><b>44</b><span>right to pass</span></div>
+          </div>
+          <p class="fine">Check the current format and price on cbr.nl before you book.</p>
+        </div>
+        <div class="phone"><img src="img/6-mock-exams.jpg" width="600" height="1298" loading="lazy" alt="Mock exam screen with past scores of 39, 43 and 45 out of 50"></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>From theory to licence, with dates</h2>
+      <p class="intro">Pick when you want your licence. Klaar tells you honestly if that is realistic, and puts a date on every step.</p>
+      <ol class="route">
+        <li><b>Theory exam</b><span>Practise here until your light is green, then book on cbr.nl.</span></li>
+        <li><b>Driving lessons</b><span>About 40 hours for most people. Start while you study.</span></li>
+        <li><b>Practical exam</b><span>Your driving school books it. Waiting times vary by region.</span></li>
+        <li><b>Licence</b><span>Apply at your town hall. It is usually ready within a week.</span></li>
+      </ol>
+      <p class="note">Already have a licence from another country? Klaar first checks if you can usually swap it instead. Klaar is independent: you book and apply on cbr.nl, mijn.cbr.nl and rdw.nl, and it links you there.</p>
+    </section>
   </div>
 
-  <section>
-    <p class="kicker">Sound familiar?</p>
-    <h2>Built for the places expats get stuck</h2>
-    <div class="quotes">
-      <div class="quote"><p>"The study material is in Dutch, or the English is a bad translation."</p><small><b>Klaar:</b> written in plain English. Dutch road words are explained where they appear.</small></div>
-      <div class="quote"><p>"I do hundreds of questions and still don't know if I'm ready."</p><small><b>Klaar:</b> a ring that goes from red to amber to green, based on your answers.</small></div>
-      <div class="quote"><p>"I failed by two points and had to pay and wait again."</p><small><b>Klaar:</b> mock exams with the real pass mark, and the questions you got wrong come back.</small></div>
-    </div>
-  </section>
-
-  <section id="how">
-    <p class="kicker">How it works</p>
-    <h2>Four tabs. One clear route to the exam.</h2>
-    <p class="intro">Klaar teaches before it tests. Every topic starts with a short lesson, and practice only asks about what you have learned.</p>
-
-    <div class="tabs" role="tablist" aria-label="The four tabs in Klaar">
-      <button role="tab" id="t-today" aria-controls="p-today" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Today</button>
-      <button role="tab" id="t-learn" aria-controls="p-learn" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6c3-1.5 6-1.5 9 0v14c-3-1.5-6-1.5-9 0zM21 6c-3-1.5-6-1.5-9 0v14c3-1.5 6-1.5 9 0z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Learn</button>
-      <button role="tab" id="t-practice" aria-controls="p-practice" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Practice</button>
-      <button role="tab" id="t-exams" aria-controls="p-exams" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 9v4l3 2M9 2h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Exams</button>
-    </div>
-
-    <div class="panel" id="p-today" role="tabpanel" aria-labelledby="t-today">
-      <div class="txt">
-        <h3>A plan that counts back from your exam date</h3>
-        <p>Open the app and it tells you the one thing to do next. No hunting through menus.</p>
-        <ul>
-          <li>How ready you are, on a ring that goes red, amber, green</li>
-          <li>Days left, today's goal and your streak</li>
-          <li>Your weakest topic first, with how far you are from the pass mark</li>
-        </ul>
-      </div>
-      <div class="pair">
-        <div class="phone"><img src="img/1-plan.jpg" width="600" height="1298" loading="lazy" alt="Today: fix Road markings first, 78% ready, 9 days to the exam"></div>
-        <div class="phone"><img src="img/7-licence-plan.jpg" width="600" height="1298" loading="lazy" alt="Your licence plan with a date for every step"></div>
-      </div>
-    </div>
-
-    <div class="panel" id="p-learn" role="tabpanel" aria-labelledby="t-learn" hidden>
-      <div class="txt">
-        <h3>A short lesson before every topic</h3>
-        <p>16 lessons in a sensible order, from priority and signs to the motorway and hazard perception.</p>
-        <ul>
-          <li>Each step is one rule you can use, with a moving scene that shows it</li>
-          <li>Every step says why the rule exists, so it sticks</li>
-          <li>Each lesson ends with questions on only what it taught</li>
-        </ul>
-      </div>
-      <div class="pair">
-        <div class="phone"><img src="img/2-learn.jpg" width="600" height="1298" loading="lazy" alt="Learn: the lessons in order, with done ticks"></div>
-        <div class="phone"><img src="img/2b-lesson.jpg" width="600" height="1298" loading="lazy" alt="A lesson step about an equal junction, with a picture and why the rule exists"></div>
-      </div>
-    </div>
-
-    <div class="panel" id="p-practice" role="tabpanel" aria-labelledby="t-practice" hidden>
-      <div class="txt">
-        <h3>Questions that show the situation</h3>
-        <p>Pick your mistakes, a mix of what you have learned, or one topic.</p>
-        <ul>
-          <li>Junctions drawn from above: your car, the others, and where each one goes</li>
-          <li>Hazard questions from the driver's seat, with everything at its real distance</li>
-          <li>Questions you get wrong come back until you get them right</li>
-        </ul>
-      </div>
-      <div class="pair">
-        <div class="phone"><img src="img/3-question.jpg" width="600" height="1298" loading="lazy" alt="A priority question with a junction drawn from above"></div>
-        <div class="phone"><img src="img/5-hazard.jpg" width="600" height="1298" loading="lazy" alt="A hazard question showing the road from the driver's seat"></div>
-      </div>
-    </div>
-
-    <div class="panel" id="p-exams" role="tabpanel" aria-labelledby="t-exams" hidden>
-      <div class="txt">
-        <h3>Mock exams in the real format</h3>
-        <p>A full mock, a quick one, and a hazard drill. Your scores stay on the card so you see the trend.</p>
-        <ul>
-          <li>50 questions, 30 minutes, 44 right to pass</li>
-          <li>No feedback until you hand in, like the real exam</li>
-          <li>Pass the full mock three times in a row and you are ready to book</li>
-        </ul>
-      </div>
-      <div class="pair">
-        <div class="phone"><img src="img/6-mock-exams.jpg" width="600" height="1298" loading="lazy" alt="CBR mock exams: full mock, quick mock and hazard drill with past scores"></div>
-        <div class="phone"><img src="img/4-explained.jpg" width="600" height="1298" loading="lazy" alt="A wrong answer with the right one, the rule and a link to the source"></div>
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <p class="kicker">Why you can trust it</p>
-    <h2>The rule, the reason and the source</h2>
-    <div class="split">
-      <div class="box">
-        <h3>Every answer explains itself</h3>
-        <p>Wrong answer? You see the right one, the rule behind it and why. Most link to the exact page of the government's English traffic rules booklet on government.nl, so you can check it yourself.</p>
-        <div class="phone"><img src="img/4-explained.jpg" width="600" height="1298" loading="lazy" alt="Not quite: the answer is the cyclist, with the rule and a link to government.nl page 26"></div>
-      </div>
-      <div class="box ink">
-        <h3>Dutch road words, explained</h3>
-        <p>The exam and the road signs use Dutch words. Klaar explains each one where it appears, with the logic behind it.</p>
-        <div class="words"><span>bebouwde kom</span><span>haaientanden</span><span>ritsen</span><span>bestemmingsverkeer</span><span>gelijkwaardige kruising</span></div>
-        <div class="phone" style="margin-top:22px"><img src="img/2b-lesson.jpg" width="600" height="1298" loading="lazy" alt="A lesson step that explains the Dutch term gelijkwaardige kruising"></div>
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <div class="exam">
+  <section class="civ" id="inburgering">
+    <div class="wrap civ-grid">
       <div>
-        <p class="kicker">Know when you are ready</p>
-        <h2>Practise against the real pass mark</h2>
-        <p>The mock exam uses the same numbers as the CBR theory exam. When you pass it three times in a row, book your exam.</p>
-        <div class="facts">
-          <div><b>50</b><span>questions</span></div>
-          <div><b>30</b><span>minutes</span></div>
-          <div><b>44</b><span>right to pass</span></div>
-        </div>
-        <p style="font-size:14.5px;color:rgba(255,255,255,.6)">Check the current format and price on cbr.nl before you book.</p>
+        <p class="tag"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 21V9l3-3V3h6v3l3 3v12zM10 21v-4h4v4M10 11h1M13 11h1M10 14h1M13 14h1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Inburgering, in the same app</p>
+        <h2>Staying in the Netherlands? Get the exams done too.</h2>
+        <p class="intro" style="color:var(--fg2)">One tap switches Klaar from driving to inburgering. Same app, a different plan.</p>
+        <ul>
+          <li>KNM practice: work, healthcare, housing, government and history</li>
+          <li>Reading and listening practice at A2, with recorded Dutch audio</li>
+          <li>A countdown to when you can apply to stay or become Dutch</li>
+          <li>A checklist for your situation, and the official route step by step, with links to DUO, inburgeren.nl and the IND</li>
+        </ul>
+        <p class="parts-h">A stamp for each exam part as you pass it:</p>
+        <div class="parts"><span>KNM</span><span>Reading</span><span>Listening</span><span>Writing</span><span>Speaking</span></div>
       </div>
-      <div class="phone"><img src="img/6-mock-exams.jpg" width="600" height="1298" loading="lazy" alt="Mock exam screen with past scores of 39, 43 and 45 out of 50"></div>
+      <div class="fan">
+        <div class="phone"><img src="img/8b-stamps.jpg" width="600" height="1298" loading="lazy" alt="Your exams: a stamp for KNM, reading, listening, writing and speaking, and your checklist"></div>
+        <div class="phone"><img src="img/8-inburgering.jpg" width="600" height="1298" loading="lazy" alt="A countdown of days until you can apply to become Dutch"></div>
+        <div class="phone"><img src="img/9-route.jpg" width="600" height="1298" loading="lazy" alt="The official route: see which exams you need, book early, then pass and keep your diploma"></div>
+      </div>
     </div>
   </section>
 
-  <section class="feat">
-    <div class="phone"><img src="img/7-licence-plan.jpg" width="600" height="1298" loading="lazy" alt="Your licence plan: within 6 months is realistic, with dates for the theory exam, lessons, practical exam and licence"></div>
-    <div class="txt">
-      <p class="kicker">Beyond the theory exam</p>
-      <h2>Your road to a licence</h2>
-      <p>Pick when you want your licence. Klaar tells you honestly if that is realistic, and puts a date on every step: theory exam, lessons, practical exam, licence.</p>
-      <p>Already have a licence from another country? Klaar first tells you if you can usually swap it instead.</p>
-      <p class="note">Klaar is an independent practice app. You book your exams and apply on mijn.cbr.nl, cbr.nl and rdw.nl, and Klaar links you there.</p>
-    </div>
-  </section>
+  <div class="wrap">
+    <section class="faq">
+      <div>
+        <h2>Questions people ask</h2>
+      </div>
+      <div>
+        <details><summary>Is Klaar made by the CBR or DUO?</summary><p>No. Klaar is an independent practice app. The questions are original, written in the style of the exams and checked against official sources. You book the real exams yourself on cbr.nl and inburgeren.nl.</p></details>
+        <details><summary>What does it cost?</summary><p>Klaar is free during the beta.</p></details>
+        <details><summary>Can I take the real theory exam in English?</summary><p>Yes. The CBR offers the car theory exam in English. Check cbr.nl for the current price and how to book.</p></details>
+        <details><summary>Is Klaar enough to pass?</summary><p>Practise until you pass the full mock exam three times in a row. We also suggest the CBR's own practice material before the real exam. No app can promise you a pass.</p></details>
+        <details><summary>How do I switch to inburgering?</summary><p>Tap the last tab in the app. You get KNM, reading and listening practice, a stamp for each exam you pass, and the official route. You still book exams and apply on inburgeren.nl and ind.nl.</p></details>
+        <details><summary>Where is my progress stored?</summary><p>On your phone. You can save a backup file from your profile.</p></details>
+        <details><summary>Does it work on iPhone and Android?</summary><p>Yes, on both, in any modern browser. Add it to your home screen and it also works without internet.</p></details>
+      </div>
+    </section>
 
-  <section>
-    <p class="kicker">Start in two minutes</p>
-    <h2>How to start</h2>
-    <ol class="steps">
-      <li><strong>Open Klaar on your phone</strong><span>It runs in the browser. Add it to your home screen and it works without internet.</span></li>
-      <li><strong>Tell it your exam date</strong><span>No date yet? A guess is fine. You can change it later.</span></li>
-      <li><strong>Do today's lesson and questions</strong><span>About 15 minutes a day, until your light is green.</span></li>
-    </ol>
-  </section>
-
-  <section class="faq">
-    <div>
-      <p class="kicker">Questions</p>
-      <h2>Questions people ask</h2>
+    <div class="end">
+      <div class="lights" aria-hidden="true"><i></i><i></i><i class="on"></i></div>
+      <h2>When the light is green, you are klaar.</h2>
+      <p>Klaar means ready. Start today and see your light turn green.</p>
+      <a class="cta" href="../index.html">Start practising <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5.5l4.5 4.5-4.5 4.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
     </div>
-    <div>
-      <details><summary>Is Klaar made by the CBR?</summary><p>No. Klaar is an independent practice app and is not connected to the CBR. The questions are original, written in the style of the exam and checked against the Dutch traffic rules. You book the real exam yourself on cbr.nl.</p></details>
-      <details><summary>What does it cost?</summary><p>It is free right now. You do not need an account or a card.</p></details>
-      <details><summary>Can I take the real theory exam in English?</summary><p>Yes. The CBR offers the car theory exam in English. Check cbr.nl for the current price and how to book.</p></details>
-      <details><summary>Is Klaar enough to pass?</summary><p>Practise until you pass the full mock exam three times in a row. We also suggest the CBR's own practice material on cbr.nl before the real exam. No app can promise you a pass.</p></details>
-      <details><summary>I also need to do my inburgering. Can Klaar help?</summary><p>Yes, as an add-on. Switch to it with the last tab and you get practice for the KNM and Dutch A2 exams, a countdown to when you can apply to stay or become Dutch, and a stamp for each exam you pass. You still book exams and apply on inburgeren.nl and ind.nl.</p></details>
-      <details><summary>Where is my progress stored?</summary><p>On your phone only. Nothing personal is sent anywhere. You can save a backup file from your profile.</p></details>
-      <details><summary>Does it work on iPhone and Android?</summary><p>Yes, on both, in any modern browser.</p></details>
-    </div>
-  </section>
-
-  <div class="end">
-    <div class="lights" aria-hidden="true"><i></i><i></i><i class="on"></i></div>
-    <h2>When the light is green, you are klaar.</h2>
-    <p>Klaar means ready. Start today and see your light turn green.</p>
-    <a class="cta" href="../index.html">Start practising <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5.5l4.5 4.5-4.5 4.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
   </div>
 </main>
 
 <footer class="wrap">Klaar is an independent practice app. It is not affiliated with the CBR. Practice questions are original and not exam material. <a href="../privacy/">Privacy</a></footer>
 <script>
 (function(){
-  var tabs = [].slice.call(document.querySelectorAll('.tabs [role="tab"]'));
-  function pick(t, focus){
-    tabs.forEach(function(x){ var on = x === t; x.setAttribute('aria-selected', on); x.tabIndex = on ? 0 : -1; document.getElementById(x.getAttribute('aria-controls')).hidden = !on; });
-    if (focus) t.focus();
+  function tablist(sel, onPick){
+    var tabs = [].slice.call(document.querySelectorAll(sel + ' [role="tab"]'));
+    function pick(t, focus){
+      tabs.forEach(function(x){ var on = x === t; x.setAttribute('aria-selected', on); x.tabIndex = on ? 0 : -1; document.getElementById(x.getAttribute('aria-controls')).hidden = !on; });
+      if (focus) t.focus();
+      if (onPick) onPick(t);
+    }
+    tabs.forEach(function(t, i){
+      t.addEventListener('click', function(){ pick(t); });
+      t.addEventListener('keydown', function(e){
+        var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (d){ e.preventDefault(); pick(tabs[(i + d + tabs.length) % tabs.length], true); }
+      });
+    });
+    return pick;
   }
-  tabs.forEach(function(t, i){
-    t.addEventListener('click', function(){ pick(t); });
-    t.addEventListener('keydown', function(e){
-      var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
-      if (d){ e.preventDefault(); pick(tabs[(i + d + tabs.length) % tabs.length], true); }
+  tablist('.tabs');
+  var head = document.getElementById('top'), meta = document.querySelector('meta[name="theme-color"]');
+  var pickMode = tablist('.mode', function(t){
+    var civic = t.id === 'm-civic';
+    head.classList.toggle('civic', civic);
+    [].forEach.call(document.querySelectorAll('.stage [data-for]'), function(el){ el.hidden = (el.getAttribute('data-for') === 'civic') !== civic; });
+    meta.setAttribute('content', civic ? '#1F3A93' : '#0E1726');
+  });
+  if (location.hash === '#inburgering-start') pickMode(document.getElementById('m-civic'));
+
+  var opts = [].slice.call(document.querySelectorAll('#opts button'));
+  opts.forEach(function(b){
+    b.addEventListener('click', function(){
+      var ok = b.getAttribute('data-ok') === '1';
+      opts.forEach(function(x){ x.disabled = true; if (x.getAttribute('data-ok') === '1') x.classList.add('right'); });
+      if (!ok) b.classList.add('wrong');
+      document.getElementById('verdict').textContent = ok ? 'Right.' : 'Not quite. The entering car goes first.';
+      document.getElementById('why').hidden = false;
     });
   });
 })();

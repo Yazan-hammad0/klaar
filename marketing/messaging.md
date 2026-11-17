@@ -53,9 +53,9 @@ What the inburgering side shows (for when you do mention it): a Delft blue count
 - "Free": change every picture and post on the day a paid plan starts (planned for 15 Dec 2026).
 
 ## Look ("Green light", approved 15 Nov 2026)
-- Logo: a dark rounded square with a green circle and a white check, next to "klaar" in lowercase, Bricolage Grotesque 800, upright. No italics anywhere.
+- Logo: a dark rounded square with a green circle and a white check, next to "klaar" in lowercase, Familjen Grotesk 700, upright. No italics anywhere.
 - Colours: Ink #0E1726, Ground #F3F4F1, Green light #19B35C, Go (buttons, white text) #0B8A43, Amber #F2A51A, Red #E5533D. Inburgering: Delft blue #1F3A93 on warm paper #F4EFE4.
 - Green #19B35C is for shapes and for text on Ink only. Green text on a light background uses #0A6B34.
-- Type: Bricolage Grotesque for headings and big numbers, Inter for everything else. Both are in `fonts/`.
+- Type: Familjen Grotesk for headings and big numbers, Atkinson Hyperlegible Next for everything else. Picked in Nov 2026 over Bricolage and Inter, which half the new apps use. Both are in `fonts/`.
 - Picture: the traffic light with the green lamp on, or the readiness ring going red, amber, green.
 - Real app screens only, never mock-ups. Retired: sign blue #1C4FA0 and plate yellow.

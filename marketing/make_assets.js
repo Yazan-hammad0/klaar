@@ -113,19 +113,19 @@ async function appShots(browser){
 const b64 = f => 'data:image/png;base64,' + fs.readFileSync(path.join(DIRS.shots, f + '.png')).toString('base64');
 const font = f => 'data:font/woff2;base64,' + fs.readFileSync(path.join(ROOT, 'fonts', f)).toString('base64');
 
-/* The "Green light" brand: ink, ground, green light. Bricolage Grotesque for headings, Inter for the rest. */
+/* The "Green light" brand: ink, ground, green light. Familjen Grotesk for headings, Atkinson Hyperlegible Next for the rest. */
 const C = { ink:'#0E1726', ground:'#F3F4F1', green:'#19B35C', go:'#0B8A43', greenText:'#0A6B34', amber:'#F2A51A', red:'#E5533D', muted:'#5B6474' };
 const CSS = `
-@font-face{font-family:'Bricolage Grotesque';src:url(${font('bricolage-grotesque-latin.woff2')}) format('woff2');font-weight:200 800}
-@font-face{font-family:'Inter';src:url(${font('inter-latin.woff2')}) format('woff2');font-weight:100 900}
+@font-face{font-family:'Familjen Grotesk';src:url(${font('familjen-grotesk-latin.woff2')}) format('woff2');font-weight:400 700}
+@font-face{font-family:'Atkinson Hyperlegible Next';src:url(${font('atkinson-next-latin.woff2')}) format('woff2');font-weight:200 800}
 *{box-sizing:border-box;margin:0}
-body{font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+body{font-family:'Atkinson Hyperlegible Next',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 .s{position:relative;overflow:hidden;width:100vw;height:100vh;padding:84px 84px 0;display:flex;flex-direction:column}
 .ink{background:${C.ink};color:#fff}.ground{background:${C.ground};color:${C.ink}}
 .top{display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:28px;opacity:.9}
 .brand{display:flex;align-items:center;gap:18px}
-.wm{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:56px;letter-spacing:-.03em;line-height:1}
-h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:92px;line-height:1.04;letter-spacing:-.025em;margin-top:60px;max-width:900px}
+.wm{font-family:'Familjen Grotesk',sans-serif;font-weight:700;font-size:56px;letter-spacing:-.03em;line-height:1}
+h1{font-family:'Familjen Grotesk',sans-serif;font-weight:700;font-size:92px;line-height:1.04;letter-spacing:-.025em;margin-top:60px;max-width:900px}
 h1 em{font-style:normal;color:${C.green}}.ground h1 em{color:${C.greenText}}
 p{font-size:38px;line-height:1.3;font-weight:500;margin-top:28px;max-width:860px;opacity:.85}
 .phone{position:absolute;left:50%;transform:translateX(-50%);width:600px;border:16px solid ${C.ink};border-radius:76px;overflow:hidden;box-shadow:0 40px 90px rgba(5,12,30,.4);background:${C.ink}}
@@ -133,12 +133,12 @@ p{font-size:38px;line-height:1.3;font-weight:500;margin-top:28px;max-width:860px
 .phone img{display:block;width:100%}
 .pill{display:inline-block;align-self:flex-start;background:${C.go};color:#fff;font-weight:700;font-size:40px;padding:26px 44px;border-radius:999px;margin-top:48px}
 .list{margin-top:44px;display:grid;gap:22px}.list div{font-size:42px;font-weight:700;display:flex;gap:22px;align-items:center}
-.list b{flex:none;width:60px;height:60px;border-radius:50%;background:${C.green};color:${C.ink};display:grid;place-items:center;font-size:32px;font-weight:800}
+.list b{flex:none;width:60px;height:60px;border-radius:50%;background:${C.green};color:${C.ink};display:grid;place-items:center;font-size:32px;font-weight:700}
 .fine{position:absolute;left:84px;right:84px;bottom:72px;font-size:24px;opacity:.65;font-weight:500}
 .rings{display:flex;gap:28px;margin-top:150px}
 .rcard{flex:1;background:#fff;color:${C.ink};border-radius:40px;padding:36px 20px 30px;display:flex;flex-direction:column;align-items:center;gap:18px}
 .rcard svg{transform:rotate(-90deg)}
-.rcard b{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:56px;letter-spacing:-.03em;margin-top:-176px;margin-bottom:96px}
+.rcard b{font-family:'Familjen Grotesk',sans-serif;font-weight:700;font-size:56px;letter-spacing:-.03em;margin-top:-176px;margin-bottom:96px}
 .rcard span{font-size:30px;font-weight:700;padding:8px 20px;border-radius:99px}
 `;
 const LOGO = s => `<svg width="${s}" height="${s}" viewBox="0 0 32 32"><rect width="32" height="32" rx="9" fill="${C.ink}" stroke="rgba(255,255,255,.22)" stroke-width=".6"/><circle cx="16" cy="16" r="9.5" fill="${C.green}"/><path d="M11.6 16.3l3 3 5.8-6.2" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -167,7 +167,7 @@ function carousel(){
     slide('ink', `${top(6, N)}<div style="display:flex;gap:56px;align-items:center;margin-top:84px"><div style="flex:none">${light(380)}</div><h1 style="font-size:100px;margin:0">When the light is green, you are <em>klaar.</em></h1></div><div class="list" style="margin-top:72px;gap:30px"><div><b>1</b>Open the link on your phone</div><div><b>2</b>Tell it your exam date</div><div><b>3</b>Practise until your light is green</div></div><div class="pill" style="margin-top:64px">${SITE}</div><div class="fine">Free, no account, works offline. Original practice questions, not CBR exam material.</div>`)
   ];
 }
-const story = () => slide('ink', `${top()}<h1 style="font-size:104px;margin-top:150px">Dutch driving theory exam? Practise <em>in English.</em></h1><p style="font-size:44px">A plan that follows your exam date. Free, no account.</p><div style="position:absolute;left:0;right:0;top:900px;display:flex;justify-content:center">${light(640)}</div><div style="position:absolute;left:84px;right:84px;bottom:110px;text-align:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:56px;letter-spacing:-.03em">When the light is green, you are klaar.</div>`);
+const story = () => slide('ink', `${top()}<h1 style="font-size:104px;margin-top:150px">Dutch driving theory exam? Practise <em>in English.</em></h1><p style="font-size:44px">A plan that follows your exam date. Free, no account.</p><div style="position:absolute;left:0;right:0;top:900px;display:flex;justify-content:center">${light(640)}</div><div style="position:absolute;left:84px;right:84px;bottom:110px;text-align:center;font-family:'Familjen Grotesk',sans-serif;font-weight:700;font-size:56px;letter-spacing:-.03em">When the light is green, you are klaar.</div>`);
 const og = () => `<!doctype html><meta charset="utf-8"><style>${CSS}
 .s{padding:60px 0 0 72px}.top{width:760px}.wm{font-size:46px}h1{font-size:70px;margin-top:44px;max-width:760px}p{font-size:30px;max-width:700px;margin-top:22px}
 .lt{position:absolute;right:110px;top:50%;transform:translateY(-50%)}.url{position:absolute;left:72px;bottom:56px;font-size:26px;font-weight:600;opacity:.7}</style>
@@ -177,7 +177,7 @@ async function render(browser, html, w, h, file){
   const ctx = await browser.newContext({ viewport: {width:w, height:h}, deviceScaleFactor: 1 });
   const page = await ctx.newPage(); await page.setContent(html);
   const ok = await page.evaluate(async () => {
-    const a = await document.fonts.load('800 40px "Bricolage Grotesque"'), b = await document.fonts.load('500 40px "Inter"');
+    const a = await document.fonts.load('700 40px "Familjen Grotesk"'), b = await document.fonts.load('500 40px "Atkinson Hyperlegible Next"');
     await document.fonts.ready; return a.length > 0 && b.length > 0;
   });
   if (!ok) throw new Error('Brand fonts did not load for ' + file);
@@ -188,7 +188,7 @@ async function webCopies(browser){
   /* small JPGs for the landing page, 2x a 300px-wide phone */
   const ctx = await browser.newContext({ viewport: {width:600, height:1298}, deviceScaleFactor: 1 });
   const page = await ctx.newPage();
-  for (const f of ['1-plan', '2-learn', '2b-lesson', '3-question', '4-explained', '5-hazard', '6-mock-exams', '7-licence-plan']){
+  for (const f of ['1-plan', '2-learn', '2b-lesson', '3-question', '4-explained', '5-hazard', '6-mock-exams', '7-licence-plan', '8-inburgering', '8b-stamps', '9-route']){
     await page.setContent(`<body style="margin:0"><img src="${b64(f)}" style="display:block;width:600px">`); await page.waitForTimeout(150);
     await page.screenshot({ path: path.join(DIRS.web, f + '.jpg'), type: 'jpeg', quality: 82 });
   }

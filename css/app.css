@@ -1015,12 +1015,12 @@ body[data-track="civic"] .hero .hero-note{color:var(--muted);opacity:1}
 body[data-track="civic"] .hero .hero-edit{color:var(--link);opacity:1}
 
 /* ================= The look: Green light (Nov 2026) =================
-   Letters: Bricolage Grotesque for headings and big numbers, Inter for reading. Both served from fonts/, so every phone shows them, also offline.
+   Letters: Familjen Grotesk for headings and big numbers, Atkinson Hyperlegible Next for reading (built for legibility, chosen Nov 2026 so Klaar does not look like every other app). Both served from fonts/, so every phone shows them, also offline.
    Driving is ink and green light on a cool grey ground. Inburgering is Delft blue on warm paper. */
-@font-face{font-family:'Bricolage Grotesque';src:url(../fonts/bricolage-grotesque-latin.woff2) format('woff2');font-weight:200 800;font-style:normal;font-display:swap}
-@font-face{font-family:'Inter';src:url(../fonts/inter-latin.woff2) format('woff2');font-weight:100 900;font-style:normal;font-display:swap}
-:root{--font-display:'Bricolage Grotesque','Inter',-apple-system,BlinkMacSystemFont,system-ui,'Segoe UI',Roboto,sans-serif;
-  --font-body:'Inter',-apple-system,BlinkMacSystemFont,system-ui,'Segoe UI',Roboto,sans-serif;
+@font-face{font-family:'Familjen Grotesk';src:url(../fonts/familjen-grotesk-latin.woff2) format('woff2');font-weight:400 700;font-style:normal;font-display:swap}
+@font-face{font-family:'Atkinson Hyperlegible Next';src:url(../fonts/atkinson-next-latin.woff2) format('woff2');font-weight:200 800;font-style:normal;font-display:swap}
+:root{--font-display:'Familjen Grotesk','Atkinson Hyperlegible Next',-apple-system,BlinkMacSystemFont,system-ui,'Segoe UI',Roboto,sans-serif;
+  --font-body:'Atkinson Hyperlegible Next',-apple-system,BlinkMacSystemFont,system-ui,'Segoe UI',Roboto,sans-serif;
   --plate-ink:#fff;--ink:#0E1726;--green:#19B35C;--amber:#F2A51A;--red:#E5533D;
   --panel:#0E1726;--chip-fg:#0A6B34;--link:#0B7A3C}
 body[data-track="civic"]{--panel:#1F3A93;--chip-fg:#1F3A93;--link:#1F3A93}

@@ -29,7 +29,7 @@ Only changed the look or the words on the pictures, not the app? Skip the server
 cd marketing && node make_assets.js --no-shots
 ```
 
-The pictures use the brand fonts from `../fonts/` (Bricolage Grotesque and Inter). The script stops with an error if they do not load.
+The pictures use the brand fonts from `../fonts/` (Familjen Grotesk and Atkinson Hyperlegible Next). The script stops with an error if they do not load.
 
 The learner in the pictures ("Sara") is made up by the script. Never use a real person's progress.
 
