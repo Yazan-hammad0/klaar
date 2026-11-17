@@ -53,6 +53,16 @@ function mergeTrack(a, b){
   r.wrong = Object.keys(due).map(function(id){ return {id: id, due: due[id]}; }).sort(function(x, y){ return x.due - y.due || (x.id < y.id ? -1 : x.id > y.id ? 1 : 0); }).slice(-120);
   return r;
 }
+/* the last time a phone answered a question or finished a mock (opening the app does not count) */
+function lastActive(s){
+  var m = 0, t = obj(obj(s).t);
+  Object.keys(t).forEach(function(k){
+    var tr = obj(t[k]), seen = obj(tr.seen), mocks = obj(tr.mocks);
+    Object.keys(seen).forEach(function(id){ m = Math.max(m, num(seen[id])); });
+    Object.keys(mocks).forEach(function(id){ arr(mocks[id]).forEach(function(x){ m = Math.max(m, num(x && x.at)); }); });
+  });
+  return m;
+}
 /* settings come from the phone that changed something last; progress is merged; "Start again" on one phone wins over older progress */
 function merge(a, b){
   a = obj(a); b = obj(b);
@@ -66,10 +76,10 @@ function merge(a, b){
   var wa = num(a.wiped), wb = num(b.wiped);
   r.wiped = Math.max(wa, wb) || undefined;
   if (!r.wiped) delete r.wiped;
+  /* "Start again" wins only over a phone that answered nothing since; otherwise both are kept */
   if (wa !== wb){
-    var keep = wa > wb ? a : b;
-    r.t = JSON.parse(JSON.stringify(obj(keep.t))); r.days = obj(keep.days); r.plan = obj(keep.plan);
-    return r;
+    var keep = wa > wb ? a : b, other = keep === a ? b : a;
+    if (lastActive(other) <= Math.max(wa, wb)){ r.t = JSON.parse(JSON.stringify(obj(keep.t))); r.days = obj(keep.days); r.plan = obj(keep.plan); return r; }
   }
   r.days = maxMap(a.days, b.days);
   r.plan = Object.assign({}, obj(older.plan), obj(newer.plan));
@@ -86,7 +96,33 @@ function canon(x){
   if (x && typeof x === "object") return "{" + Object.keys(x).sort().filter(function(k){ return x[k] !== undefined; }).map(function(k){ return JSON.stringify(k) + ":" + canon(x[k]); }).join(",") + "}";
   return JSON.stringify(x === undefined ? null : x);
 }
-if (typeof module !== "undefined" && module.exports){ module.exports = {merge: merge, mergeTrack: mergeTrack, canon: canon}; return; }
+/* settings: three-way against what both phones agreed on at the last sync, so opening the app on an old phone
+   does not undo a change made on another. Without that base (first sync on this phone) the account's settings win. */
+var SETTINGS = ["prof", "goal", "arrived"];
+function settle(m, local, remote, base){
+  if (!remote) return m;
+  SETTINGS.forEach(function(k){
+    var lc = base ? canon(local[k]) !== canon(base[k]) : false, rc = base ? canon(remote[k]) !== canon(base[k]) : true;
+    var v = lc && !rc ? local[k] : rc && !lc ? remote[k] : m[k];
+    if (!base && (remote[k] === undefined || (k === "prof" && !(remote.prof && remote.prof.at)))) v = m[k];
+    if (v === undefined) delete m[k]; else m[k] = v;
+  });
+  var wl = num(local.wiped), wr = num(remote.wiped), wiped = wl !== wr && lastActive(wl > wr ? remote : local) <= Math.max(wl, wr);
+  if (!wiped){
+    var lp = obj(local.plan), rp = obj(remote.plan), bp = obj(base && base.plan), plan = {};
+    Object.keys(lp).concat(Object.keys(rp)).forEach(function(k){
+      var lc = base ? lp[k] !== bp[k] : false, rc = base ? rp[k] !== bp[k] : true;
+      plan[k] = lc && !rc ? lp[k] : rc && !lc ? rp[k] : obj(m.plan)[k];
+      if (plan[k] === undefined) plan[k] = lp[k] !== undefined ? lp[k] : rp[k];
+    });
+    m.plan = plan;
+  }
+  return m;
+}
+function snapshot(s){ var b = {plan: obj(s.plan)}; SETTINGS.forEach(function(k){ if (s[k] !== undefined) b[k] = s[k]; }); return JSON.parse(JSON.stringify(b)); }
+/* compare without what stays per phone */
+function same(x, y){ return canon(Object.assign({}, x, {track: null, view: null})) === canon(Object.assign({}, y, {track: null, view: null})); }
+if (typeof module !== "undefined" && module.exports){ module.exports = {merge: merge, mergeTrack: mergeTrack, canon: canon, settle: settle, lastActive: lastActive}; return; }
 
 /* ---------------- account and sync ---------------- */
 var K = window.KLAAR, on = !!(window.Backend && Backend.on && K && K.state);
@@ -108,19 +144,25 @@ function sync(){
   if (busy){ again = true; return busy; }
   clearTimeout(timer);
   if (!online()){ later(60000); return Promise.resolve(false); }
-  busy = Backend.fresh(sess, setSess).then(function(sn){
+  var auth = function(force){ if (force) sess.exp = 0; return Backend.fresh(sess, setSess).catch(function(e){ if (e) e.auth = true; throw e; }); };
+  var round = function(sn){
     return Backend.loadProgress(sn).then(function(remote){
       var local = JSON.parse(JSON.stringify(K.state()));
-      var m = remote ? merge(local, remote) : local;
-      var cm = canon(m);
-      if (cm !== canon(local)) K.adopt(m);
-      if (!remote || cm !== canon(remote)) return Backend.saveProgress(sn, m);
+      var m = remote ? settle(merge(local, remote), local, remote, meta.base) : local;
+      m.track = local.track; m.view = local.view;
+      if (!same(m, local)) K.adopt(m);
+      meta.next = snapshot(m);
+      if (!remote || !same(m, remote)) return Backend.saveProgress(sn, m);
     });
+  };
+  busy = auth(false).then(function(sn){
+    /* an access token the server no longer accepts: get a new one once and try again */
+    return round(sn).catch(function(e){ if (e && e.status === 401 && !e.auth) return auth(true).then(round); throw e; });
   }).then(function(){
-    fails = 0; meta.at = Date.now(); meta.err = 0; put(META, meta); return true;
+    fails = 0; meta.at = Date.now(); meta.err = 0; meta.base = meta.next; delete meta.next; put(META, meta); return true;
   }, function(e){
     /* the sign-in itself ran out or was removed: sign out on this phone, keep the progress */
-    if (e && (e.status === 400 || e.status === 401 || e.status === 403) && /refresh|jwt|token|session|not_found|user/i.test(String(e.code || e.message))){ setSess(null); refresh(); return false; }
+    if (e && e.auth && (e.status === 400 || e.status === 401 || e.status === 403)){ setSess(null); meta = {}; put(META, null); refresh(); return false; }
     fails++; meta.err = Date.now(); put(META, meta);
     later(Math.min(600000, 30000 * Math.pow(2, Math.min(fails, 5))));
     return false;
@@ -165,6 +207,10 @@ function openForm(mode, done){
     '<button class="link acct-later" data-act="acct-later">Not now</button>' +
   '</div>', true);
   var root = document.getElementById("overlay-root"), f = root.querySelector(".acct-form"), err = root.querySelector("#acct-err"), go = root.querySelector("#acct-go");
+  var cancel = function(){ var d = afterSheet; afterSheet = null; if (d) setTimeout(function(){ d(false); }, 260); };
+  root.querySelector("#ov").addEventListener("click", function(e){ if (e.target.id === "ov") cancel(); });
+  var esc1 = function(e){ if (e.key === "Escape"){ document.removeEventListener("keydown", esc1); cancel(); } };
+  document.addEventListener("keydown", esc1);
   root.querySelector('[data-act="acct-swap"]').addEventListener("click", function(){ openForm(signup ? "in" : "up", afterSheet); });
   root.querySelector('[data-act="acct-later"]').addEventListener("click", function(){ var d = afterSheet; afterSheet = null; K.closeSheet(); if (d) d(false); });
   f.addEventListener("submit", function(e){
@@ -176,6 +222,8 @@ function openForm(mode, done){
     var p = signup ? Backend.signUp(email, pw).catch(function(e){ if (/user_already_exists/i.test(String(e && e.code))) return Backend.signIn(email, pw); throw e; }) : Backend.signIn(email, pw);
     p.then(function(s){
       setSess(s);
+      meta = {}; put(META, null);
+      var st = K.state(); if (st.wiped){ delete st.wiped; try{ localStorage.setItem("klaarStateV1", JSON.stringify(st)); }catch(e){} }
       return sync();
     }).then(function(ok){
       var d = afterSheet; afterSheet = null;

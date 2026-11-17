@@ -105,7 +105,17 @@ grant execute on function public.delete_me() to authenticated;
 
 The publishable (anon) key is meant to be public: the rules from step 2 protect the data. **Never** put the `service_role` key or a `sb_secret_` key in this file or anywhere in this repo. The repo is public.
 
-### 5. Release
+### 5. Sign the data processing agreement (DPA)
+
+The privacy page says Supabase stores data for Klaar under a data processing agreement. Make that true:
+
+1. In the Supabase dashboard, open your **organisation** (top left), then **Settings**, then **Legal Documents**.
+2. Find the **Data Processing Addendum (DPA)** and follow the steps to sign it (it is a PandaDoc form; it asks for the company name, which is `[Company name]` until the KVK change is done).
+3. Save the signed PDF somewhere safe, outside this repo.
+
+If your plan does not offer the DPA, tell Claude, and the privacy page line will be reworded.
+
+### 6. Release
 
 ```bash
 python3 release.py "Save your progress to a free account and use it on any phone"

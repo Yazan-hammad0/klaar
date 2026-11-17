@@ -1956,7 +1956,7 @@ function profileLine(){
   var s = bits.join(", "); return s.charAt(0).toUpperCase() + s.slice(1) + ".";
 }
 function applyProfile(p, fresh){
-  if (fresh){ var keep = {arrived:S.arrived, goal:S.goal, view:"home"}; S = freshState(); S.arrived = keep.arrived; S.view = "home"; S.wiped = Date.now(); cur = null; lastId = null; }
+  if (fresh){ var keep = {arrived:S.arrived, goal:S.goal, view:"home"}; S = freshState(); S.arrived = keep.arrived; S.view = "home"; if (window.KLAAR_SYNC && KLAAR_SYNC.signedIn()) S.wiped = Date.now(); cur = null; lastId = null; }
   S.prof = p; S.prof.at = Date.now(); S.onboarded = true; lesson = null;
   if (p.goal) S.goal = p.goal;
   if (p.civicLevel && S.t.civic.level < p.civicLevel) S.t.civic.level = p.civicLevel;
@@ -1982,7 +1982,7 @@ function placementSave(t, results){
   }
   save();
 }
-function resetProgress(){ var keep = {arrived:S.arrived, prof:S.prof, goal:S.goal}; S = freshState(); S.arrived = keep.arrived; S.prof = keep.prof; S.goal = keep.goal; S.onboarded = true; S.wiped = Date.now(); cur = null; lesson = null; focus = null; lastId = null; save(); applyTrack(); setView("home"); }
+function resetProgress(){ var keep = {arrived:S.arrived, prof:S.prof, goal:S.goal}; S = freshState(); S.arrived = keep.arrived; S.prof = keep.prof; S.goal = keep.goal; S.onboarded = true; if (window.KLAAR_SYNC && KLAAR_SYNC.signedIn()) S.wiped = Date.now(); cur = null; lesson = null; focus = null; lastId = null; save(); applyTrack(); setView("home"); }
 /* accounts (js/sync.js): take a merged state into the one already on screen. Fields are copied into the existing objects,
    so a question or mock that is open keeps writing to the right place. Mode and screen stay as they are on this phone. */
 function adoptState(m){
@@ -1991,7 +1991,9 @@ function adoptState(m){
   ["drive", "civic"].forEach(function(t){ var tr = S.t[t]; Object.keys(tr).forEach(function(k){ delete tr[k]; }); Object.assign(tr, m.t[t]); });
   lsSet(LS, S);
   renderAvatar();
-  if ((view === "home" || view === "learn") && !document.getElementById("setup")) renderAll();
+  if (document.getElementById("setup")) return;
+  if (view === "home" && !homeSub) renderHome();
+  else if (view === "learn") renderLearn();
 }
 window.KLAAR = {track:function(){ return S.track; }, state:function(){ return S; }, adopt:adoptState, sheet:openSheet, closeSheet:closeSheet, toast:toast, needsSetup:function(){ return !(S.prof && S.prof.v >= 2); }, placementPool:placementPool, placementSave:placementSave, poolSize:function(t){ return pool(t).length; }, seenCount:function(t){ return Object.keys(S.t[t].seen).length; },
   isProfiled:function(){ return !!(S.prof && S.prof.at); }, hasProgress:function(){ return S.t.drive.ans + S.t.civic.ans; }, profile:function(){ return S.prof || null; }, applyProfile:applyProfile, isOnboarded:function(){ return !!S.onboarded; }, goal:function(){ return S.goal; }, finish:function(t, g){ if (t === 'drive' || t === 'civic') setTrack(t); if (g) S.goal = g; S.onboarded = true; save(); renderAll(); }};
