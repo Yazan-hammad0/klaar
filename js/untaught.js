@@ -79,10 +79,7 @@ window.UNTAUGHT = {
     "x-d-jrwqv9": "Novice licence: second serious offence means a CBR investigation",
     "x-d-1uy19fv": "Coach for a 17-year-old: 27+ and licensed 5+ years",
     "x-d-1k76wyo": "No unnecessary noise",
-    "x-d-ivi7sz": "No passengers in the loading space",
-    "x-d-1f9cy5j": "Each passenger needs a seat",
     /* Speed limits */
-    "x-d-1695sf2": "Trailer: 90 km/h",
     "x-d-ygn9ax": "A bicycle rack does not change the limit (trailer: 90)",
     "d29": "Motorway 100 km/h from 06:00 to 19:00",
     "x-d-xznmq": "Motorway 130 km/h after 19:00",
