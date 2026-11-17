@@ -2,6 +2,8 @@
 
 GitHub Pages and Cloudflare Pages only serve files. They cannot keep accounts. So Klaar uses a free Supabase project for them: one account per email with a password, and one saved copy of the learner's progress per account.
 
+Connected since 17 November 2026: project `klaar`, region West EU (Ireland). The steps below are how it was set up, in case it ever has to be redone.
+
 Accounts are optional. Without one, Klaar works exactly as before, fully offline, with progress on the phone only.
 
 | File | What it does |
