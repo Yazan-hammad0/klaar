@@ -1,5 +1,5 @@
 /* Screen-tall layout for the home-screen app, update notice, service worker. */
-var KLAAR_VERSION = "bcdcad9f83", KLAAR_NEWS = "Pictures on questions about distances, lights, seat belts, phones, alcohol, tyres and safety";
+var KLAAR_VERSION = "b4a6bac789", KLAAR_NEWS = "Inburgering: new lessons on government, housing and education, with 31 more KNM questions to practise";
 (function(){
   /* iOS home-screen apps sometimes get a layout viewport shorter than the screen, which leaves a strip under the tab bar.
      Measure it and push the bottom chrome down into that strip. */

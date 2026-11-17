@@ -23,6 +23,27 @@ var SRC = {
   birth: "https://www.rijksoverheid.nl/onderwerpen/aangifte-geboorte-en-naamskeuze-kind/vraag-en-antwoord/aangifte-geboorte",
   toeslagChange: "https://www.belastingdienst.nl/wps/wcm/connect/bldcontentnl/belastingdienst/prive/toeslagen/wijzigingen_doorgeven/wijzigingen_doorgeven",
   digid: "https://www.digid.nl/en/security/tips-secure-login",
+  /* KNM: government, housing, education. Checked on 17 Nov 2026 */
+  seats: "https://www.rijksoverheid.nl/themas/overheid-en-democratie/parlement/zetelverdeling-parlement",
+  parliament: "https://prodemos.nl/kennis/informatie-over-politiek/nederland/het-parlement/",
+  ministers: "https://wetten.overheid.nl/jci1.3:c:BWBR0001840&hoofdstuk=2&artikel=42",
+  article1: "https://wetten.overheid.nl/jci1.3:c:BWBR0001840&hoofdstuk=1&artikel=1",
+  mayor: "https://www.rijksoverheid.nl/themas/overheid-en-democratie/gemeenten/burgemeesters",
+  voteTK: "https://www.kiesraad.nl/verkiezingen/tweede-kamer/stemmen/kiesgerechtigdheid",
+  voteLocal: "https://www.kiesraad.nl/verkiezingen/gemeenteraden/stemmen/kiesgerechtigdheid",
+  localEvery4: "https://www.kiesraad.nl/verkiezingen/gemeenteraden",
+  europe5: "https://www.kiesraad.nl/verkiezingen/europees-parlement",
+  deposit: "https://www.rijksoverheid.nl/documenten/vraag-en-antwoord/woning-huren/woning-huren-waarborgsom",
+  repairs: "https://www.rijksoverheid.nl/documenten/vraag-en-antwoord/woning-huren/welke-kosten-zijn-voor-de-huurder-en-welke-voor-de-verhuurder",
+  smoke: "https://www.rijksoverheid.nl/onderwerpen/gezond-en-veilig-wonen/vraag-en-antwoord/hoeveel-rookmelders-moet-ik-in-mijn-huis-hebben",
+  repairWrite: "https://www.rijksoverheid.nl/onderwerpen/woning-huren/vraag-en-antwoord/hoe-zorg-ik-ervoor-dat-de-verhuurder-slecht-onderhoud-aanpakt",
+  rentRise: "https://www.rijksoverheid.nl/vraag-en-antwoord/woning-huren/welke-regels-gelden-er-voor-een-huurverhoging",
+  rentEnd: "https://www.rijksoverheid.nl/onderwerpen/woning-huren/vraag-en-antwoord/huur-opzeggen-woning",
+  schoolAge: "https://www.rijksoverheid.nl/onderwerpen/leerplicht/leerplicht-en-kwalificatieplicht",
+  schoolLeave: "https://www.rijksoverheid.nl/onderwerpen/leerplicht/vraag-en-antwoord/leerplicht-schoolvakanties",
+  parentFee: "https://www.rijksoverheid.nl/onderwerpen/financiering-onderwijs/vraag-en-antwoord/is-de-vrijwillige-ouderbijdrage-op-de-basisschool-en-middelbare-school-verplicht",
+  tracks: "https://www.rijksoverheid.nl/onderwerpen/voortgezet-onderwijs/vraag-en-antwoord/hoe-lang-mogen-leerlingen-doen-over-het-voortgezet-onderwijs",
+  studyGrant: "https://duo.nl/particulier/studiefinanciering/",
   /* Dutch language: the ANS (the reference grammar of Dutch), Taaladvies, Onze Taal, and the official exam pages */
   clock: "https://e-ans.ivdnt.org/topics/pid/topic-19079431619093292",
   numbers: "https://e-ans.ivdnt.org/topics/pid/topic-16981467104435191",
@@ -603,6 +624,43 @@ var SCENES = {
     '<rect class="cv-blue" x="40" y="150" width="120" height="30" rx="8"/>' + ctext(100, 170, "Question first", "cv-w")); },
   smallWords: function(){ return civ("sw", blocks(30, ["niet", "geen", "wel"], -1) + blocks(76, ["verplaatst", "gaat niet door"], -1) + blocks(122, ["vanaf", "tot"], -1) + ctext(100, 178, "They change the meaning", "cv-s")); },
 
+  /* civic: government and elections */
+  twoChambers: function(){ return civ("tc", '<rect class="cv-blue" x="14" y="30" width="82" height="70" rx="10"/><rect class="cv-blue2" x="104" y="30" width="82" height="70" rx="10"/>' +
+    ctext(55, 60, "150", "cv-hbig") + ctext(55, 78, "Tweede", "cv-w") + ctext(55, 92, "Kamer", "cv-w") + ctext(145, 60, "75", "cv-hbig") + ctext(145, 78, "Eerste", "cv-w") + ctext(145, 92, "Kamer", "cv-w") +
+    ctext(55, 122, "Debates, can amend", "cv-s") + ctext(145, 122, "Yes or no only", "cv-s") + ctext(55, 138, "You vote for it", "cv-s") + ctext(145, 138, "Provinciale Staten", "cv-s") + ctext(145, 152, "choose it", "cv-s") + ctext(100, 182, "Together: the Staten-Generaal", "cv-t")); },
+  kingMinisters: function(){ return civ("km", '<path class="cv-warm" d="M62 70L70 40L86 58L100 34L114 58L130 40L138 70Z"/><rect class="cv-warm" x="62" y="72" width="76" height="12" rx="3"/>' +
+    ctext(100, 108, "King: head of state", "cv-t") + '<path class="cv-arrow" d="M100 118V134M95 128L100 135L105 128"/>' + ctext(100, 156, "Ministers are responsible", "cv-t") + ctext(100, 174, "to parliament", "cv-s")); },
+  whoVotes: function(){ return civ("wv", '<rect class="cv-card" x="56" y="22" width="88" height="62" rx="8"/><rect class="cv-dark" x="80" y="18" width="40" height="8" rx="3"/>' + ctext(100, 68, "18+", "cv-big2") +
+    ctext(100, 110, "Tweede Kamer: Dutch citizens", "cv-t") + ctext(100, 132, "Gemeenteraad: also EU citizens,", "cv-t") + ctext(100, 148, "and others after 5 years", "cv-t") + ctext(100, 164, "of legal residence", "cv-t")); },
+  everyYears: function(){ return civ("ey", calendar(54, 74, "4", "years") + calendar(146, 74, "5", "years") + ctext(54, 132, "Tweede Kamer", "cv-s") + ctext(54, 146, "Gemeenteraad", "cv-s") + ctext(146, 132, "European", "cv-s") + ctext(146, 146, "Parliament", "cv-s")); },
+  mayorCrown: function(){ return civ("mc", '<rect class="cv-card" x="20" y="44" width="70" height="56" rx="8"/>' + ctext(55, 70, "Gemeenteraad", "cv-s") + ctext(55, 86, "recommends", "cv-s") +
+    '<path class="cv-arrow" d="M94 72H106M101 67L107 72L101 77"/><rect class="cv-blue" x="110" y="44" width="70" height="56" rx="8"/>' + ctext(145, 70, "De Kroon", "cv-w") + ctext(145, 86, "appoints", "cv-w") +
+    ctext(100, 132, "Burgemeester", "cv-t") + ctext(100, 150, "Appointed, not elected", "cv-s")); },
+  article1: function(){ return civ("a1", '<rect class="cv-card" x="34" y="24" width="132" height="116" rx="8"/><rect class="cv-blue" x="34" y="24" width="132" height="24" rx="8"/><rect class="cv-blue" x="34" y="38" width="132" height="10"/>' +
+    ctext(100, 41, "Grondwet, artikel 1", "cv-w") + ctext(100, 76, "Equal cases:", "cv-t") + ctext(100, 94, "equal treatment", "cv-t") + ctext(100, 122, "No discrimination", "cv-s") + ctext(100, 168, "Applies to everyone here", "cv-t")); },
+
+  /* civic: housing */
+  depositMax: function(){ return civ("dm", '<rect class="cv-warm" x="30" y="40" width="60" height="70" rx="8"/><rect class="cv-warm" x="110" y="40" width="60" height="70" rx="8"/>' +
+    ctext(60, 82, "1", "cv-hbig") + ctext(140, 82, "2", "cv-hbig") + ctext(100, 136, "Borg: at most 2 months", "cv-t") + ctext(100, 154, "of kale huur (rent without costs)", "cv-s") + ctext(100, 176, "Contracts from 1 July 2023", "cv-s")); },
+  whoRepairs: function(){ return civ("wr", '<rect class="cv-card" x="12" y="36" width="84" height="100" rx="8"/><rect class="cv-blue" x="104" y="36" width="84" height="100" rx="8"/>' +
+    ctext(54, 58, "You", "cv-t") + ctext(54, 84, "Tap washer", "cv-s") + ctext(54, 100, "Toilet seat", "cv-s") + ctext(54, 116, "Small jobs", "cv-s") +
+    ctext(146, 58, "Landlord", "cv-w") + ctext(146, 84, "Windows", "cv-w") + ctext(146, 100, "Smoke alarms", "cv-w") + ctext(146, 116, "Big repairs", "cv-w") + ctext(100, 168, "Who fixes what", "cv-t")); },
+  rentOnce: function(){ return civ("ro", calendar(100, 74, "12", "months") + ctext(100, 132, "Rent goes up at most", "cv-t") + ctext(100, 150, "once every 12 months", "cv-t") + ctext(100, 170, "Usually on 1 July", "cv-s")); },
+  registered: function(){ return civ("rg", '<rect class="cv-card" x="40" y="40" width="120" height="78" rx="6"/><path class="cv-line" d="M40 42L100 86L160 42"/><rect class="cv-red" x="112" y="92" width="44" height="18" rx="3"/>' +
+    ctext(134, 105, "R", "cv-w") + ctext(100, 144, "Aangetekende brief", "cv-t") + ctext(100, 162, "You get proof it arrived", "cv-s")); },
+
+  /* civic: education */
+  schoolAges: function(){ return civ("sa", '<rect class="cv-card" x="14" y="62" width="172" height="34" rx="8"/><rect class="cv-blue" x="14" y="62" width="110" height="34" rx="8"/><rect class="cv-blue" x="108" y="62" width="16" height="34"/><rect class="cv-blue2" x="124" y="62" width="62" height="34" rx="8"/><rect class="cv-blue2" x="124" y="62" width="14" height="34"/>' +
+    ctext(16, 54, "5", "cv-t") + ctext(124, 54, "16", "cv-t") + ctext(184, 54, "18", "cv-t") + ctext(69, 84, "Leerplicht", "cv-w") + ctext(155, 84, "Diploma", "cv-w") +
+    ctext(100, 128, "From 16: school until 18,", "cv-t") + ctext(100, 144, "or until a havo, vwo or mbo 2 diploma", "cv-s")); },
+  schoolTracks: function(){
+    function bar(y, w, a, b){ return '<rect class="cv-blue" x="56" y="' + y + '" width="' + w + '" height="24" rx="6"/>' + ctext(32, y + 16, a, "cv-t") + ctext(56 + w + 22, y + 16, b, "cv-s"); }
+    return civ("st", bar(40, 64, "vmbo", "4 yrs") + bar(76, 80, "havo", "5 yrs") + bar(112, 96, "vwo", "6 yrs") + ctext(100, 166, "vwo prepares for university", "cv-t"));
+  },
+  askDirector: function(){ return civ("ad", calendar(100, 70, "8", "weeks") + ctext(100, 128, "Holiday in school time?", "cv-t") + ctext(100, 146, "Ask the school director first", "cv-s") + ctext(100, 162, "Only if no school holiday is possible", "cv-s")); },
+  parentFee: function(){ return civ("pf", '<rect class="cv-card" x="40" y="34" width="120" height="72" rx="8"/>' + ctext(100, 62, "Ouderbijdrage", "cv-t") + ctext(100, 86, "Vrijwillig", "cv-big2") +
+    ctext(100, 140, "Not paying? Your child", "cv-t") + ctext(100, 158, "still goes on the trip", "cv-t")); },
+
   /* motorway */
   mwJoin: function(){ return svg("mj", motorway(), "", [
     {shape:"car", color:"c-red", badge:"1", steady:true, path:[[0, 130, 240], [55, 130, -40], [100, 130, -40]], still:[0, 130, 60]},
@@ -911,6 +969,63 @@ window.LESSONS = {
        say:[["De les gaat niet door.", "The class is cancelled."], ["De afspraak is verplaatst.", "The appointment has been moved."], ["Open vanaf negen uur tot vijf uur.", "Open from nine until five."]],
        why:"Exam questions often test exactly these words, because they flip the meaning.", src:SRC.a2exams}
     ],
+    "Government": [
+      {scene:"kingMinisters", h:"A king, but parliament decides",
+       t:"The Netherlands is a constitutional monarchy. The King is head of state, but the ministers are responsible for what the government does, and they answer to parliament.",
+       why:"The King cannot be held to account, so the ministers who can be are the ones who decide.", src:SRC.ministers},
+      {scene:"twoChambers", h:"Two chambers: 150 and 75 seats",
+       t:"The Tweede Kamer has 150 members and you elect them directly. It debates bills and can change them (amend). The Eerste Kamer has 75 members, chosen by the members of the Provinciale Staten. It can only accept or reject a bill as a whole.",
+       why:"The Tweede Kamer does the real work on a law. The Eerste Kamer is a last check.", src:SRC.parliament},
+      {scene:"whoVotes", h:"Who may vote",
+       t:"For the Tweede Kamer you must be Dutch and 18 or older. For the gemeenteraad (municipal council) EU citizens living there may vote too, and people from outside the EU after 5 years of legal residence.",
+       why:"Your town affects your daily life, so you get a say there before you become Dutch.", src:SRC.voteLocal},
+      {scene:"everyYears", h:"Elections: every 4 or 5 years",
+       t:"The gemeenteraad is elected every 4 years, and so is the Tweede Kamer in a normal term. The Dutch members of the European Parliament are elected every 5 years.",
+       why:"Knowing the rhythm helps you spot the odd one out: Europe is the 5.", src:SRC.localEvery4},
+      {scene:"mayorCrown", h:"The burgemeester is appointed",
+       t:"You do not elect your burgemeester (mayor). The gemeenteraad recommends a candidate and the Crown (the King and a minister) appoints them, for 6 years.",
+       why:"It surprises many newcomers, so exams like to ask it.", src:SRC.mayor},
+      {scene:"article1", h:"Article 1: everyone is treated equally",
+       t:"Article 1 of the Grondwet (constitution) says everyone in the Netherlands is treated equally in equal cases. Discrimination because of religion, belief, politics, race, sex or anything else is not allowed. A landlord who refuses you because of your background breaks this rule.",
+       why:"It is the first article on purpose: the rest of the law builds on it.", src:SRC.article1}
+    ],
+    "Housing": [
+      {scene:"depositMax", h:"A deposit (borg) is at most 2 months' rent",
+       t:"For a rental contract signed from 1 July 2023, the landlord may ask a deposit (borg) of at most 2 months of kale huur: the rent without service costs.",
+       why:"A higher deposit is against the rules, so you can say no to it.", src:SRC.deposit},
+      {scene:"whoRepairs", h:"Small jobs are yours, big repairs are the landlord's",
+       t:"As a tenant you do the small daily jobs, like a new washer (leertje) in a dripping tap or a new toilet seat. Big repairs, like a broken window, are for the landlord.",
+       why:"Small things wear out from normal use, so they are yours. The building itself is the landlord's.", src:SRC.repairs},
+      {scene:"registered", h:"Landlord not fixing it? Write first",
+       t:"First send your landlord a letter or e-mail listing what is broken, and ask for it to be repaired within 6 weeks. If nothing happens, you can go to the Huurcommissie.",
+       why:"A letter or e-mail proves you reported it, which you need if you go to the Huurcommissie later.", src:SRC.repairWrite},
+      {scene:"whoRepairs", h:"Smoke alarms: the landlord puts them in",
+       t:"Every floor with a living room, bedroom or kitchen needs a smoke alarm. In a rented home, the owner or landlord must put them in.",
+       why:"Smoke alarms save lives, so the law makes the owner responsible, not the tenant.", src:SRC.smoke},
+      {scene:"rentOnce", h:"The rent goes up at most once a year",
+       t:"Your landlord may raise the rent once every 12 months, usually on 1 July. Huurtoeslag (rent benefit) comes from Dienst Toeslagen, part of the Belastingdienst, not from your landlord.",
+       why:"Twice in one year is usually not allowed, and you can object to it.", src:SRC.rentRise},
+      {scene:"registered", h:"Ending your rental: send a registered letter",
+       t:"To end your rental, send your landlord an aangetekende brief (registered letter). You get proof that it arrived. Usually you give 1 month's notice.",
+       why:"With proof of the date, nobody can say you gave notice too late.", src:SRC.rentEnd}
+    ],
+    "Education": [
+      {scene:"schoolAges", h:"School is compulsory from 5",
+       t:"Children must go to school from age 5 to 16 (leerplicht). Most start at 4. From 16 to 18 they must keep learning until they have a havo, vwo or mbo level 2 diploma (startkwalificatie).",
+       why:"Without a basic diploma it is much harder to find work, so the law keeps young people learning until they have one.", src:SRC.schoolAge},
+      {scene:"schoolTracks", h:"Three secondary tracks: vmbo, havo, vwo",
+       t:"Secondary school has three main tracks. Vmbo takes 4 years and leads to mbo. Havo takes 5 years and leads to a hogeschool. Vwo takes 6 years and prepares for university.",
+       why:"The track a child takes decides which studies are open later.", src:SRC.tracks},
+      {scene:"askDirector", h:"Holiday outside school holidays? Ask the director",
+       t:"Only if your work means you cannot go away in any school holiday, ask the school director for permission, at least 8 weeks before. Without permission, taking your child out of school is not allowed.",
+       why:"School time is protected by law. The director decides on the exceptions.", src:SRC.schoolLeave},
+      {scene:"parentFee", h:"The parents' contribution is voluntary",
+       t:"Schools may ask a vrijwillige ouderbijdrage (voluntary parents' contribution) for extras like a school trip. You do not have to pay it, and the school may not leave your child out if you don't.",
+       why:"Every child should be able to join in, whatever the parents can pay.", src:SRC.parentFee},
+      {scene:"schoolTracks", h:"Student finance comes from DUO",
+       t:"Students at an mbo, hogeschool or university apply for studiefinanciering (student finance) at DUO.",
+       why:"DUO handles both student money and the integration exams, so you will meet it more than once.", src:SRC.studyGrant}
+    ],
     "Healthcare": [
       {scene:"insCard", h:"Health insurance is a must: arrange it within 4 months",
        t:"When you start working here, take out Dutch basic health insurance (zorgverzekering) within 4 months. People who live here need it too.",
@@ -956,8 +1071,8 @@ window.LESSONS = {
   }
 };
 /* the order lessons come in: basics first, motorway and hazards later */
-window.LESSON_ORDER = {drive:["Priority", "Signs", "Road markings", "Speed limits", "Distances", "Lane use", "Stopping & parking", "Lights & visibility", "Railway crossings", "Motorway", "Seatbelts", "Mobile phones", "Alcohol limit", "Vehicle condition", "Safety", "Hazard perception"], civic:["Listening", "Reading", "Grammar", "Administration", "Healthcare", "Work life"]};
+window.LESSON_ORDER = {drive:["Priority", "Signs", "Road markings", "Speed limits", "Distances", "Lane use", "Stopping & parking", "Lights & visibility", "Railway crossings", "Motorway", "Seatbelts", "Mobile phones", "Alcohol limit", "Vehicle condition", "Safety", "Hazard perception"], civic:["Listening", "Reading", "Grammar", "Administration", "Healthcare", "Work life", "Housing", "Education", "Government"]};
 /* exam-section topics that share a lesson with a skill */
-window.LESSON_ALIAS = {civic:{"A2 Luisteren":"Listening", "A2 Lezen":"Reading", "A2 Schrijven":"Grammar", "Writing":"Grammar"}};
+window.LESSON_ALIAS = {civic:{"A2 Luisteren":"Listening", "A2 Lezen":"Reading", "A2 Schrijven":"Grammar", "Writing":"Grammar", "Elections":"Government"}};
 window.LESSON_SCENE = function(id){ return SCENES[id] ? SCENES[id]() : ""; };
 })();

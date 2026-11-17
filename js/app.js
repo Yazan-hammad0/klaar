@@ -41,7 +41,7 @@ CIVIC.QUESTIONS.forEach(function(q, i){
 });
 CIVIC.STAGES.forEach(function(s){
   s.qs.forEach(function(q, i){
-    STATIC.civic.push({id:"s-" + s.id + "-" + i, track:"civic", topic:s.title, kind:q.type === "type" ? "type" : "mc", q:q.q, o:q.o, c:q.c, a:q.a, e:q.e, en:q.en, p:q.p, audio:q.audio, sec:s.id, lvl:SEC_LVL[s.id] || 1});
+    STATIC.civic.push({id:"s-" + s.id + "-" + i, track:"civic", topic:q.t || s.title, kind:q.type === "type" ? "type" : "mc", q:q.q, o:q.o, c:q.c, a:q.a, e:q.e, en:q.en, p:q.p, audio:q.audio, sec:s.id, lvl:SEC_LVL[s.id] || 1});
   });
 });
 var XB = (typeof EXTRA !== "undefined" && EXTRA) ? EXTRA : {drive: [], civic: []};
