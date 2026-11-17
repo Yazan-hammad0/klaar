@@ -123,7 +123,7 @@ var GROUND = {
     var s = '<rect class="sc-road" x="60" y="0" width="80" height="200"/>';
     if (o.park) s += '<rect class="sc-drive" x="140" y="0" width="24" height="200"/>' + (o.park === "both" ? '<rect class="sc-drive" x="36" y="0" width="24" height="200"/>' : "");
     if (o.stop) s += '<path class="sc-road" d="M140 50L156 62V120L140 132Z"/><text class="sc-mark" x="174" y="150" style="text-anchor:middle">Bus stop</text>';
-    if (o.rails) s += '<path class="sc-rail" d="M96 0V200M104 0V200"/>'; else s += o.centre === "mixed" ? '<path class="sc-solid" d="M98 0V200"/><path class="sc-dash" d="M102.5 0V200"/>' : o.centre === "solid" ? '<path class="sc-solid" d="M100 0V200"/>' : '<path class="sc-dash" d="M100 0V200"/>';
+    if (o.rails) s += '<path class="sc-rail" d="M96 0V200M104 0V200"/>'; else s += o.centre === "mixed" ? '<path class="sc-solid" d="M98 0V200"/><path class="sc-dash" d="M102.5 0V200"/>' : o.centre === "mixed2" ? '<path class="sc-dash" d="M97.5 0V200"/><path class="sc-solid" d="M102 0V200"/>' : o.centre === "solid" ? '<path class="sc-solid" d="M100 0V200"/>' : '<path class="sc-dash" d="M100 0V200"/>';
     if (o.cycle) s += '<rect class="sc-cyclelane" x="140" y="0" width="14" height="200"/><path class="sc-solid" d="M140 0V200"/>';
     if (o.buslane) s += '<rect class="sc-road" x="140" y="0" width="26" height="200"/><path class="sc-solid" d="M140 0V200"/><text class="sc-mark" transform="translate(157 150) rotate(-90)">' + o.buslane + '</text><text class="sc-mark" transform="translate(157 50) rotate(-90)">' + o.buslane + '</text>';
     if (o.kerb) s += '<rect class="sc-drive" x="140" y="0" width="16" height="200"/><path class="mp-kerb-' + o.kerb + '" d="M137 0V200"/>';

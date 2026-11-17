@@ -1,5 +1,5 @@
 /* Screen-tall layout for the home-screen app, update notice, service worker. */
-var KLAAR_VERSION = "b762af8439", KLAAR_NEWS = "Inburgering mock exams are now timed like the real DUO exams, and KNM asks its questions theme by theme";
+var KLAAR_VERSION = "e2da2d2be4", KLAAR_NEWS = "24 more driving questions with pictures: lanes, road markings, stopping, lights, your car and the motorway";
 (function(){
   /* iOS home-screen apps sometimes get a layout viewport shorter than the screen, which leaves a strip under the tab bar.
      Measure it and push the bottom chrome down into that strip. */
