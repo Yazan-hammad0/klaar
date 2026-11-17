@@ -44,6 +44,13 @@ var SRC = {
   parentFee: "https://www.rijksoverheid.nl/onderwerpen/financiering-onderwijs/vraag-en-antwoord/is-de-vrijwillige-ouderbijdrage-op-de-basisschool-en-middelbare-school-verplicht",
   tracks: "https://www.rijksoverheid.nl/onderwerpen/voortgezet-onderwijs/vraag-en-antwoord/hoe-lang-mogen-leerlingen-doen-over-het-voortgezet-onderwijs",
   studyGrant: "https://duo.nl/particulier/studiefinanciering/",
+  /* Dutch: Onze Taal and Taaladvies for grammar, Wiktionary for word meanings. Checked on 17 Nov 2026 */
+  presentT: "https://onzetaal.nl/taalloket/d-t-of-dt",
+  kofschip: "https://onzetaal.nl/taalloket/t-kofschip",
+  irregular: "https://onzetaal.nl/taalloket/sterk-zwak-onregelmatig-werkwoord",
+  email: "https://taaladvies.net/opmaak-van-een-zakelijke-e-mail-algemeen/",
+  wKind: "https://en.wiktionary.org/wiki/kind#Dutch", wOpstaan: "https://en.wiktionary.org/wiki/opstaan", wMij: "https://en.wiktionary.org/wiki/mij", wHelaas: "https://en.wiktionary.org/wiki/helaas", wSpoor: "https://en.wiktionary.org/wiki/spoor", wKwartier: "https://en.wiktionary.org/wiki/kwartier", wTerugbellen: "https://en.wiktionary.org/wiki/terugbellen",
+  wMaandag: "https://en.wiktionary.org/wiki/maandag", wZonnig: "https://en.wiktionary.org/wiki/zonnig", wToets: "https://en.wiktionary.org/wiki/toets", wUitdoen: "https://en.wiktionary.org/wiki/uitdoen", wKeer: "https://en.wiktionary.org/wiki/keer", wVertraging: "https://en.wiktionary.org/wiki/vertraging",
   /* Dutch language: the ANS (the reference grammar of Dutch), Taaladvies, Onze Taal, and the official exam pages */
   clock: "https://e-ans.ivdnt.org/topics/pid/topic-19079431619093292",
   numbers: "https://e-ans.ivdnt.org/topics/pid/topic-16981467104435191",
@@ -652,6 +659,38 @@ var SCENES = {
     '<rect class="cv-blue" x="40" y="150" width="120" height="30" rx="8"/>' + ctext(100, 170, "Question first", "cv-w")); },
   smallWords: function(){ return civ("sw", blocks(30, ["niet", "geen", "wel"], -1) + blocks(76, ["verplaatst", "gaat niet door"], -1) + blocks(122, ["vanaf", "tot"], -1) + ctext(100, 178, "They change the meaning", "cv-s")); },
 
+  /* Dutch: more listening */
+  fiveOClock: function(){ return civ("fo", clockFace(54, 70, 40, 17, 0, ["vijf uur", "'s middags"]) + clockFace(146, 70, 40, 14, 30, ["half drie", "'s middags"])); },
+  teensTens: function(){ return civ("tt", blocks(40, ["veertien", "14"], 1) + blocks(86, ["veertig", "40"], 1) + ctext(100, 148, "-tien: 13 to 19", "cv-t") + ctext(100, 166, "-tig: 20, 30, 40 ...", "cv-t")); },
+  overKwartier: function(){ return civ("ok", clockFace(100, 74, 46, 9, 0, null) + '<path class="cv-blue" d="M100 74L100 28A46 46 0 0 1 146 74Z" opacity=".35"/>' + ctext(100, 150, "over een kwartier", "cv-nl") + ctext(100, 170, "in 15 minutes from now", "cv-s")); },
+  nietMaar: function(){ return civ("nm", blocks(40, ["niet", "spoor 5"], -1) + '<path class="cv-red" d="M104 50L176 62" stroke="#C0392B" stroke-width="3"/>' + blocks(96, ["maar", "spoor 8"], 1) + ctext(100, 160, "The second one is the real one", "cv-t")); },
+  taskLast: function(){ return civ("tl", '<rect class="cv-card" x="24" y="34" width="152" height="40" rx="8"/><rect class="cv-card" x="24" y="80" width="152" height="40" rx="8"/><rect class="cv-blue" x="24" y="126" width="152" height="40" rx="8"/>' +
+    ctext(100, 58, "Hallo, met Mark.", "cv-nl") + ctext(100, 104, "Ik sta in de winkel ...", "cv-nl") + ctext(100, 150, "Bel me even terug.", "cv-wnl") + ctext(100, 186, "The task comes last", "cv-s")); },
+  weekDays: function(){ var d = ["ma", "di", "wo", "do", "vr", "za", "zo"], o = ""; d.forEach(function(x, i){ o += '<rect class="' + (i === 3 ? "cv-blue" : "cv-card") + '" x="' + (10 + i * 26.5) + '" y="50" width="22" height="34" rx="5"/>' + ctext(21 + i * 26.5, 72, x, i === 3 ? "cv-wnl" : "cv-nl"); });
+    return civ("wd", o + '<path class="cv-arrow" d="M74 96C80 112 100 112 106 96M101 100L106 95L109 102"/>' + ctext(100, 140, "verplaatst naar donderdag", "cv-nl") + ctext(100, 160, "moved to Thursday", "cv-s")); },
+  dayWeather: function(){ return civ("dw", '<circle class="cv-warm" cx="146" cy="62" r="22"/><path class="cv-blue2" d="M30 74a18 18 0 0 1 34-6a14 14 0 1 1 6 26H36a12 12 0 0 1-6-20Z"/><path class="cv-line" d="M40 104l-4 10M54 104l-4 10M68 104l-4 10"/>' +
+    ctext(54, 138, "'s ochtends", "cv-nl") + ctext(54, 156, "regen", "cv-s") + ctext(146, 138, "'s middags", "cv-nl") + ctext(146, 156, "droog en zonnig", "cv-s")); },
+  phoneMenu: function(){ var o = ""; for (var i = 0; i < 9; i++){ var x = 70 + (i % 3) * 30, y = 40 + Math.floor(i / 3) * 30; o += '<rect class="' + (i === 1 ? "cv-blue" : "cv-card") + '" x="' + (x - 12) + '" y="' + (y - 12) + '" width="24" height="24" rx="5"/>' + ctext(x, y + 5, String(i + 1), i === 1 ? "cv-wnl" : "cv-nl"); }
+    return civ("pm", o + ctext(100, 150, "Voor verhuizen, kies 2", "cv-nl") + ctext(100, 170, "toets 2 = press 2", "cv-s")); },
+  coatShoes: function(){ return civ("cs", '<path class="cv-dark2" d="M40 40H90" fill="none"/><path class="cv-blue2" d="M52 44L66 44L76 104H42Z"/><path class="cv-warm" d="M118 104h26a8 8 0 0 0 8-8v-4h-20l-8-12h-6Z"/><path class="cv-warm" d="M150 104h26a8 8 0 0 0 8-8v-4h-20l-8-12h-6Z" opacity=".7"/>' +
+    ctext(58, 126, "jas", "cv-nl") + ctext(58, 142, "ophangen", "cv-nl") + ctext(150, 126, "schoenen", "cv-nl") + ctext(150, 142, "uitdoen", "cv-nl") + ctext(100, 174, "Wilt u ... ? = Please ...", "cv-t")); },
+  pillTimes: function(){ return civ("pt", '<rect class="cv-card" x="40" y="30" width="120" height="76" rx="10"/><circle class="cv-blue2" cx="70" cy="68" r="10"/><circle class="cv-blue2" cx="100" cy="68" r="10"/><circle class="cv-blue2" cx="130" cy="68" r="10"/>' +
+    ctext(100, 134, "drie keer per dag", "cv-nl") + ctext(100, 152, "na het eten, met water", "cv-nl")); },
+  cancelled: function(){ return civ("cn", blocks(36, ["gaat niet door"], 0) + ctext(100, 82, "cancelled", "cv-s") + blocks(98, ["vertraging"], 0) + ctext(100, 144, "delay", "cv-s") + ctext(100, 176, "dicht / gesloten = closed", "cv-t")); },
+  /* Dutch: verbs and writing */
+  verbT: function(){ return civ("vt", blocks(30, ["ik", "woon"], 1) + blocks(74, ["hij", "woont"], 1) + blocks(118, ["Woon", "jij?"], 0) + ctext(100, 178, "jij after the verb: no -t", "cv-s")); },
+  pastTense: function(){ return civ("pp", blocks(30, ["werken", "werkte"], 1) + blocks(74, ["wonen", "woonde"], 1) + blocks(118, ["gaan", "ging"], 1) + ctext(100, 178, "t k f s ch p: -te, the rest: -de", "cv-s")); },
+  perfectTense: function(){ return civ("pf2", blocks(40, ["Ik", "heb", "gebeld."], 2) + blocks(96, ["Ik", "heb", "gelezen."], 2) + ctext(100, 160, "heb + ge- ... -d, -t or -en", "cv-t")); },
+  plurals: function(){ return civ("pl", blocks(40, ["stoel", "stoelen"], 1) + blocks(96, ["kind", "kinderen"], 1) + ctext(100, 160, "Most words: -en", "cv-t") + ctext(100, 178, "Some are irregular", "cv-s")); },
+  splitVerb: function(){ return civ("sv", blocks(40, ["opstaan"], 0) + '<path class="cv-arrow" d="M100 76V92M95 86L100 93L105 86"/>' + blocks(104, ["Hij", "staat", "om 7 uur", "op."], 1) + ctext(100, 168, "op goes to the end", "cv-t")); },
+  formalMail: function(){ return civ("fm", '<rect class="cv-card" x="26" y="20" width="148" height="150" rx="8"/>' + ctext(100, 46, "Geachte heer/mevrouw,", "cv-nl") + '<path class="cv-line" d="M44 66H156M44 80H150M44 94H128M44 108H144"/>' +
+    ctext(100, 134, "Met vriendelijke groet,", "cv-nl") + ctext(100, 154, "Sara Ahmadi", "cv-s")); },
+  helaas: function(){ return civ("hl", blocks(56, ["Helaas", "kan", "ik", "niet", "komen."], 0) + ctext(100, 128, "helaas = unfortunately", "cv-t") + ctext(100, 146, "Polite way to say no", "cv-s")); },
+  verbEnd: function(){ return civ("ve", blocks(40, ["Ik", "ben", "ziek."], 1) + blocks(96, ["omdat", "ik", "ziek", "ben"], 3) + ctext(100, 160, "After omdat, dat, als:", "cv-t") + ctext(100, 178, "the verb goes to the end", "cv-s")); },
+  objectWords: function(){ return civ("ow", blocks(28, ["ik", "mij"], 1) + blocks(66, ["jij", "jou"], 1) + blocks(104, ["hij", "hem"], 1) + blocks(142, ["zij", "haar"], 1) + ctext(100, 188, "Kun je mij helpen?", "cv-nl")); },
+  writeExam: function(){ return civ("we", '<rect class="cv-card" x="30" y="26" width="64" height="80" rx="6"/><rect class="cv-card" x="106" y="26" width="64" height="80" rx="6"/><path class="cv-line" d="M40 46H84M40 60H80M40 74H84M116 46H160M116 60H150M116 74H156"/>' +
+    ctext(62, 96, "Letter", "cv-s") + ctext(138, 96, "Form", "cv-s") + ctext(100, 136, "4 tasks, 40 minutes", "cv-t") + ctext(100, 154, "Pen and paper", "cv-s")); },
+
   /* civic: government and elections */
   twoChambers: function(){ return civ("tc", '<rect class="cv-blue" x="14" y="30" width="82" height="70" rx="10"/><rect class="cv-blue2" x="104" y="30" width="82" height="70" rx="10"/>' +
     ctext(55, 60, "150", "cv-hbig") + ctext(55, 78, "Tweede", "cv-w") + ctext(55, 92, "Kamer", "cv-w") + ctext(145, 60, "75", "cv-hbig") + ctext(145, 78, "Eerste", "cv-w") + ctext(145, 92, "Kamer", "cv-w") +
@@ -983,7 +1022,27 @@ window.LESSONS = {
       {scene:"unitsFirst", h:"Numbers: the units come first",
        t:"From 21 to 99 you hear the units first, then en, then the tens. Vierenzestig is 64: four and sixty. When you write a number down, wait for the tens.",
        say:[["eenentwintig", "21"], ["vierenzestig", "64"], ["achtennegentig", "98"]],
-       why:"Hearing vier first makes you want to write 4 at the front. The tens come last.", src:SRC.numbers}
+       why:"Hearing vier first makes you want to write 4 at the front. The tens come last.", src:SRC.numbers},
+      {scene:"fiveOClock", h:"Vijf uur in the afternoon is 17.00",
+       t:"People say times on a 12-hour clock, but notices and exam answers use 24 hours. In the afternoon, vijf uur is 17.00 and half drie is 14.30. 's Middags means in the afternoon, 's avonds in the evening. A shift van zeven tot drie runs from 7.00 to 15.00. Dicht means closed.",
+       say:[["De bibliotheek gaat om vijf uur dicht.", "The library closes at 17.00."], ["'s middags om half drie", "at 14.30"], ["van zeven tot drie", "from 7.00 to 15.00"]],
+       why:"The answer options are often written as 17.00 or 15.00, so turn what you hear into the 24-hour time.", src:SRC.clock},
+      {scene:"teensTens", h:"Veertien is 14, veertig is 40",
+       t:"Numbers ending in -tien are 13 to 19. Numbers ending in -tig are the tens: twintig, dertig, veertig. Listen for the end of the word. A volwassene is an adult; kinderen are children. Ophalen bij de buren means to pick up from the neighbours.",
+       say:[["veertien", "14"], ["veertig", "40"], ["Een kaartje voor een volwassene kost veertien euro.", "An adult ticket costs 14 euros."]],
+       why:"Tien and tig sound alike, and exam questions use exactly this trap.", src:SRC.numbers},
+      {scene:"overKwartier", h:"Over een kwartier means in 15 minutes",
+       t:"Over with a time means from now: over een kwartier is in 15 minutes, over een uur is in an hour. A kwartier is a quarter of an hour.",
+       say:[["Over een kwartier sluit de winkel.", "The shop closes in 15 minutes."]],
+       why:"Over here does not mean past, so it is easy to misread.", src:SRC.wKwartier},
+      {scene:"nietMaar", h:"Niet ..., maar ...: the second one counts",
+       t:"Announcements often correct themselves: niet van spoor vijf, maar van spoor acht. The part after maar is the real one. Spoor means platform at a station.",
+       say:[["De trein vertrekt niet van spoor vijf, maar van spoor acht.", "The train leaves from platform 8, not 5."]],
+       why:"You hear both numbers, and the wrong one is always an answer option.", src:SRC.wSpoor},
+      {scene:"taskLast", h:"In a voicemail, the task comes last",
+       t:"A phone message starts with who is calling and why, and ends with what you should do. Bel me even terug means call me back.",
+       say:[["Bel me even terug.", "Call me back."]],
+       why:"Questions like Wat moet je doen? are about that last sentence, so keep listening to the end.", src:SRC.wTerugbellen}
     ],
     "Grammar": [
       {scene:"verbSecond", h:"The verb is always in second place",
@@ -1001,7 +1060,27 @@ window.LESSONS = {
       {scene:"deHet", h:"De or het: two rules that always work",
        t:"Every plural takes de: de huizen. Every small word ending in -je takes het: het huisje, het meisje. For other words, learn the article together with the word.",
        say:[["het huis, de huizen", "the house, the houses"], ["het meisje", "the girl"]],
-       why:"Most words have no rule, so these two save you from guessing.", src:SRC.deHet}
+       why:"Most words have no rule, so these two save you from guessing.", src:SRC.deHet},
+      {scene:"verbT", h:"Present tense: ik woon, hij woont",
+       t:"With ik you use the stem: ik woon, ik werk. With hij, zij, het and u you add -t: hij woont, zij fietst. With jij you add -t too, unless jij comes after the verb: jij woont, but Woon jij? Willen is irregular: ik wil, jij wilt, hij wil, and Wil jij?",
+       say:[["Ik woon in Rotterdam.", "I live in Rotterdam."], ["Hij fietst naar zijn werk.", "He cycles to work."], ["Wil jij koffie?", "Do you want coffee?"]],
+       why:"The stem is the base. You only add a -t, so learn the stem first.", src:SRC.presentT},
+      {scene:"pastTense", h:"Past tense: -te or -de, and a few irregulars",
+       t:"Does the stem end in t, k, f, s, ch or p (remember: 't kofschip)? Add -te: ik werkte, wij werkten. Otherwise add -de: ik woonde. Some common verbs are irregular: gaan becomes ging, kopen becomes kocht (wij kochten), zijn becomes was.",
+       say:[["Gisteren ging ik naar de dokter.", "Yesterday I went to the doctor."], ["Vorige week kochten wij een bank.", "Last week we bought a sofa."]],
+       why:"Regular verbs follow the kofschip rule, so you only have to learn the irregular ones by heart.", src:SRC.kofschip},
+      {scene:"perfectTense", h:"Perfect tense: heb + ge-",
+       t:"For something you did, use heb or heeft plus a form with ge-: ik heb gebeld, ik heb gewerkt. Regular verbs end in -d or -t (the kofschip rule again). Many irregular verbs end in -en: gelezen, gegeten.",
+       say:[["Ik heb mijn moeder gebeld.", "I called my mother."], ["Ik heb het boek gelezen.", "I have read the book."]],
+       why:"Spoken Dutch uses this form far more than the past tense, so you will need it every day.", src:SRC.irregular},
+      {scene:"plurals", h:"Plurals: mostly -en",
+       t:"Most words add -en for more than one: stoel, stoelen. Many words ending in -el, -er or -je add -s: tafels, meisjes. A few are irregular: kind becomes kinderen.",
+       say:[["een stoel, twee stoelen", "one chair, two chairs"], ["een kind, twee kinderen", "one child, two children"]],
+       why:"Kinderen comes up all the time in everyday life, and in the exam.", src:SRC.wKind},
+      {scene:"splitVerb", h:"Split verbs: opstaan becomes staat ... op",
+       t:"Some verbs start with a small word like op, uit or mee. In a normal sentence that small word goes to the end: opstaan becomes Hij staat om 7 uur op. Ophangen becomes Ik hang mijn jas op.",
+       say:[["Hij staat om zeven uur op.", "He gets up at seven."]],
+       why:"The verb stays in place 2, so the rest of it has to go somewhere: the end.", src:SRC.wOpstaan}
     ],
     "Reading": [
       {scene:"questionFirst", h:"Read the question first, then find the answer",
@@ -1011,6 +1090,53 @@ window.LESSONS = {
        t:"Notices often turn on one small word. Niet and geen mean not. Wel means it does. Verplaatst means moved, gaat niet door means is cancelled. Vanaf means from, tot means until.",
        say:[["De les gaat niet door.", "The class is cancelled."], ["De afspraak is verplaatst.", "The appointment has been moved."], ["Open vanaf negen uur tot vijf uur.", "Open from nine until five."]],
        why:"Exam questions often test exactly these words, because they flip the meaning.", src:SRC.a2exams}
+    ],
+    "Words you hear": [
+      {scene:"weekDays", h:"Days, and appointments that move",
+       t:"The days are maandag, dinsdag, woensdag, donderdag, vrijdag, zaterdag and zondag. Verplaatst naar or verzet naar means moved to: the new day comes after naar.",
+       say:[["maandag, dinsdag, woensdag", "Monday, Tuesday, Wednesday"], ["donderdag, vrijdag, zaterdag, zondag", "Thursday, Friday, Saturday, Sunday"], ["Uw afspraak is verplaatst naar donderdag.", "Your appointment has moved to Thursday."]],
+       why:"Exam messages often move an appointment, and both days are in the answers.", src:SRC.wMaandag},
+      {scene:"dayWeather", h:"Parts of the day and the weather",
+       t:"'s Ochtends is in the morning, 's middags in the afternoon, 's avonds in the evening. Weather words: regen (rain), droog (dry), zonnig (sunny), bewolkt (cloudy).",
+       say:[["'s ochtends regen, 's middags droog en zonnig", "rain in the morning, dry and sunny in the afternoon"]],
+       why:"A forecast often changes during the day, and the question asks about one part of it.", src:SRC.wZonnig},
+      {scene:"phoneMenu", h:"Phone menus: kies 2, toets 2",
+       t:"A phone menu says what each key is for: Voor verhuizen, kies 2. Toets 2 means press 2. Listen for your topic first, then the number after it.",
+       say:[["Voor verhuizen, kies 2.", "For moving house, choose 2."], ["Heeft u een vraag over uw rekening? Toets 1.", "A question about your bill? Press 1."]],
+       why:"The number comes after the topic, so wait for the topic before you listen for the number.", src:SRC.wToets},
+      {scene:"coatShoes", h:"Wilt u ...? is a polite instruction",
+       t:"Wilt u ...? sounds like a question, but it means please do this. Wilt u uw jas ophangen? means please hang up your coat. Schoenen uitdoen means take off your shoes.",
+       say:[["Wilt u uw jas ophangen?", "Please hang up your coat."], ["Wilt u uw schoenen uitdoen?", "Please take off your shoes."]],
+       why:"Instructions are often wrapped in polite questions, but you still have to do them.", src:SRC.wUitdoen},
+      {scene:"pillTimes", h:"Medicine: how often and when",
+       t:"Drie keer per dag means three times a day. Voor het eten is before eating, na het eten after eating. Met water means with water, niet met melk means not with milk.",
+       say:[["Neem de tabletten drie keer per dag, na het eten.", "Take the tablets three times a day, after eating."]],
+       why:"Taking medicine the wrong way can be harmful, which is why this comes up in the exam.", src:SRC.wKeer},
+      {scene:"cancelled", h:"Gaat niet door, vertraging, dicht",
+       t:"Gaat niet door means it is cancelled. Vertraging means delay: twintig minuten vertraging is 20 minutes late. Dicht and gesloten both mean closed.",
+       say:[["De les gaat niet door.", "The class is cancelled."], ["De bus heeft twintig minuten vertraging.", "The bus is 20 minutes late."]],
+       why:"These short words change the whole message, and they are easy to miss when people speak fast.", src:SRC.wVertraging}
+    ],
+    "Writing": [
+      {scene:"writeExam", h:"The A2 writing exam: 4 tasks on paper",
+       t:"The A2 writing exam takes 40 minutes, with pen and paper. You get 4 writing tasks, for example a short letter or a form to fill in.",
+       why:"Knowing the format means you can practise exactly what you will be asked to do.", src:SRC.a2exams},
+      {scene:"formalMail", h:"A formal e-mail: Geachte ... Met vriendelijke groet",
+       t:"To the gemeente, a landlord or anyone you don't know, start with Geachte heer/mevrouw, (or Geachte mevrouw De Vries,). End with Met vriendelijke groet, and your name. To a friend, Hoi or Beste is fine.",
+       say:[["Geachte heer/mevrouw,", "Dear Sir or Madam,"], ["Met vriendelijke groet,", "Kind regards,"]],
+       why:"The opening and the closing are the first things a reader sees, and they are easy marks in the exam.", src:SRC.email},
+      {scene:"helaas", h:"Saying no politely: helaas",
+       t:"Helaas means unfortunately. Use it to cancel or say no politely: Helaas kan ik morgen niet komen. Then give a reason and, if you can, a new time.",
+       say:[["Helaas kan ik morgen niet komen.", "Unfortunately I can't come tomorrow."]],
+       why:"A cancellation with helaas sounds polite. Without it, Dutch can sound blunt.", src:SRC.wHelaas},
+      {scene:"verbEnd", h:"After omdat, dat and als, the verb goes last",
+       t:"In a main sentence the verb is second: Ik ben ziek. After omdat (because), dat (that) and als (if, when), the verb moves to the end: Ik blijf thuis, omdat ik ziek ben. Ik denk dat de winkel morgen open is.",
+       say:[["Ik blijf thuis, omdat ik ziek ben.", "I'm staying home because I'm ill."], ["Ik denk dat de winkel morgen open is.", "I think the shop is open tomorrow."]],
+       why:"This is the most common word-order mistake in writing, and examiners look for it.", src:SRC.wordOrder},
+      {scene:"objectWords", h:"Mij, jou, hem, haar after the verb",
+       t:"When someone gets something done to them, use the object form: ik becomes mij (or me), jij becomes jou, hij becomes hem, zij becomes haar. Kun je mij helpen? Ik bel hem morgen.",
+       say:[["Kun je mij helpen?", "Can you help me?"], ["Ik bel hem morgen.", "I'll call him tomorrow."]],
+       why:"Ik and mij both mean I or me in English, so you have to choose by the place in the sentence.", src:SRC.wMij}
     ],
     "Government": [
       {scene:"kingMinisters", h:"A king, but parliament decides",
@@ -1114,8 +1240,8 @@ window.LESSONS = {
   }
 };
 /* the order lessons come in: basics first, motorway and hazards later */
-window.LESSON_ORDER = {drive:["Priority", "Signs", "Road markings", "Speed limits", "Distances", "Lane use", "Stopping & parking", "Lights & visibility", "Railway crossings", "Motorway", "Seatbelts", "Mobile phones", "Alcohol limit", "Vehicle condition", "Safety", "Hazard perception"], civic:["Listening", "Reading", "Grammar", "Administration", "Healthcare", "Work life", "Housing", "Education", "Government"]};
+window.LESSON_ORDER = {drive:["Priority", "Signs", "Road markings", "Speed limits", "Distances", "Lane use", "Stopping & parking", "Lights & visibility", "Railway crossings", "Motorway", "Seatbelts", "Mobile phones", "Alcohol limit", "Vehicle condition", "Safety", "Hazard perception"], civic:["Listening", "Words you hear", "Reading", "Grammar", "Writing", "Administration", "Healthcare", "Work life", "Housing", "Education", "Government"]};
 /* exam-section topics that share a lesson with a skill */
-window.LESSON_ALIAS = {civic:{"A2 Luisteren":"Listening", "A2 Lezen":"Reading", "A2 Schrijven":"Grammar", "Writing":"Grammar", "Elections":"Government"}};
+window.LESSON_ALIAS = {civic:{"A2 Luisteren":"Listening", "A2 Lezen":"Reading", "A2 Schrijven":"Grammar", "Elections":"Government"}};
 window.LESSON_SCENE = function(id){ return SCENES[id] ? SCENES[id]() : ""; };
 })();

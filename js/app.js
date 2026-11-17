@@ -496,7 +496,7 @@ function inFocus(q){ return focus.set ? !!focus.set[q.id] : (focus.part ? q.trac
    and for the basics (and AI questions) by its topic. */
 var PARTS = [["read", "Reading", "Signs, letters and short texts"], ["listen", "Listening", "Short spoken Dutch"], ["write", "Writing and grammar", "Words and sentences"], ["knm", "Dutch society", "KNM: work, health, rules, history"]];
 var SEC_PART = {"a2-lezen":"read", "b1":"read", "b2":"read", "c1":"read", "a2-luisteren":"listen", "a2-schrijven":"write", "knm":"knm"};
-var TOPIC_PART = {"Reading":"read", "Listening":"listen", "Grammar":"write", "Vocabulary":"write"};
+var TOPIC_PART = {"Reading":"read", "Listening":"listen", "Words you hear":"listen", "Grammar":"write", "Writing":"write", "Vocabulary":"write"};
 function partOf(q){ return (q.sec && SEC_PART[q.sec]) || TOPIC_PART[lessonKey("civic", q.topic)] || "knm"; }
 function partName(k){ for (var i = 0; i < PARTS.length; i++) if (PARTS[i][0] === k) return PARTS[i][1]; return k; }
 /* a unit = a topic's lesson, then its questions, then a short "topic done" card */
