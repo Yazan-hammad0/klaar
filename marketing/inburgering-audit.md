@@ -43,10 +43,12 @@ Every new step has an official or well-known source (rijksoverheid.nl, kiesraad.
 | Listening questions practice can show | 5 of 24 | 23 of 24 |
 | Writing and grammar questions practice can show | 5 of 22 | 22 of 22 |
 | Recorded Dutch audio | 45 clips | 81 clips (24 listening questions, 58 lesson phrases; one phrase shares a clip) |
-| Mock exams | 4 exam parts, untimed | 4 exam parts, timed like DUO, plus B1, B2, C1 reading |
+| Mock exams | 4 exam parts, untimed | 4 exam parts with the DUO time limits (question counts are ours, not the real exam's), plus B1, B2, C1 reading |
 
-Safe landing-page lines: "13 lessons for KNM, reading, listening and writing", "Over 130 practice questions with an official source behind every lesson", "81 Dutch audio clips by two voices", "Mock exams for KNM, reading, listening and writing, timed like the real DUO exams".
-Do not claim speaking practice or ONA/MAP: neither exists yet.
+Safe landing-page lines: "13 lessons for KNM, reading, listening and writing", "Over 130 practice questions with an official source behind every lesson", "81 Dutch audio clips by two voices", "Mock exams for KNM, reading, listening and writing, with the same time limits as the DUO exams".
+Do not claim speaking practice or ONA/MAP: neither exists yet. Do not call the mocks full-length: only the time limits match DUO.
+
+Gap left: practice shows about 60% of the inburgering bank against about 75% for driving (268 of 357), 13 lessons against 16, and Spreken is empty. Most of the gap is closed, not all of it.
 
 ## Still open
 - Speaking (gap 4): no lesson yet. A Speaking part needs its own place in Learn and questions, not just phrases.
