@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Privacy: Klaar</title>
-<meta name="description" content="What Klaar keeps on your phone, what it counts anonymously, and how to switch that off.">
+<meta name="description" content="What Klaar keeps on your phone, what an optional account stores, what it counts anonymously, and your rights.">
 <meta name="theme-color" content="#0E1726">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%230E1726'/%3E%3Ccircle cx='16' cy='16' r='9.5' fill='%2319B35C'/%3E%3Cpath d='M11.6 16.3l3 3 5.8-6.2' fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <style>
@@ -31,18 +31,57 @@ h2{font-size:22px;letter-spacing:-.02em;font-weight:800;margin:0 0 8px}
 .card ul{padding-left:20px}
 .card b{color:var(--fg)}
 footer{color:var(--muted);font-size:14px;padding:28px 20px 48px;text-align:center}
+.ph{background:rgba(242,165,26,.18);border-radius:6px;padding:0 4px;color:var(--fg)}
 </style>
 </head>
 <body>
 <header><div class="wrap"><div class="bar"><a class="brand" href="../welcome/" aria-label="Klaar"><svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#0E1726" stroke="rgba(255,255,255,.22)"/><circle cx="16" cy="16" r="9.5" fill="#19B35C"/><path d="M11.6 16.3l3 3 5.8-6.2" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="wm">klaar</span></a><a class="go" href="../">Open the app</a></div></div></header>
 <main class="wrap">
   <h1>Privacy</h1>
-  <p class="lead">Klaar has no accounts. Your progress stays on your phone. We count how the app is used, without knowing who you are, so we can fix the hard parts.</p>
+  <p class="lead">You can use Klaar without an account: then your progress stays on your phone. If you choose to make an account, a copy of your progress is saved in the EU so you can use it on another phone. We count how the app is used, without knowing who you are, so we can fix the hard parts.</p>
+
+  <div class="card">
+    <h2>Who is responsible</h2>
+    <p><span class="ph">[Company name]</span>, KVK <span class="ph">[KVK number]</span>, <span class="ph">[business address]</span>, is responsible for your data (the "controller" under the GDPR). Email: <span class="ph">[contact email]</span>.</p>
+  </div>
 
   <div class="card">
     <h2>What stays on your phone</h2>
-    <p>Your answers, your progress, your exam date and the name you may have typed are saved in your browser, on your own device. <b>They are never sent to us.</b> We cannot see them and we cannot get them back for you if you lose them.</p>
+    <p>Your answers, your progress, your exam date and the name you may have typed are saved in your browser, on your own device. <b>Without an account they are never sent to us.</b> We cannot see them and we cannot get them back for you if you lose them.</p>
     <p>To delete them, use <b>Start again</b> in your profile, or remove the app's data in your browser settings.</p>
+  </div>
+
+  <div class="card">
+    <h2>If you make an account</h2>
+    <p>An account is optional. You make one in your profile with <b>Save your progress</b>. We then store:</p>
+    <ul>
+      <li><b>Your email address</b> and <b>your password</b>, stored only as a one-way hash we cannot read back</li>
+      <li><b>A copy of your progress</b>: your answers per question, mock exam scores, practice days, your settings, your exam dates, and the first name if you typed one</li>
+      <li><b>Sign-in times</b> and the technical data needed to keep you signed in</li>
+    </ul>
+    <p><b>Why:</b> so your progress is safe if you lose your phone, and so you can use it on another phone or after Klaar moves to a new web address. The legal basis is the agreement you make with us when you create the account (GDPR article 6(1)(b)). We do not use this data for anything else, and we never sell it.</p>
+    <p>Your email is not checked and we do not send you email, except to answer you if you write to us.</p>
+  </div>
+
+  <div class="card">
+    <h2>Where it is stored</h2>
+    <p>Accounts and saved progress are stored by <a href="https://supabase.com/privacy" target="_blank" rel="noopener">Supabase</a>, on servers in the European Union (<span class="ph">[region, for example Frankfurt, Germany]</span>). Supabase is our processor: it stores the data for us, under a data processing agreement, and may not use it for itself.</p>
+    <p>Only you, when signed in, can read or change your saved progress. We can see it in the Supabase dashboard if we need to fix a problem.</p>
+  </div>
+
+  <div class="card">
+    <h2>How long we keep it</h2>
+    <ul>
+      <li>As long as you have an account.</li>
+      <li>If you delete your account, your email, password hash and saved progress are removed from the database straight away. Supabase's backups are overwritten within <span class="ph">[backup period, for example 7 days]</span>.</li>
+      <li>Accounts not used for <span class="ph">[2 years]</span> may be deleted. <span class="ph">[Confirm before launch.]</span></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Deleting your account</h2>
+    <p>Open your profile in the app and tap <b>Delete account</b>, then tap again to confirm. This removes your account and the progress saved to it from our servers. The progress on your phone stays, so you can keep practising; remove it with <b>Start again</b> or in your browser settings.</p>
+    <p>Can't sign in any more? Email <span class="ph">[contact email]</span> from the address you used and we delete it for you.</p>
   </div>
 
   <div class="card">
@@ -55,7 +94,7 @@ footer{color:var(--muted);font-size:14px;padding:28px 20px 48px;text-align:cente
       <li>that a lesson was finished or a mock exam was passed or failed, with the score</li>
       <li>your screen size, browser type, language and rough location (country)</li>
     </ul>
-    <p>There is <b>no name, no account, no cookie and no code that follows you</b> from one visit to the next. GoatCounter does not store your IP address.</p>
+    <p>There is <b>no name, no email, no cookie and no code that follows you</b> from one visit to the next, and these counts are never linked to your account. GoatCounter does not store your IP address.</p>
     <p>You can switch this off at any time: open your profile in the app and tap <b>Turn off anonymous stats</b>.</p>
   </div>
 
@@ -66,17 +105,26 @@ footer{color:var(--muted);font-size:14px;padding:28px 20px 48px;text-align:cente
 
   <div class="card">
     <h2>Hosting</h2>
-    <p>The app is served by GitHub Pages. Like every web host, GitHub sees your IP address when your phone downloads the pages and may keep it in its logs. See the <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub privacy statement</a>.</p>
+    <p>The app is served by GitHub Pages. <span class="ph">[After the move: Cloudflare Pages, with a link to Cloudflare's privacy policy.]</span> Like every web host, GitHub sees your IP address when your phone downloads the pages and may keep it in its logs. See the <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub privacy statement</a>.</p>
   </div>
 
   <div class="card">
     <h2>What we do not do</h2>
-    <p>No ads. No advertising trackers. No selling or sharing of data. No email list you get added to without asking.</p>
+    <p>No ads. No advertising trackers. No selling or sharing of data. No email list you get added to without asking. No payment data: there is no paid plan yet.</p>
   </div>
 
   <div class="card">
     <h2>Your rights</h2>
-    <p>Under European privacy law you may ask what is stored about you and have it corrected or deleted. Klaar holds nothing that can be traced to you, so there is nothing on our side to look up. Everything personal is on your phone, where you can delete it yourself.</p>
+    <p>Under the GDPR you have the right to:</p>
+    <ul>
+      <li>see what we store about you, and get a copy (in the app: profile, <b>Save backup</b>, gives you all of your progress as a file)</li>
+      <li>have it corrected</li>
+      <li>have it deleted (profile, <b>Delete account</b>)</li>
+      <li>take it with you to another service</li>
+      <li>object to or limit how we use it</li>
+    </ul>
+    <p>Email <span class="ph">[contact email]</span> for any of these. We answer within one month. If you are not happy with how we handle your data, you can complain to the Dutch data protection authority, the <a href="https://autoriteitpersoonsgegevens.nl/en" target="_blank" rel="noopener">Autoriteit Persoonsgegevens</a>.</p>
+    <p>Without an account, Klaar holds nothing that can be traced to you. Everything personal is then on your phone, where you can delete it yourself.</p>
   </div>
 
   <div class="card">
@@ -85,11 +133,11 @@ footer{color:var(--muted);font-size:14px;padding:28px 20px 48px;text-align:cente
   </div>
 
   <div class="card">
-    <h2>Questions or a mistake to report</h2>
-    <p>Open an issue on <a href="https://github.com/Yazan-hammad0/klaar/issues" target="_blank" rel="noopener">the project page on GitHub</a>.</p>
-    <p>Last updated: 15 November 2026. If this page changes, the date changes with it.</p>
+    <h2>Contact</h2>
+    <p>Questions about your data: <span class="ph">[contact email]</span>. A mistake in a question: tap <b>Report a problem with this question</b> in the app, or open an issue on <a href="https://github.com/Yazan-hammad0/klaar/issues" target="_blank" rel="noopener">the project page on GitHub</a>.</p>
+    <p>Last updated: 17 November 2026. If this page changes, the date changes with it.</p>
   </div>
 </main>
-<footer>Klaar is an independent practice app. It is not affiliated with the CBR.</footer>
+<footer>Klaar is an independent practice app. It is not affiliated with the CBR. <a href="../terms/">Terms</a></footer>
 </body>
 </html>
