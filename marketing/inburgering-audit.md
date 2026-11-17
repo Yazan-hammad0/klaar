@@ -23,5 +23,33 @@ Inburgering against driving, measured in the app (Playwright, iPhone size, both 
 5. **No pictures on KNM situations.** Driving situation questions have a map or a sign; KNM situation questions (a letter from the Belastingdienst, a broken window, a sick child at night) are text only. Fix: later, simple flat drawings like the lesson scenes.
 6. **B1 to C1 reading is locked and held back.** Not part of the A2 exam, so lower priority. Fix: later, a short reading-strategy lesson for B1+.
 
-## What shipped
-See the bottom of this file once the releases are out.
+## What shipped (17 Nov 2026, four releases, all live)
+
+1. Government, Housing and Education lessons. KNM exam questions are now tagged by theme, so theme lessons can teach them.
+2. Listening (5 new steps), a new "Words you hear" lesson, Grammar (5 new steps) and a new Writing lesson. 36 new Dutch phrases recorded with `audio/make_audio.py`.
+3. Mock exams timed like DUO (KNM 45 min, Lezen 65, Luisteren 45, Schrijven 40). KNM asks theme by theme. "Ready" now means 85% on a mock, matching the screen copy.
+4. Society, and History and holidays lessons.
+
+Every new step has an official or well-known source (rijksoverheid.nl, kiesraad.nl, duo.nl, wetten.overheid.nl, rijkswaterstaat.nl, 4en5mei.nl, Onze Taal, Taaladvies, Wiktionary for word meanings), each opened and checked on 17 Nov 2026.
+
+## Inburgering now, in numbers (for the landing page)
+
+| | Before | Now |
+|---|---|---|
+| Lessons | 6 (22 steps) | 13 (68 steps) |
+| Questions in the bank | 224 | 224 |
+| Questions practice can show | 56 | 135 |
+| KNM questions practice can show | 20 | 64 |
+| Listening questions practice can show | 5 of 24 | 23 of 24 |
+| Writing and grammar questions practice can show | 5 of 22 | 22 of 22 |
+| Recorded Dutch audio | 45 clips | 81 clips (24 listening questions, 58 lesson phrases; one phrase shares a clip) |
+| Mock exams | 4 exam parts, untimed | 4 exam parts, timed like DUO, plus B1, B2, C1 reading |
+
+Safe landing-page lines: "13 lessons for KNM, reading, listening and writing", "Over 130 practice questions with an official source behind every lesson", "81 Dutch audio clips by two voices", "Mock exams for KNM, reading, listening and writing, timed like the real DUO exams".
+Do not claim speaking practice or ONA/MAP: neither exists yet.
+
+## Still open
+- Speaking (gap 4): no lesson yet. A Speaking part needs its own place in Learn and questions, not just phrases.
+- 89 inburgering questions are still held back (`js/untaught.js`): the English basics (c0 to c46: vocabulary, provinces, polder model, coffeeshops), the remaining Work life, Healthcare and Administration facts, Dutch habits (punctuality, neighbours), and B1 to C1 reading.
+- Pictures on KNM situation questions (gap 5).
+- `SRC.clock` and `SRC.numbers` in js/lessons.js point to ANS pages about other number topics; find the ANS page on telling the time.
