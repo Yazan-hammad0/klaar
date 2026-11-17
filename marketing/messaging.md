@@ -48,7 +48,7 @@ What the inburgering side shows (for when you do mention it): a Delft blue count
 - CBR, DUO or IND logos, anywhere.
 
 ## Numbers to recheck before each campaign
-- Question count in the app (309 driving questions, 196 with a picture, on 17 Nov 2026). The landing page shows both numbers.
+- Question count in the app (357 driving questions, 255 with a picture, on 17 Nov 2026). The landing page shows both numbers.
 - CBR exam format and price: read them on cbr.nl, do not copy them from another site.
 - "Free": change every picture and post on the day a paid plan starts (planned for 15 Dec 2026).
 
