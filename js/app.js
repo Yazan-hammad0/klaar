@@ -496,7 +496,7 @@ function inFocus(q){ return focus.set ? !!focus.set[q.id] : (focus.part ? q.trac
    and for the basics (and AI questions) by its topic. */
 var PARTS = [["read", "Reading", "Signs, letters and short texts"], ["listen", "Listening", "Short spoken Dutch"], ["write", "Writing and grammar", "Words and sentences"], ["knm", "Dutch society", "KNM: work, health, rules, history"]];
 var SEC_PART = {"a2-lezen":"read", "b1":"read", "b2":"read", "c1":"read", "a2-luisteren":"listen", "a2-schrijven":"write", "knm":"knm"};
-var TOPIC_PART = {"Reading":"read", "Listening":"listen", "Words you hear":"listen", "Grammar":"write", "Writing":"write", "Vocabulary":"write"};
+var TOPIC_PART = {"Reading":"read", "Listening":"listen", "Words you hear":"listen", "Grammar":"write", "Writing":"write", "Vocabulary":"write", "B1 Lezen":"read", "B2 Lezen":"read", "C1 Lezen":"read"};
 function partOf(q){ return (q.sec && SEC_PART[q.sec]) || TOPIC_PART[lessonKey("civic", q.topic)] || "knm"; }
 function partName(k){ for (var i = 0; i < PARTS.length; i++) if (PARTS[i][0] === k) return PARTS[i][1]; return k; }
 /* a unit = a topic's lesson, then its questions, then a short "topic done" card */
@@ -902,10 +902,11 @@ var DRIVE_MODES = [
   {id:"hazard", badge:"!", title:"Hazard drill", sub:"Brake, release or nothing. 6 minutes.", n:20, mins:6, filter:function(q){ return q.kind === "hazard"; }}
 ];
 var CIVIC_MODES = [
-  {id:"knm", badge:"KNM", title:"KNM", sub:"Kennis van de Nederlandse Maatschappij, real exam part", sec:"knm", n:25, mins:0, exam:true},
-  {id:"a2-lezen", badge:"A2", title:"A2 Lezen", sub:"Reading, real exam part", sec:"a2-lezen", n:15, exam:true},
-  {id:"a2-luisteren", badge:"A2", title:"A2 Luisteren", sub:"Listening, real exam part", sec:"a2-luisteren", n:12, exam:true},
-  {id:"a2-schrijven", badge:"A2", title:"A2 Schrijven", sub:"Writing and grammar, real exam part", sec:"a2-schrijven", n:15, exam:true},
+  /* times are the real DUO exam times (inburgeren.nl, checked 17 Nov 2026); question counts are ours */
+  {id:"knm", badge:"KNM", title:"KNM", sub:"30 questions grouped by theme, 45 minutes like the real exam", sec:"knm", n:30, mins:45, exam:true},
+  {id:"a2-lezen", badge:"A2", title:"A2 Lezen", sub:"15 reading questions, 65 minutes like the real exam", sec:"a2-lezen", n:15, mins:65, exam:true},
+  {id:"a2-luisteren", badge:"A2", title:"A2 Luisteren", sub:"12 listening questions, 45 minutes like the real exam", sec:"a2-luisteren", n:12, mins:45, exam:true},
+  {id:"a2-schrijven", badge:"A2", title:"A2 Schrijven", sub:"15 grammar and writing questions, 40 minutes. The real exam is 4 written tasks on paper", sec:"a2-schrijven", n:15, mins:40, exam:true},
   {id:"b1", badge:"B1", title:"B1 Lezen", sub:"News, letters, work", sec:"b1", n:12},
   {id:"b2", badge:"B2", title:"B2 Lezen", sub:"Opinions, arguments, nuance", sec:"b2", n:10},
   {id:"c1", badge:"C1", title:"C1 Lezen", sub:"Working proficiency: reports, HR, formal writing", sec:"c1", n:10}
@@ -926,7 +927,7 @@ function renderExams(){
   if (t === "drive"){
     html = '<h2 class="h2">CBR mock exams</h2><p class="lead">Same rules as the real theory exam since April 2025: one mixed test, timed, no feedback until you hand in. You need <b>44 of 50</b>. Only about 4 in 10 people pass first time.</p>';
   } else {
-    html = '<h2 class="h2">Integration exams</h2><p class="lead">In Dutch, scored at the end like the real exam. 85%+ on an exam part = ready to book it. B1 to C1 unlock once all four exam parts are passed.</p>';
+    html = '<h2 class="h2">Integration exams</h2><p class="lead">In Dutch, timed like the real exam and scored at the end. You pass a mock with 75%. Score 85% or more and you are ready to book that part. B1 to C1 unlock once all four exam parts are passed.</p>';
   }
   html += '<div class="label">' + (t === "drive" ? "Choose a test" : "Step 1: your exam (A2 + KNM)") + '</div>';
   modes(t).forEach(function(m, i){
@@ -951,6 +952,8 @@ function startExam(id){
   var t = S.track, m = modes(t).filter(function(x){ return x.id === id; })[0];
   var qs = shuffle(examPool(t, m)).slice(0, m.n);
   if (m.sec && m.sec !== "knm") qs.sort(function(a, b){ return (a.p || a.audio || "").localeCompare(b.p || b.audio || ""); });
+  /* the real KNM exam asks its questions theme by theme, like wonen or werk en inkomen */
+  if (m.sec === "knm") qs.sort(function(a, b){ return String(a.topic).localeCompare(String(b.topic)); });
   run = {t:t, m:m, qs:qs, i:0, ans:qs.map(function(){ return null; }),
     order:qs.map(function(q){ return q.kind === "mc" || q.kind === "multi" ? shuffle(q.o.map(function(_, k){ return k; })) : (q.o ? q.o.map(function(_, k){ return k; }) : null); }),
     end:m.mins ? Date.now() + m.mins * 60000 : 0};
@@ -1492,10 +1495,13 @@ var STAMPS = [
 function stampState(s){
   var tr = S.t.civic, real = !!(S.plan || {})[s.key];
   if (real) return {k:"passed", label:"Passed"};
-  if (s.id && mockPassed("civic", s.id)) return {k:"ready", label:"Ready"};
   var ms = s.id ? (tr.mocks[s.id] || []) : [], best = 0;
   ms.forEach(function(m){ best = Math.max(best, m.n ? m.s / m.n : 0); });
-  var tp = s.topic && tr.topics[s.topic], acc = tp && tp.a ? tp.ok / tp.a : 0, p = Math.round(Math.max(best, acc) * 100);
+  if (best >= 0.85) return {k:"ready", label:"Ready"};
+  /* practice accuracy over every topic of this exam part (questions are tagged by theme, not by exam part) */
+  var a = 0, ok = 0, part = s.id && SEC_PART[s.id];
+  if (part) Object.keys(tr.topics).forEach(function(k){ if ((TOPIC_PART[lessonKey("civic", k)] || "knm") === part){ a += tr.topics[k].a || 0; ok += tr.topics[k].ok || 0; } });
+  var acc = a ? ok / a : 0, p = Math.round(Math.max(best, acc) * 100);
   return p ? {k:"going", label:p + "%"} : {k:"new", label:"Not yet"};
 }
 function stampsHtml(){
