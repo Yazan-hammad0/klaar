@@ -44,6 +44,17 @@ var SRC = {
   parentFee: "https://www.rijksoverheid.nl/onderwerpen/financiering-onderwijs/vraag-en-antwoord/is-de-vrijwillige-ouderbijdrage-op-de-basisschool-en-middelbare-school-verplicht",
   tracks: "https://www.rijksoverheid.nl/onderwerpen/voortgezet-onderwijs/vraag-en-antwoord/hoe-lang-mogen-leerlingen-doen-over-het-voortgezet-onderwijs",
   studyGrant: "https://duo.nl/particulier/studiefinanciering/",
+  /* KNM: society, history and holidays. Checked on 17 Nov 2026 */
+  forcedMarriage: "https://www.rijksoverheid.nl/themas/recht-veiligheid-en-defensie/huwelijksdwang",
+  civilFirst: "https://wetten.overheid.nl/jci1.3:c:BWBR0002656&boek=1&titeldeel=5&artikel=68",
+  sameSex: "https://www.rijksoverheid.nl/actueel/nieuws/2025/09/05/het-eise-eisinga-planetarium-en-25-jaar-openstelling-van-het-huwelijk-themas-nieuwe-munten-2026",
+  veiligThuis: "https://www.rijksoverheid.nl/contact/contactgids/veilig-thuis",
+  may4: "https://www.4en5mei.nl/herdenken/wie-en-wat-herdenken-we",
+  may5: "https://www.4en5mei.nl/vieren",
+  flagDays: "https://www.rijksoverheid.nl/documenten/vraag-en-antwoord/grondwet-en-statuut/wanneer-kan-ik-de-vlag-uithangen-en-wat-is-de-vlaginstructie",
+  prinsjesdag: "https://www.rijksoverheid.nl/onderwerpen/prinsjesdag-traditie-en-ceremonie/vraag-en-antwoord/wat-is-prinsjesdag",
+  ketiKoti: "https://rijksoverheid.nl/ministeries/ministerie-van-onderwijs-cultuur-en-wetenschap/evenementen/herdenkingsjaar-slavernijverleden-1-juli-2023-tot-1-juli-2024",
+  delta: "https://www.rijkswaterstaat.nl/water/waterbeheer/bescherming-tegen-het-water/waterkeringen/deltawerken",
   /* Dutch: Onze Taal and Taaladvies for grammar, Wiktionary for word meanings. Checked on 17 Nov 2026 */
   presentT: "https://onzetaal.nl/taalloket/d-t-of-dt",
   kofschip: "https://onzetaal.nl/taalloket/t-kofschip",
@@ -691,6 +702,22 @@ var SCENES = {
   writeExam: function(){ return civ("we", '<rect class="cv-card" x="30" y="26" width="64" height="80" rx="6"/><rect class="cv-card" x="106" y="26" width="64" height="80" rx="6"/><path class="cv-line" d="M40 46H84M40 60H80M40 74H84M116 46H160M116 60H150M116 74H156"/>' +
     ctext(62, 96, "Letter", "cv-s") + ctext(138, 96, "Form", "cv-s") + ctext(100, 136, "4 tasks, 40 minutes", "cv-t") + ctext(100, 154, "Pen and paper", "cv-s")); },
 
+  /* civic: society, history and holidays */
+  equalPair: function(){ return civ("eq", '<circle class="cv-blue" cx="56" cy="62" r="18"/><path class="cv-blue" d="M28 120c0-22 12-32 28-32s28 10 28 32Z"/><circle class="cv-warm" cx="144" cy="62" r="18"/><path class="cv-warm" d="M116 120c0-22 12-32 28-32s28 10 28 32Z"/>' +
+    ctext(100, 100, "=", "cv-big2") + ctext(100, 152, "Equal rights, equal say", "cv-t") + ctext(100, 170, "You choose who you marry", "cv-s")); },
+  twoWeddings: function(){ return civ("tw2", '<rect class="cv-blue" x="14" y="44" width="78" height="56" rx="8"/><rect class="cv-card" x="108" y="44" width="78" height="56" rx="8"/>' + ctext(53, 68, "1. Gemeente", "cv-w") + ctext(53, 86, "civil wedding", "cv-w") +
+    ctext(147, 68, "2. Then a", "cv-t") + ctext(147, 86, "religious one", "cv-t") + '<path class="cv-arrow" d="M94 72H104M99 67L105 72L99 77"/>' + ctext(100, 134, "Since 2001: also for two men", "cv-s") + ctext(100, 150, "or two women", "cv-s")); },
+  helpLine: function(){ return civ("hl2", '<rect class="cv-dark" x="62" y="22" width="76" height="124" rx="14"/><rect class="cv-card" x="68" y="36" width="64" height="92" rx="6"/>' + ctext(100, 78, "0800", "cv-t") + ctext(100, 98, "2000", "cv-t") +
+    ctext(100, 168, "Veilig Thuis: free, day and night", "cv-t")); },
+  mayDays: function(){ return civ("md", calendar(54, 70, "4", "mei") + calendar(146, 70, "5", "mei") + ctext(54, 128, "20.00: two", "cv-s") + ctext(54, 142, "minutes silence", "cv-s") + ctext(146, 128, "Liberation", "cv-s") + ctext(146, 142, "in 1945", "cv-s")); },
+  kingsDay: function(){ return civ("kd", '<rect class="cv-card" x="62" y="30" width="76" height="72" rx="8"/><rect class="cv-red" x="62" y="30" width="76" height="16" rx="8"/><rect class="cv-red" x="62" y="38" width="76" height="8"/>' + ctext(100, 82, "27", "cv-big2") + ctext(100, 96, "april", "cv-s") + ctext(100, 128, "Koningsdag", "cv-t") + ctext(100, 146, "On a Sunday? Then 26 April", "cv-s")); },
+  throneSpeech: function(){ return civ("ts", '<path class="cv-warm" d="M62 66L70 36L86 54L100 30L114 54L130 36L138 66Z"/><rect class="cv-card" x="66" y="76" width="68" height="44" rx="4"/><path class="cv-line" d="M74 88H126M74 100H118M74 112H122"/>' +
+    ctext(100, 146, "Prinsjesdag: 3rd Tuesday", "cv-t") + ctext(100, 162, "of September, Troonrede", "cv-s")); },
+  ketiKoti: function(){ return civ("kk", calendar(100, 66, "1", "juli") + '<path class="cv-dark2" d="M62 128h22m32 0h22" stroke-linecap="round"/><circle class="cv-card" cx="92" cy="128" r="8"/><circle class="cv-card" cx="108" cy="128" r="8"/>' +
+    ctext(100, 160, "Keti Koti: end of slavery, 1863", "cv-t")); },
+  deltaWorks: function(){ return civ("dw2", '<path class="cv-blue2" d="M10 110H86V150H10Z"/><rect class="cv-dark" x="86" y="70" width="18" height="80"/><path class="cv-warm" d="M104 120H190V150H104Z" opacity=".5"/>' +
+    ctext(48, 100, "Sea", "cv-s") + ctext(147, 112, "Land", "cv-s") + ctext(100, 50, "1953 flood, then the Deltawerken", "cv-t") + ctext(100, 176, "Dams and storm barriers", "cv-s")); },
+
   /* civic: government and elections */
   twoChambers: function(){ return civ("tc", '<rect class="cv-blue" x="14" y="30" width="82" height="70" rx="10"/><rect class="cv-blue2" x="104" y="30" width="82" height="70" rx="10"/>' +
     ctext(55, 60, "150", "cv-hbig") + ctext(55, 78, "Tweede", "cv-w") + ctext(55, 92, "Kamer", "cv-w") + ctext(145, 60, "75", "cv-hbig") + ctext(145, 78, "Eerste", "cv-w") + ctext(145, 92, "Kamer", "cv-w") +
@@ -1138,6 +1165,34 @@ window.LESSONS = {
        say:[["Kun je mij helpen?", "Can you help me?"], ["Ik bel hem morgen.", "I'll call him tomorrow."]],
        why:"Ik and mij both mean I or me in English, so you have to choose by the place in the sentence.", src:SRC.wMij}
     ],
+    "Society": [
+      {scene:"equalPair", h:"Men and women are equal",
+       t:"Article 1 of the Grondwet forbids discrimination because of sex, too. Your manager can be a woman, and you treat her as you would a man. You decide yourself who you marry. Forcing someone to marry is huwelijksdwang, and nobody may do that to you.",
+       why:"Equal rights are the base of Dutch law, and KNM tests them with everyday situations.", src:SRC.forcedMarriage},
+      {scene:"twoWeddings", h:"First the gemeente, then a religious wedding",
+       t:"A marriage only counts in law when it happens at the gemeente (the civil wedding). A religious ceremony, for example in a church or mosque, may only come after that. Since 2001 two men or two women can marry too: the Netherlands was the first country in the world to allow it.",
+       why:"The state, not a religion, decides who is married. That protects both partners.", src:SRC.civilFirst},
+      {scene:"helpLine", h:"Violence at home? Call Veilig Thuis",
+       t:"Veilig Thuis helps with domestic violence and child abuse. Call 0800 2000: it is free and open 24 hours a day, 7 days a week. You can also call about someone else, like a neighbour. In danger right now? Call 112.",
+       why:"Violence at home is often hidden. One free number makes it easier to ask for help.", src:SRC.veiligThuis}
+    ],
+    "History and holidays": [
+      {scene:"mayDays", h:"4 May: silence. 5 May: freedom",
+       t:"On 4 May at 20.00 most people are silent for two minutes to remember the war dead (Dodenherdenking). On 5 May the Netherlands celebrates its liberation in 1945 (Bevrijdingsdag).",
+       why:"First remembering, then celebrating: the order is on purpose, and the exam often asks it.", src:SRC.may5},
+      {scene:"kingsDay", h:"Koningsdag is 27 April",
+       t:"Koningsdag is the King's birthday, on 27 April. If 27 April falls on a Sunday, it moves to Saturday 26 April.",
+       why:"Sunday is a day of rest for many people, so the party moves to the day before.", src:SRC.flagDays},
+      {scene:"throneSpeech", h:"Prinsjesdag: the King reads the Troonrede",
+       t:"Prinsjesdag is the 3rd Tuesday of September. The King reads the Troonrede (speech from the throne) with the government's plans for the coming year.",
+       why:"It starts the new year in parliament and shows what the government wants to do with your money.", src:SRC.prinsjesdag},
+      {scene:"ketiKoti", h:"1 July, Keti Koti: the end of slavery",
+       t:"On 1 July 1863 the Netherlands abolished slavery by law in Suriname and the Caribbean islands. On Keti Koti people remember this and celebrate freedom.",
+       why:"Slavery is part of Dutch history, and the Dutch government now remembers it every year.", src:SRC.ketiKoti},
+      {scene:"deltaWorks", h:"After the 1953 flood: the Deltawerken",
+       t:"In 1953 a huge flood hit Zeeland, Zuid-Holland and Noord-Brabant. After that the Netherlands built the Deltawerken: dams and storm barriers against the sea.",
+       why:"Much of the country lies low, so protection against water shapes Dutch life and politics.", src:SRC.delta}
+    ],
     "Government": [
       {scene:"kingMinisters", h:"A king, but parliament decides",
        t:"The Netherlands is a constitutional monarchy. The King is head of state, but the ministers are responsible for what the government does, and they answer to parliament.",
@@ -1240,8 +1295,8 @@ window.LESSONS = {
   }
 };
 /* the order lessons come in: basics first, motorway and hazards later */
-window.LESSON_ORDER = {drive:["Priority", "Signs", "Road markings", "Speed limits", "Distances", "Lane use", "Stopping & parking", "Lights & visibility", "Railway crossings", "Motorway", "Seatbelts", "Mobile phones", "Alcohol limit", "Vehicle condition", "Safety", "Hazard perception"], civic:["Listening", "Words you hear", "Reading", "Grammar", "Writing", "Administration", "Healthcare", "Work life", "Housing", "Education", "Government"]};
+window.LESSON_ORDER = {drive:["Priority", "Signs", "Road markings", "Speed limits", "Distances", "Lane use", "Stopping & parking", "Lights & visibility", "Railway crossings", "Motorway", "Seatbelts", "Mobile phones", "Alcohol limit", "Vehicle condition", "Safety", "Hazard perception"], civic:["Listening", "Words you hear", "Reading", "Grammar", "Writing", "Administration", "Healthcare", "Work life", "Housing", "Education", "Government", "Society", "History and holidays"]};
 /* exam-section topics that share a lesson with a skill */
-window.LESSON_ALIAS = {civic:{"A2 Luisteren":"Listening", "A2 Lezen":"Reading", "A2 Schrijven":"Grammar", "Elections":"Government"}};
+window.LESSON_ALIAS = {civic:{"A2 Luisteren":"Listening", "A2 Lezen":"Reading", "A2 Schrijven":"Grammar", "Elections":"Government", "History":"History and holidays", "Holidays":"History and holidays"}};
 window.LESSON_SCENE = function(id){ return SCENES[id] ? SCENES[id]() : ""; };
 })();
